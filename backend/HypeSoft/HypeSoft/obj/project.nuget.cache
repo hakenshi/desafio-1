@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "24dGWpUsFQo=",
+  "success": true,
+  "projectFilePath": "\\\\wsl.localhost\\FedoraLinux-42\\home\\lonely\\Documents\\projects\\desafio-1\\backend\\HypeSoft\\HypeSoft\\HypeSoft.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\fkdia\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.11\\microsoft.aspnetcore.openapi.9.0.11.nupkg.sha512",
+    "C:\\Users\\fkdia\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
