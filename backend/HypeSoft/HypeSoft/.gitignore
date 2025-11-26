@@ -1,0 +1,45 @@
+# .gitignore padrão para projetos .NET
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Logs
+*.log
+
+# Configuração de pacotes
+*.nupkg
+# Backup de pacotes NuGet
+*.snupkg
+
+# Arquivos de configuração
+appsettings.*.json
+!appsettings.json
+
+# Outros
+*.DS_Store
+Thumbs.db
+
+# Testes
+TestResults/
+
+# Diretórios de publicação
+publish/
+
+# Arquivos de ambiente
+.env

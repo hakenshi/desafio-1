@@ -1,0 +1,92 @@
+version: '3.8'
+services:
+	backend:
+		build:
+			context: ./backend/HypeSoft/HypeSoft
+			dockerfile: Dockerfile
+		container_name: hypesoft-backend
+		ports:
+			- "5000:5000"
+		environment:
+			- ASPNETCORE_ENVIRONMENT=Development
+			- ASPNETCORE_URLS=http://+:5000
+			- ConnectionStrings__MongoDb=mongodb://mongo:27017/hypesoft
+		depends_on:
+			- mongo
+			- keycloak
+		networks:
+			- hypesoft-net
+
+	frontend:
+		build:
+			context: ./frontend
+			dockerfile: Dockerfile
+		container_name: hypesoft-frontend
+		ports:
+			- "3000:3000"
+		environment:
+			- NODE_ENV=development
+		depends_on:
+			- backend
+		networks:
+			- hypesoft-net
+
+	mongo:
+		image: mongo:7.0
+		container_name: hypesoft-mongo
+		ports:
+			- "27017:27017"
+		volumes:
+			- mongo-data:/data/db
+		networks:
+			- hypesoft-net
+
+	mongo-express:
+		image: mongo-express:1.0.0-20
+		container_name: hypesoft-mongo-express
+		ports:
+			- "8081:8081"
+		environment:
+			- ME_CONFIG_MONGODB_SERVER=mongo
+			- ME_CONFIG_MONGODB_PORT=27017
+			- ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+		depends_on:
+			- mongo
+		networks:
+			- hypesoft-net
+
+	keycloak:
+		image: quay.io/keycloak/keycloak:24.0.1
+		container_name: hypesoft-keycloak
+		ports:
+			- "8080:8080"
+		environment:
+			- KEYCLOAK_ADMIN=admin
+			- KEYCLOAK_ADMIN_PASSWORD=admin
+			- KC_DB=mongodb
+			- KC_DB_URL=mongodb://mongo:27017/keycloak
+		command: start-dev
+		depends_on:
+			- mongo
+		networks:
+			- hypesoft-net
+
+	nginx:
+		image: nginx:1.25
+		container_name: hypesoft-nginx
+		ports:
+			- "80:80"
+		volumes:
+			- ./nginx.conf:/etc/nginx/nginx.conf:ro
+		depends_on:
+			- frontend
+			- backend
+		networks:
+			- hypesoft-net
+
+volumes:
+	mongo-data:
+
+networks:
+	hypesoft-net:
+		driver: bridge
