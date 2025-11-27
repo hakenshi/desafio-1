@@ -1,0 +1,54 @@
+using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
+
+namespace HypeSoft.Infraestructure.Caching;
+
+public class RedisCacheService : ICacheService
+{
+    private readonly IDistributedCache _cache;
+    private readonly JsonSerializerOptions _jsonOptions;
+
+    public RedisCacheService(IDistributedCache cache)
+    {
+        _cache = cache;
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        };
+    }
+
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+    {
+        var cachedData = await _cache.GetStringAsync(key, cancellationToken);
+        
+        if (string.IsNullOrEmpty(cachedData))
+            return null;
+
+        return JsonSerializer.Deserialize<T>(cachedData, _jsonOptions);
+    }
+
+    public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken cancellationToken = default) where T : class
+    {
+        var serializedData = JsonSerializer.Serialize(value, _jsonOptions);
+        
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromMinutes(5)
+        };
+
+        await _cache.SetStringAsync(key, serializedData, options, cancellationToken);
+    }
+
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        await _cache.RemoveAsync(key, cancellationToken);
+    }
+
+    public Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
+    {
+        // Note: Redis pattern-based deletion would require StackExchange.Redis directly
+        // For now, this is a placeholder - implement if needed
+        return Task.CompletedTask;
+    }
+}

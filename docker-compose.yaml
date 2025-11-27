@@ -1,4 +1,22 @@
 services:
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: hypesoft-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - hypesoft-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # MongoDB
   mongodb:
     image: mongo:7.0
@@ -80,6 +98,8 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - hypesoft-network
     volumes:
@@ -162,3 +182,4 @@ networks:
 volumes:
   mongodb_data:
   keycloak_data:
+  redis_data:

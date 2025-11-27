@@ -4,6 +4,7 @@ using HypeSoft.Application.Behaviors;
 using HypeSoft.Application.Mappings;
 using HypeSoft.Application.Products.Validators;
 using HypeSoft.Domain.Repositories;
+using HypeSoft.Infraestructure.Caching;
 using HypeSoft.Infraestructure.Data;
 using HypeSoft.Infraestructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,14 +27,24 @@ builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddSingleton<MongoDbContext>();
 
+// Redis Cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "HypeSoft:";
+});
+builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+
 // Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-// MediatR with Validation Behavior
+// MediatR with Validation, Caching and Cache Invalidation Behaviors
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(HypeSoft.Application.Products.Commands.CreateProductCommand).Assembly);
+    cfg.AddOpenBehavior(typeof(CachingBehavior<,>));
+    cfg.AddOpenBehavior(typeof(CacheInvalidationBehavior<,>));
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
