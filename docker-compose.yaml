@@ -85,25 +85,45 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/HypeSoft
+          ignore:
+            - bin/
+            - obj/
 
-  # Frontend (Next.js)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: hypesoft-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://backend:8080
-      NEXT_PUBLIC_KEYCLOAK_URL: http://keycloak:8080
-      NEXT_PUBLIC_KEYCLOAK_REALM: hypesoft
-      NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: hypesoft-frontend
-    depends_on:
-      - backend
-    networks:
-      - hypesoft-network
+  # # Frontend (Next.js)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: hypesoft-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://backend:8080
+  #     NEXT_PUBLIC_KEYCLOAK_URL: http://keycloak:8080
+  #     NEXT_PUBLIC_KEYCLOAK_REALM: hypesoft
+  #     NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: hypesoft-frontend
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - hypesoft-network
+  #   volumes:
+  #     - ./frontend/src:/app/src
+  #     - ./frontend/public:/app/public
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./frontend/src
+  #         target: /app/src
+  #       - action: sync
+  #         path: ./frontend/public
+  #         target: /app/public
+  #       - action: rebuild
+  #         path: ./frontend/package.json
 
   # Nginx (Reverse Proxy)
   nginx:
@@ -115,7 +135,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - frontend
+      # - frontend
       - backend
     networks:
       - hypesoft-network
