@@ -60,8 +60,8 @@ services:
   # Backend API (.NET 9)
   backend:
     build:
-      context: ./backend/HypeSoft
-      dockerfile: HypeSoft/Dockerfile
+      context: ./backend/src
+      dockerfile: Dockerfile.dev
     container_name: hypesoft-backend
     restart: unless-stopped
     ports:
@@ -69,10 +69,12 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__MongoDB: mongodb://admin:admin123@mongodb:27017/hypesoft?authSource=admin
+      MongoDbSettings__ConnectionString: mongodb://admin:admin123@mongodb:27017/hypesoft?authSource=admin
+      MongoDbSettings__DatabaseName: hypesoft
       Keycloak__Authority: http://keycloak:8080/realms/hypesoft
       Keycloak__Audience: hypesoft-api
       Keycloak__RequireHttpsMetadata: false
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -80,6 +82,8 @@ services:
         condition: service_started
     networks:
       - hypesoft-network
+    volumes:
+      - ./backend/src:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -87,11 +91,12 @@ services:
       retries: 3
     develop:
       watch:
-        - action: rebuild
-          path: ./backend/HypeSoft
+        - action: sync
+          path: ./backend/src
+          target: /app
           ignore:
-            - bin/
-            - obj/
+            - "**/bin/"
+            - "**/obj/"
 
   # # Frontend (Next.js)
   # frontend:

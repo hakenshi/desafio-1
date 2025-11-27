@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+
+WORKDIR /app
+
+# Copy solution and project files
+COPY src.sln ./
+COPY HypeSoft.API/HypeSoft.API.csproj HypeSoft.API/
+COPY HypeSoft.Application/HypeSoft.Application.csproj HypeSoft.Application/
+COPY HypeSoft.Domain/HypeSoft.Domain.csproj HypeSoft.Domain/
+COPY HypeSoft.Infraestructure/HypeSoft.Infraestructure.csproj HypeSoft.Infraestructure/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else
+COPY . .
+
+WORKDIR /app/HypeSoft.API
+
+EXPOSE 8080
+
+# Use dotnet watch for hot reload
+CMD ["dotnet", "watch", "run", "--no-restore", "--urls", "http://0.0.0.0:8080"]
