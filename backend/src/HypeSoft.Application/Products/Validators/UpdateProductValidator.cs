@@ -9,10 +9,12 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductDto>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Nome é obrigatório")
+            .MinimumLength(3).WithMessage("Nome deve ter no mínimo 3 caracteres")
             .MaximumLength(200).WithMessage("Nome deve ter no máximo 200 caracteres");
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Descrição é obrigatória")
+            .MinimumLength(10).WithMessage("Descrição deve ter no mínimo 10 caracteres")
             .MaximumLength(1000).WithMessage("Descrição deve ter no máximo 1000 caracteres");
 
         RuleFor(x => x.Price)

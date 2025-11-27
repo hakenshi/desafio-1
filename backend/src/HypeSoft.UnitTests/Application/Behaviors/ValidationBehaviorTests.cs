@@ -114,6 +114,6 @@ public class ValidationBehaviorTests
         exception.Which.Errors.Should().HaveCount(2);
     }
 
-    private class TestRequest : IRequest<TestResponse> { }
-    private class TestResponse { }
+    public class TestRequest : IRequest<TestResponse> { }
+    public class TestResponse { }
 }
