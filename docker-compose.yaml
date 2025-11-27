@@ -83,12 +83,21 @@ services:
     networks:
       - hypesoft-network
     volumes:
-      - ./backend/src:/app
+      - ./backend/src:/app:delegated
+      - /app/HypeSoft.API/bin
+      - /app/HypeSoft.API/obj
+      - /app/HypeSoft.Application/bin
+      - /app/HypeSoft.Application/obj
+      - /app/HypeSoft.Domain/bin
+      - /app/HypeSoft.Domain/obj
+      - /app/HypeSoft.Infraestructure/bin
+      - /app/HypeSoft.Infraestructure/obj
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
     develop:
       watch:
         - action: sync
@@ -97,6 +106,7 @@ services:
           ignore:
             - "**/bin/"
             - "**/obj/"
+            - "**/TestResults/"
 
   # # Frontend (Next.js)
   # frontend:
