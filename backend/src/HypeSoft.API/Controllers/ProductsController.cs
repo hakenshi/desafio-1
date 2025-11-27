@@ -6,8 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HypeSoft.API.Controllers;
 
+/// <summary>
+/// Gerenciamento de produtos
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -17,14 +21,33 @@ public class ProductsController : ControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Lista todos os produtos com paginação
+    /// </summary>
+    /// <param name="page">Número da página (padrão: 1)</param>
+    /// <param name="pageSize">Tamanho da página (padrão: 10, máximo: 100)</param>
+    /// <returns>Lista paginada de produtos</returns>
+    /// <response code="200">Retorna a lista de produtos</response>
+    /// <response code="400">Parâmetros de paginação inválidos</response>
     [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         var products = await _mediator.Send(new GetAllProductsQuery(page, pageSize));
         return Ok(products);
     }
 
+    /// <summary>
+    /// Busca um produto por ID
+    /// </summary>
+    /// <param name="id">ID do produto</param>
+    /// <returns>Dados do produto</returns>
+    /// <response code="200">Retorna o produto encontrado</response>
+    /// <response code="404">Produto não encontrado</response>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProductDto>> GetById(string id)
     {
         var product = await _mediator.Send(new GetProductByIdQuery(id));
@@ -48,7 +71,16 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    /// <summary>
+    /// Cria um novo produto
+    /// </summary>
+    /// <param name="dto">Dados do produto a ser criado</param>
+    /// <returns>Produto criado</returns>
+    /// <response code="201">Produto criado com sucesso</response>
+    /// <response code="400">Dados inválidos</response>
     [HttpPost]
+    [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductDto dto)
     {
         var product = await _mediator.Send(new CreateProductCommand(dto));

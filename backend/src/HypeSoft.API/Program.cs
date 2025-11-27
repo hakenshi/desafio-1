@@ -61,15 +61,44 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "HypeSoft API", Version = "v1" });
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "HypeSoft API",
+        Version = "v1",
+        Description = @"API para gestão de produtos com Clean Architecture, CQRS e DDD.
+
+**Funcionalidades:**
+- Gestão completa de produtos (CRUD)
+- Sistema de categorias
+- Dashboard com métricas
+- Controle de estoque
+- Cache distribuído com Redis
+- Rate limiting (100 req/min)
+
+**Performance:**
+- Tempo de resposta < 500ms
+- Cache automático em queries
+- Paginação eficiente",
+        Contact = new()
+        {
+            Name = "HypeSoft",
+            Email = "contato@hypesoft.com"
+        }
+    });
+
     c.AddSecurityDefinition("Bearer", new()
     {
-        Description = "JWT Authorization header using the Bearer scheme",
+        Description = @"JWT Authorization header usando Bearer scheme.
+                      
+Entre com 'Bearer' [espaço] e então seu token.
+                      
+Exemplo: 'Bearer 12345abcdef'",
         Name = "Authorization",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
+
     c.AddSecurityRequirement(new()
     {
         {
@@ -84,6 +113,14 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
+    // Enable XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 // CORS
@@ -114,6 +151,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Rate Limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<AspNetCoreRateLimit.IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId";
+    options.GeneralRules = new List<AspNetCoreRateLimit.RateLimitRule>
+    {
+        new()
+        {
+            Endpoint = "*",
+            Period = "1m",
+            Limit = 100
+        },
+        new()
+        {
+            Endpoint = "POST:*",
+            Period = "1m",
+            Limit = 30
+        }
+    };
+});
+builder.Services.AddSingleton<AspNetCoreRateLimit.IIpPolicyStore, AspNetCoreRateLimit.MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitCounterStore, AspNetCoreRateLimit.MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitConfiguration, AspNetCoreRateLimit.RateLimitConfiguration>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IProcessingStrategy, AspNetCoreRateLimit.AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
+
 // Health Checks
 builder.Services.AddHealthChecks();
 
@@ -128,6 +196,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 
+// Security headers
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+// Correlation ID for request tracking
+app.UseMiddleware<CorrelationIdMiddleware>();
+
+// Rate limiting
+app.UseIpRateLimiting();
+
 // Custom middleware for validation and error handling
 app.UseMiddleware<ValidationExceptionMiddleware>();
 
@@ -139,10 +216,15 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Seed database
+// Initialize database (indexes and seed)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<MongoDbContext>();
+    
+    // Create indexes for performance
+    await MongoDbIndexes.CreateIndexesAsync(context);
+    
+    // Seed initial data
     await HypeSoft.API.Extensions.DatabaseSeeder.SeedAsync(context);
 }
 
