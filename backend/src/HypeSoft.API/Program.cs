@@ -1,4 +1,6 @@
 using FluentValidation;
+using HypeSoft.API.Middlewares;
+using HypeSoft.Application.Behaviors;
 using HypeSoft.Application.Mappings;
 using HypeSoft.Application.Products.Validators;
 using HypeSoft.Domain.Repositories;
@@ -28,9 +30,12 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-// MediatR
-builder.Services.AddMediatR(cfg => 
-    cfg.RegisterServicesFromAssembly(typeof(HypeSoft.Application.Products.Commands.CreateProductCommand).Assembly));
+// MediatR with Validation Behavior
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(HypeSoft.Application.Products.Commands.CreateProductCommand).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -111,6 +116,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSerilogRequestLogging();
+
+// Custom middleware for validation and error handling
+app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseCors("AllowAll");
 

@@ -3,19 +3,17 @@ using HypeSoft.Application.DTOs;
 
 namespace HypeSoft.Application.Products.Validators;
 
-public class CreateProductValidator : AbstractValidator<CreateProductDto>
+public class UpdateProductValidator : AbstractValidator<UpdateProductDto>
 {
-    public CreateProductValidator()
+    public UpdateProductValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Nome é obrigatório")
-            .MaximumLength(200).WithMessage("Nome deve ter no máximo 200 caracteres")
-            .MinimumLength(3).WithMessage("Nome deve ter no mínimo 3 caracteres");
+            .MaximumLength(200).WithMessage("Nome deve ter no máximo 200 caracteres");
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Descrição é obrigatória")
-            .MaximumLength(1000).WithMessage("Descrição deve ter no máximo 1000 caracteres")
-            .MinimumLength(10).WithMessage("Descrição deve ter no mínimo 10 caracteres");
+            .MaximumLength(1000).WithMessage("Descrição deve ter no máximo 1000 caracteres");
 
         RuleFor(x => x.Price)
             .GreaterThan(0).WithMessage("Preço deve ser maior que zero")
