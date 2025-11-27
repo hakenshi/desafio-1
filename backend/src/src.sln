@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HypeSoft.API", "HypeSoft.API\HypeSoft.API.csproj", "{63F04AF8-725A-4E46-96C4-CED8E42B2D7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HypeSoft.Domain", "HypeSoft.Domain\HypeSoft.Domain.csproj", "{5C536F70-8D7D-4CFC-94C6-4D4A81F67BBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HypeSoft.Application", "HypeSoft.Application\HypeSoft.Application.csproj", "{A62557FA-03B6-46BD-B154-7B85A47C2FF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HypeSoft.Infraestructure", "HypeSoft.Infraestructure\HypeSoft.Infraestructure.csproj", "{4B0B187E-954E-43E3-8392-C436F76BE461}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{63F04AF8-725A-4E46-96C4-CED8E42B2D7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63F04AF8-725A-4E46-96C4-CED8E42B2D7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63F04AF8-725A-4E46-96C4-CED8E42B2D7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63F04AF8-725A-4E46-96C4-CED8E42B2D7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C536F70-8D7D-4CFC-94C6-4D4A81F67BBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C536F70-8D7D-4CFC-94C6-4D4A81F67BBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C536F70-8D7D-4CFC-94C6-4D4A81F67BBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C536F70-8D7D-4CFC-94C6-4D4A81F67BBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A62557FA-03B6-46BD-B154-7B85A47C2FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A62557FA-03B6-46BD-B154-7B85A47C2FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A62557FA-03B6-46BD-B154-7B85A47C2FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A62557FA-03B6-46BD-B154-7B85A47C2FF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B0B187E-954E-43E3-8392-C436F76BE461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B0B187E-954E-43E3-8392-C436F76BE461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B0B187E-954E-43E3-8392-C436F76BE461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B0B187E-954E-43E3-8392-C436F76BE461}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
