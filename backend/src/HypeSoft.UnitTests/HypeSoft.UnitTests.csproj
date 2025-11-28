@@ -15,11 +15,13 @@
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="xunit" Version="2.6.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\HypeSoft.Application\HypeSoft.Application.csproj" />
         <ProjectReference Include="..\HypeSoft.Domain\HypeSoft.Domain.csproj" />
+        <ProjectReference Include="..\HypeSoft.Infraestructure\HypeSoft.Infraestructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -10,10 +10,12 @@
         <PackageReference Include="MongoDB.Driver" Version="2.24.0" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\HypeSoft.Domain\HypeSoft.Domain.csproj" />
+      <ProjectReference Include="..\HypeSoft.Application\HypeSoft.Application.csproj" />
     </ItemGroup>
 
 </Project>
