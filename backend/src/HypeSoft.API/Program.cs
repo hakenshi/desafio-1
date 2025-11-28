@@ -177,11 +177,12 @@ builder.Services.Configure<AspNetCoreRateLimit.IpRateLimitOptions>(options =>
         }
     };
 });
-builder.Services.AddSingleton<AspNetCoreRateLimit.IIpPolicyStore, AspNetCoreRateLimit.MemoryCacheIpPolicyStore>();
-builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitCounterStore, AspNetCoreRateLimit.MemoryCacheRateLimitCounterStore>();
-builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitConfiguration, AspNetCoreRateLimit.RateLimitConfiguration>();
-builder.Services.AddSingleton<AspNetCoreRateLimit.IProcessingStrategy, AspNetCoreRateLimit.AsyncKeyLockProcessingStrategy>();
-builder.Services.AddInMemoryRateLimiting();
+// Rate limiting - commented out for now
+// builder.Services.AddSingleton<AspNetCoreRateLimit.IIpPolicyStore, AspNetCoreRateLimit.MemoryCacheIpPolicyStore>();
+// builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitCounterStore, AspNetCoreRateLimit.MemoryCacheRateLimitCounterStore>();
+// builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitConfiguration, AspNetCoreRateLimit.RateLimitConfiguration>();
+// builder.Services.AddSingleton<AspNetCoreRateLimit.IProcessingStrategy, AspNetCoreRateLimit.AsyncKeyLockProcessingStrategy>();
+// builder.Services.AddInMemoryRateLimiting();
 
 // Health Checks
 builder.Services.AddHealthChecks();
@@ -203,8 +204,8 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 // Correlation ID for request tracking
 app.UseMiddleware<CorrelationIdMiddleware>();
 
-// Rate limiting
-app.UseIpRateLimiting();
+// Rate limiting - commented out for now
+// app.UseIpRateLimiting();
 
 // Custom middleware for validation and error handling
 app.UseMiddleware<ValidationExceptionMiddleware>();
