@@ -3,6 +3,7 @@ using HypeSoft.Application.Categories.Queries;
 using HypeSoft.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using UpdateCategoryDto = HypeSoft.Application.Categories.Commands.UpdateCategoryDto;
 
 namespace HypeSoft.API.Controllers;
 
