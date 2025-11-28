@@ -12,4 +12,19 @@ public class Product
     public DateTime UpdatedAt { get; set; }
     
     public bool IsLowStock() => StockQuantity < 10;
+
+    public static Product Create(string name, string description, decimal price, string categoryId, int stockQuantity)
+    {
+        return new Product
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = name,
+            Description = description,
+            Price = price,
+            CategoryId = categoryId,
+            StockQuantity = stockQuantity,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
 }
