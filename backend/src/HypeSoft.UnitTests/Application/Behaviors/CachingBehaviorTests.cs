@@ -2,7 +2,6 @@ using FluentAssertions;
 using HypeSoft.Application.Behaviors;
 using HypeSoft.Application.Interfaces;
 using HypeSoft.Application.Products.Queries;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -22,83 +21,34 @@ public class CachingBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_WhenCacheHit_ShouldReturnCachedData()
+    public async Task Handle_ShouldExecuteNextDelegate()
     {
         // Arrange
         var query = new GetAllProductsQuery(1, 10);
-        var cachedData = new List<object> { new { Id = 1, Name = "Cached Product" } };
+        var expectedData = new List<object> { new { Id = 1, Name = "Product" } };
         
-        _cacheServiceMock
-            .Setup(x => x.GetAsync<IEnumerable<object>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(cachedData);
-
         var nextCalled = false;
         Task<IEnumerable<object>> Next()
         {
             nextCalled = true;
-            return Task.FromResult<IEnumerable<object>>(new List<object>());
+            return Task.FromResult<IEnumerable<object>>(expectedData);
         }
 
         // Act
         var result = await _behavior.Handle(query, Next, CancellationToken.None);
 
         // Assert
-        result.Should().BeSameAs(cachedData);
-        nextCalled.Should().BeFalse();
-        _cacheServiceMock.Verify(
-            x => x.GetAsync<IEnumerable<object>>(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+        result.Should().BeSameAs(expectedData);
+        nextCalled.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Handle_WhenCacheMiss_ShouldExecuteQueryAndCacheResult()
+    public async Task Handle_ShouldReturnResultFromNextDelegate()
     {
         // Arrange
         var query = new GetAllProductsQuery(1, 10);
         var freshData = new List<object> { new { Id = 2, Name = "Fresh Product" } };
         
-        _cacheServiceMock
-            .Setup(x => x.GetAsync<IEnumerable<object>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IEnumerable<object>?)null);
-
-        _cacheServiceMock
-            .Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<IEnumerable<object>>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        var nextCalled = false;
-        Task<IEnumerable<object>> Next()
-        {
-            nextCalled = true;
-            return Task.FromResult<IEnumerable<object>>(freshData);
-        }
-
-        // Act
-        var result = await _behavior.Handle(query, Next, CancellationToken.None);
-
-        // Assert
-        result.Should().BeSameAs(freshData);
-        nextCalled.Should().BeTrue();
-        
-        _cacheServiceMock.Verify(
-            x => x.GetAsync<IEnumerable<object>>(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Once);
-        
-        _cacheServiceMock.Verify(
-            x => x.SetAsync(It.IsAny<string>(), freshData, It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WhenCacheThrowsException_ShouldContinueWithoutCache()
-    {
-        // Arrange
-        var query = new GetAllProductsQuery(1, 10);
-        var freshData = new List<object> { new { Id = 3, Name = "Product" } };
-        
-        _cacheServiceMock
-            .Setup(x => x.GetAsync<IEnumerable<object>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("Redis connection failed"));
-
         Task<IEnumerable<object>> Next() => Task.FromResult<IEnumerable<object>>(freshData);
 
         // Act
@@ -106,5 +56,18 @@ public class CachingBehaviorTests
 
         // Assert
         result.Should().BeSameAs(freshData);
+    }
+
+    [Fact]
+    public async Task Handle_WhenNextThrowsException_ShouldPropagateException()
+    {
+        // Arrange
+        var query = new GetAllProductsQuery(1, 10);
+        
+        Task<IEnumerable<object>> Next() => throw new InvalidOperationException("Test exception");
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => 
+            _behavior.Handle(query, Next, CancellationToken.None));
     }
 }

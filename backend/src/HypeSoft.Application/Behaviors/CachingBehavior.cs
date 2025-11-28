@@ -26,42 +26,8 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         var cacheKey = GenerateCacheKey(request);
         
-        // Try to get from cache
-        if (typeof(TResponse).IsClass && !typeof(TResponse).IsAbstract)
-        {
-            try
-            {
-                var cachedResponse = await _cacheService.GetAsync<TResponse>(cacheKey, cancellationToken);
-                
-                if (cachedResponse != null)
-                {
-                    _logger.LogInformation("Cache hit for {RequestType} with key {CacheKey}", typeof(TRequest).Name, cacheKey);
-                    return cachedResponse;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error retrieving from cache for key {CacheKey}", cacheKey);
-            }
-        }
-
         // Execute the request
         var response = await next();
-
-        // Cache the response
-        if (response != null && typeof(TResponse).IsClass)
-        {
-            try
-            {
-                var expiration = GetCacheExpiration(request);
-                await _cacheService.SetAsync(cacheKey, response, expiration, cancellationToken);
-                _logger.LogInformation("Cached response for {RequestType} with key {CacheKey}", typeof(TRequest).Name, cacheKey);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error caching response for key {CacheKey}", cacheKey);
-            }
-        }
 
         return response;
     }
