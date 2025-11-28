@@ -42,9 +42,10 @@ public class CategoryRepository : ICategoryRepository
             cancellationToken: cancellationToken);
     }
 
-    public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
-        await _context.Categories.DeleteOneAsync(c => c.Id == id, cancellationToken);
+        var result = await _context.Categories.DeleteOneAsync(c => c.Id == id, cancellationToken);
+        return result.DeletedCount > 0;
     }
 
     public async Task<Dictionary<string, int>> GetProductCountByCategoryAsync(CancellationToken cancellationToken = default)

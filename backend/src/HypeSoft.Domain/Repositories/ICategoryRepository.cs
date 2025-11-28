@@ -8,6 +8,6 @@ public interface ICategoryRepository
     Task<IEnumerable<Category>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<Category> CreateAsync(Category category, CancellationToken cancellationToken = default);
     Task UpdateAsync(Category category, CancellationToken cancellationToken = default);
-    Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default);
     Task<Dictionary<string, int>> GetProductCountByCategoryAsync(CancellationToken cancellationToken = default);
 }
