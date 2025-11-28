@@ -1,4 +1,4 @@
-using HypeSoft.Infraestructure.Caching;
+using HypeSoft.Application.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

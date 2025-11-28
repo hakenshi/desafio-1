@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HypeSoft.Application.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace HypeSoft.Infraestructure.Caching;

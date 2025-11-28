@@ -1,7 +1,7 @@
 using FluentAssertions;
 using HypeSoft.Application.Behaviors;
+using HypeSoft.Application.Interfaces;
 using HypeSoft.Application.Products.Queries;
-using HypeSoft.Infraestructure.Caching;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;

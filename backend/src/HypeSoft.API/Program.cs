@@ -1,6 +1,7 @@
 using FluentValidation;
 using HypeSoft.API.Middlewares;
 using HypeSoft.Application.Behaviors;
+using HypeSoft.Application.Interfaces;
 using HypeSoft.Application.Mappings;
 using HypeSoft.Application.Products.Validators;
 using HypeSoft.Domain.Repositories;

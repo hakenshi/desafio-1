@@ -1,8 +1,8 @@
 using FluentAssertions;
 using HypeSoft.Application.Behaviors;
-using HypeSoft.Application.Products.Commands;
 using HypeSoft.Application.DTOs;
-using HypeSoft.Infraestructure.Caching;
+using HypeSoft.Application.Interfaces;
+using HypeSoft.Application.Products.Commands;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;

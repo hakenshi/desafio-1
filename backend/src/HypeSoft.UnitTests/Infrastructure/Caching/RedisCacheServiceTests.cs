@@ -1,4 +1,5 @@
 using FluentAssertions;
+using HypeSoft.Application.Interfaces;
 using HypeSoft.Infraestructure.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;

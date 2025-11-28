@@ -1,4 +1,4 @@
-namespace HypeSoft.Infraestructure.Caching;
+namespace HypeSoft.Application.Interfaces;
 
 public interface ICacheService
 {
