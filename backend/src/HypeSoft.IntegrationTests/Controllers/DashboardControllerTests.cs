@@ -39,12 +39,12 @@ public class DashboardControllerTests : IClassFixture<CustomWebApplicationFactor
         var initialDashboard = await initialResponse.Content.ReadFromJsonAsync<DashboardDto>();
 
         // Create a category
-        var category = new CreateCategoryDto("Dashboard Test Category", "Test");
+        var category = new CreateCategoryDto("Dashboard Test Category", "Test category description");
         var categoryResponse = await _client.PostAsJsonAsync("/api/categories", category);
         var createdCategory = await categoryResponse.Content.ReadFromJsonAsync<CategoryDto>();
 
         // Create a product
-        var product = new CreateProductDto("Dashboard Product", "Test", 100m, createdCategory!.Id, 50);
+        var product = new CreateProductDto("Dashboard Product", "Test product description for dashboard", 100m, createdCategory!.Id, 50);
         await _client.PostAsJsonAsync("/api/products", product);
 
         // Act - Get updated state
