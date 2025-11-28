@@ -1,0 +1,13 @@
+using FluentValidation;
+using HypeSoft.Application.Categories.Commands;
+
+namespace HypeSoft.Application.Categories.Validators;
+
+public class DeleteCategoryCommandValidator : AbstractValidator<DeleteCategoryCommand>
+{
+    public DeleteCategoryCommandValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty().WithMessage("Category ID is required");
+    }
+}
