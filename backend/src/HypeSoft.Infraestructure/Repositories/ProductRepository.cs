@@ -48,7 +48,7 @@ public class ProductRepository : IProductRepository
     public async Task<IEnumerable<Product>> GetLowStockProductsAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Products
-            .Find(p => p.StockQuantity < 10)
+            .Find(p => p.StockQuantity < Product.LowStockThreshold)
             .ToListAsync(cancellationToken);
     }
 
