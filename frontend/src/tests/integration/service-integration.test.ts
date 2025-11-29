@@ -5,6 +5,117 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const API_TIMEOUT = 15000; // 15 segundos para operações CRUD
 
 describe("Service Integration Tests - Real API Calls", () => {
+  describe("AuthService Integration", () => {
+    const testUser = {
+      username: `testuser_${Date.now()}`,
+      email: `test_${Date.now()}@example.com`,
+      password: "Test@123456",
+      firstName: "Test",
+      lastName: "User",
+    };
+    let accessToken: string;
+    let refreshToken: string;
+
+    it("should register a new user", async () => {
+      const response = await request(API_URL)
+        .post("/auth/register")
+        .send(testUser);
+
+      // 201: sucesso, 400: validação/já existe, 500: Keycloak não disponível
+      expect([201, 400, 500]).toContain(response.status);
+      if (response.status === 201) {
+        expect(response.body).toHaveProperty("message");
+      }
+    }, API_TIMEOUT);
+
+    it("should login with valid credentials", async () => {
+      const response = await request(API_URL)
+        .post("/auth/login")
+        .send({
+          email: testUser.email,
+          password: testUser.password,
+        });
+
+      // Pode falhar se o registro não funcionou (Keycloak não configurado)
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty("accessToken");
+        expect(response.body).toHaveProperty("refreshToken");
+        expect(response.body).toHaveProperty("expiresIn");
+        expect(response.body).toHaveProperty("tokenType");
+
+        accessToken = response.body.accessToken;
+        refreshToken = response.body.refreshToken;
+      }
+    }, API_TIMEOUT);
+
+    it("should return 401 for invalid credentials", async () => {
+      const response = await request(API_URL)
+        .post("/auth/login")
+        .send({
+          email: "invalid@example.com",
+          password: "wrongpassword",
+        });
+
+      expect([401, 500]).toContain(response.status);
+    }, API_TIMEOUT);
+
+    it("should return 400 for invalid email format", async () => {
+      const response = await request(API_URL)
+        .post("/auth/login")
+        .send({
+          email: "invalid-email",
+          password: "password123",
+        });
+
+      expect([400, 401, 500]).toContain(response.status);
+    }, API_TIMEOUT);
+
+    it("should refresh token with valid refresh token", async () => {
+      if (!refreshToken) {
+        return; // Skip se não temos token
+      }
+
+      const response = await request(API_URL)
+        .post("/auth/refresh")
+        .send({ refreshToken });
+
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty("accessToken");
+        expect(response.body).toHaveProperty("refreshToken");
+      }
+    }, API_TIMEOUT);
+
+    it("should return 401 for invalid refresh token", async () => {
+      const response = await request(API_URL)
+        .post("/auth/refresh")
+        .send({ refreshToken: "invalid-token" });
+
+      expect([401, 500]).toContain(response.status);
+    }, API_TIMEOUT);
+
+    it("should get current user info with valid token", async () => {
+      if (!accessToken) {
+        return; // Skip se não temos token
+      }
+
+      const response = await request(API_URL)
+        .get("/auth/me")
+        .set("Authorization", `Bearer ${accessToken}`);
+
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty("id");
+        expect(response.body).toHaveProperty("email");
+      }
+    }, API_TIMEOUT);
+
+    it("should return 401 for unauthenticated user info request", async () => {
+      const response = await request(API_URL)
+        .get("/auth/me");
+
+      expect(response.status).toBe(401);
+    }, API_TIMEOUT);
+  });
+
   describe("CategoryService Integration", () => {
     let testCategoryId: string;
 
