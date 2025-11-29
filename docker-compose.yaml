@@ -69,9 +69,10 @@ services:
       KC_DB: dev-file
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
-    command: start-dev
+    command: start-dev --import-realm
     volumes:
       - keycloak_data:/opt/keycloak/data
+      - ./shared/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     networks:
       - hypesoft-network
 
@@ -79,16 +80,17 @@ services:
   backend:
     build:
       context: ./backend/src
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: hypesoft-backend
     restart: unless-stopped
     ports:
-      - "5000:8080"
+      - "5000:5000"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_URLS: http://+:5000
       MongoDbSettings__ConnectionString: mongodb://admin:admin123@mongodb:27017/hypesoft?authSource=admin
       MongoDbSettings__DatabaseName: hypesoft
+      ConnectionStrings__Redis: redis:6379
       Keycloak__Authority: http://keycloak:8080/realms/hypesoft
       Keycloak__Audience: hypesoft-api
       Keycloak__RequireHttpsMetadata: false
@@ -113,7 +115,7 @@ services:
       - /app/HypeSoft.Infraestructure/bin
       - /app/HypeSoft.Infraestructure/obj
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -168,7 +170,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./shared/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       # - frontend
       - backend
