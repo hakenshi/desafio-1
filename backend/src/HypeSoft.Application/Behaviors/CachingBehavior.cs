@@ -6,6 +6,7 @@ namespace HypeSoft.Application.Behaviors;
 
 public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
+    where TResponse : class
 {
     private readonly ICacheService _cacheService;
     private readonly ILogger<CachingBehavior<TRequest, TResponse>> _logger;
@@ -26,8 +27,26 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         var cacheKey = GenerateCacheKey(request);
         
+        // Try to get from cache first
+        var cachedResponse = await _cacheService.GetAsync<TResponse>(cacheKey, cancellationToken);
+        if (cachedResponse != null)
+        {
+            _logger.LogDebug("Cache hit for {CacheKey}", cacheKey);
+            return cachedResponse;
+        }
+
+        _logger.LogDebug("Cache miss for {CacheKey}", cacheKey);
+        
         // Execute the request
         var response = await next();
+
+        // Store in cache
+        if (response != null)
+        {
+            var expiration = GetCacheExpiration(request);
+            await _cacheService.SetAsync(cacheKey, response, expiration, cancellationToken);
+            _logger.LogDebug("Cached response for {CacheKey} with expiration {Expiration}", cacheKey, expiration);
+        }
 
         return response;
     }
