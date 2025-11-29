@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\HypeSoft.API\HypeSoft.API.csproj" />
         <ProjectReference Include="..\HypeSoft.Application\HypeSoft.Application.csproj" />
         <ProjectReference Include="..\HypeSoft.Domain\HypeSoft.Domain.csproj" />
         <ProjectReference Include="..\HypeSoft.Infraestructure\HypeSoft.Infraestructure.csproj" />
