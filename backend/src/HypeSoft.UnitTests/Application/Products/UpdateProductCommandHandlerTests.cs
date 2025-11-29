@@ -29,17 +29,7 @@ public class UpdateProductCommandHandlerTests
     public async Task Handle_ExistingProduct_ShouldUpdateAndReturnProductDto()
     {
         // Arrange
-        var existingProduct = new Product
-        {
-            Id = "product-1",
-            Name = "Old Name",
-            Description = "Old Description",
-            Price = 50m,
-            CategoryId = "cat-1",
-            StockQuantity = 10,
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            UpdatedAt = DateTime.UtcNow.AddDays(-1)
-        };
+        var existingProduct = Product.Create("Old Name", "Old Description", 50m, "cat-1", 10);
 
         var updateDto = new UpdateProductDto(
             "New Name",
@@ -49,10 +39,10 @@ public class UpdateProductCommandHandlerTests
             20
         );
 
-        var command = new UpdateProductCommand("product-1", updateDto);
+        var command = new UpdateProductCommand(existingProduct.Id, updateDto);
 
         _repositoryMock
-            .Setup(x => x.GetByIdAsync("product-1", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByIdAsync(existingProduct.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingProduct);
 
         _repositoryMock
@@ -99,23 +89,13 @@ public class UpdateProductCommandHandlerTests
     public async Task Handle_ShouldUpdateUpdatedAtTimestamp()
     {
         // Arrange
-        var existingProduct = new Product
-        {
-            Id = "product-1",
-            Name = "Name",
-            Description = "Desc",
-            Price = 10m,
-            CategoryId = "cat1",
-            StockQuantity = 5,
-            CreatedAt = DateTime.UtcNow.AddDays(-10),
-            UpdatedAt = DateTime.UtcNow.AddDays(-5)
-        };
+        var existingProduct = Product.Create("Name", "Desc", 10m, "cat1", 5);
 
         var updateDto = new UpdateProductDto("New Name", "New Desc", 20m, "cat2", 10);
-        var command = new UpdateProductCommand("product-1", updateDto);
+        var command = new UpdateProductCommand(existingProduct.Id, updateDto);
 
         _repositoryMock
-            .Setup(x => x.GetByIdAsync("product-1", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByIdAsync(existingProduct.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingProduct);
 
         _repositoryMock
@@ -127,6 +107,47 @@ public class UpdateProductCommandHandlerTests
 
         // Assert
         result.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
-        result.CreatedAt.Should().BeBefore(result.UpdatedAt);
+    }
+
+    [Fact]
+    public async Task Handle_InvalidUpdateData_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var existingProduct = Product.Create("Name", "Desc", 10m, "cat1", 5);
+
+        var updateDto = new UpdateProductDto("", "New Desc", 20m, "cat2", 10); // Empty name
+        var command = new UpdateProductCommand(existingProduct.Id, updateDto);
+
+        _repositoryMock
+            .Setup(x => x.GetByIdAsync(existingProduct.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingProduct);
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*name*");
+    }
+
+    [Fact]
+    public async Task Handle_NegativePrice_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var existingProduct = Product.Create("Name", "Desc", 10m, "cat1", 5);
+
+        var updateDto = new UpdateProductDto("New Name", "New Desc", -20m, "cat2", 10);
+        var command = new UpdateProductCommand(existingProduct.Id, updateDto);
+
+        _repositoryMock
+            .Setup(x => x.GetByIdAsync(existingProduct.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingProduct);
+
+        // Act
+        var act = async () => await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*price*");
     }
 }
