@@ -2,6 +2,7 @@ using HypeSoft.Application.Categories.Commands;
 using HypeSoft.Application.Categories.Queries;
 using HypeSoft.Application.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UpdateCategoryDto = HypeSoft.Application.Categories.Commands.UpdateCategoryDto;
 
@@ -12,6 +13,7 @@ namespace HypeSoft.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CategoriesController : ControllerBase
 {
     private readonly IMediator _mediator;

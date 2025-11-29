@@ -55,6 +55,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 
+// HttpClient for Keycloak
+builder.Services.AddHttpClient();
+
 // Controllers
 builder.Services.AddControllers();
 

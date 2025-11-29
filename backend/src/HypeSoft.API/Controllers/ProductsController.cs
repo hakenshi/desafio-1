@@ -2,6 +2,7 @@ using HypeSoft.Application.DTOs;
 using HypeSoft.Application.Products.Commands;
 using HypeSoft.Application.Products.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HypeSoft.API.Controllers;
@@ -12,6 +13,7 @@ namespace HypeSoft.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
+[Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
