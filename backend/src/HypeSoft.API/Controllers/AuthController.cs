@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Login with username and password
+    /// Login with email and password
     /// </summary>
     [HttpPost("login")]
     [AllowAnonymous]
@@ -41,7 +41,7 @@ public class AuthController : ControllerBase
                 ["grant_type"] = "password",
                 ["client_id"] = _configuration["Keycloak:ClientId"] ?? "hypesoft-api",
                 ["client_secret"] = _configuration["Keycloak:ClientSecret"] ?? "hypesoft-api-secret",
-                ["username"] = request.Username,
+                ["username"] = request.Email,
                 ["password"] = request.Password
             });
 
@@ -49,8 +49,8 @@ public class AuthController : ControllerBase
             
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Login failed for user {Username}", request.Username);
-                return Unauthorized(new { message = "Invalid username or password" });
+                _logger.LogWarning("Login failed for user {Email}", request.Email);
+                return Unauthorized(new { message = "Invalid email or password" });
             }
 
             var json = await response.Content.ReadAsStringAsync();
@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during login for user {Username}", request.Username);
+            _logger.LogError(ex, "Error during login for user {Email}", request.Email);
             return StatusCode(500, new { message = "Authentication service unavailable" });
         }
     }
@@ -127,7 +127,7 @@ public class AuthController : ControllerBase
 
             if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
-                return BadRequest(new { message = "Username or email already exists" });
+                return BadRequest(new { message = "Email already exists" });
             }
 
             if (!response.IsSuccessStatusCode)
@@ -137,12 +137,12 @@ public class AuthController : ControllerBase
                 return BadRequest(new { message = "Failed to create user" });
             }
 
-            _logger.LogInformation("User {Username} registered successfully", request.Username);
+            _logger.LogInformation("User {Email} registered successfully", request.Email);
             return Created("", new { message = "User registered successfully" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during registration for user {Username}", request.Username);
+            _logger.LogError(ex, "Error during registration for user {Email}", request.Email);
             return StatusCode(500, new { message = "Registration service unavailable" });
         }
     }
@@ -207,7 +207,7 @@ public class AuthController : ControllerBase
         return Ok(new UserInfo
         {
             Id = user.FindFirst("sub")?.Value ?? "",
-            Username = user.FindFirst("preferred_username")?.Value ?? user.Identity?.Name ?? "",
+            Username = user.FindFirst("preferred_username")?.Value ?? "",
             Email = user.FindFirst("email")?.Value ?? "",
             FirstName = user.FindFirst("given_name")?.Value ?? "",
             LastName = user.FindFirst("family_name")?.Value ?? "",
@@ -249,17 +249,25 @@ public class AuthController : ControllerBase
 }
 
 // DTOs
-public record LoginRequest(string Username, string Password);
+public record LoginRequest
+{
+    public string Email { get; init; } = "";
+    public string Password { get; init; } = "";
+}
 
-public record RegisterRequest(
-    string Username,
-    string Email,
-    string Password,
-    string? FirstName = null,
-    string? LastName = null
-);
+public record RegisterRequest
+{
+    public string Username { get; init; } = "";
+    public string Email { get; init; } = "";
+    public string Password { get; init; } = "";
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
+}
 
-public record RefreshTokenRequest(string RefreshToken);
+public record RefreshTokenRequest
+{
+    public string RefreshToken { get; init; } = "";
+}
 
 public record TokenResponse
 {
