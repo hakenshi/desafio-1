@@ -19,17 +19,13 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
     public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = new Product
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = request.Product.Name,
-            Description = request.Product.Description,
-            Price = request.Product.Price,
-            CategoryId = request.Product.CategoryId,
-            StockQuantity = request.Product.StockQuantity,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
+        var product = Product.Create(
+            request.Product.Name,
+            request.Product.Description,
+            request.Product.Price,
+            request.Product.CategoryId,
+            request.Product.StockQuantity
+        );
 
         var created = await _productRepository.CreateAsync(product, cancellationToken);
         return _mapper.Map<ProductDto>(created);

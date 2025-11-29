@@ -22,12 +22,13 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         if (product == null)
             throw new KeyNotFoundException($"Product with ID {request.Id} not found");
 
-        product.Name = request.Product.Name;
-        product.Description = request.Product.Description;
-        product.Price = request.Product.Price;
-        product.CategoryId = request.Product.CategoryId;
-        product.StockQuantity = request.Product.StockQuantity;
-        product.UpdatedAt = DateTime.UtcNow;
+        product.Update(
+            request.Product.Name,
+            request.Product.Description,
+            request.Product.Price,
+            request.Product.CategoryId,
+            request.Product.StockQuantity
+        );
 
         await _productRepository.UpdateAsync(product, cancellationToken);
         return _mapper.Map<ProductDto>(product);
