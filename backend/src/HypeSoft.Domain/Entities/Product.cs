@@ -2,19 +2,26 @@ namespace HypeSoft.Domain.Entities;
 
 public class Product
 {
-    public string Id { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public decimal Price { get; set; }
-    public string CategoryId { get; set; } = null!;
-    public int StockQuantity { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public const int LowStockThreshold = 10;
     
-    public bool IsLowStock() => StockQuantity < 10;
+    public string Id { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
+    public string Description { get; private set; } = null!;
+    public decimal Price { get; private set; }
+    public string CategoryId { get; private set; } = null!;
+    public int StockQuantity { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
+
+    // Parameterless constructor for serialization
+    private Product() { }
+    
+    public bool IsLowStock() => StockQuantity < LowStockThreshold;
 
     public static Product Create(string name, string description, decimal price, string categoryId, int stockQuantity)
     {
+        ValidateProductData(name, description, price, stockQuantity);
+        
         return new Product
         {
             Id = Guid.NewGuid().ToString(),
@@ -26,5 +33,32 @@ public class Product
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+    }
+
+    public void Update(string name, string description, decimal price, string categoryId, int stockQuantity)
+    {
+        ValidateProductData(name, description, price, stockQuantity);
+        
+        Name = name;
+        Description = description;
+        Price = price;
+        CategoryId = categoryId;
+        StockQuantity = stockQuantity;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    private static void ValidateProductData(string name, string description, decimal price, int stockQuantity)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Product name cannot be empty", nameof(name));
+        
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Product description cannot be empty", nameof(description));
+        
+        if (price < 0)
+            throw new ArgumentException("Product price cannot be negative", nameof(price));
+        
+        if (stockQuantity < 0)
+            throw new ArgumentException("Stock quantity cannot be negative", nameof(stockQuantity));
     }
 }
