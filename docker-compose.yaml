@@ -33,7 +33,7 @@ services:
     networks:
       - hypesoft-network
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' --quiet"]
+      test: ["CMD-SHELL", 'mongosh --eval ''db.adminCommand("ping")'' --quiet']
       interval: 10s
       timeout: 5s
       retries: 5
