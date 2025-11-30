@@ -48,7 +48,7 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             _logger.LogDebug("Cached response for {CacheKey} with expiration {Expiration}", cacheKey, expiration);
         }
 
-        return response;
+        return response!;
     }
 
     private static bool IsQuery(TRequest request)
