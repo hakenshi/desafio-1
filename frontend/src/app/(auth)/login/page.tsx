@@ -1,5 +1,9 @@
+import { LoginForm } from "@/components/forms/login-form"
+
 export default function LoginPage() {
     return (
-        <h1>login</h1>
+        <div className="grid place-items-center h-screen">
+            <LoginForm />
+        </div>
     )
 }
