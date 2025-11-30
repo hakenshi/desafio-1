@@ -1,17 +1,19 @@
 using FluentAssertions;
-using HypeSoft.API.Controllers;
+using HypeSoft.Application.DTOs;
+using HypeSoft.Application.Auth.Commands;
+using HypeSoft.Application.Auth.Validators;
 
 namespace HypeSoft.UnitTests.Application.Auth;
 
 public class AuthDtoTests
 {
-    #region LoginRequest Tests
+    #region LoginRequestDto Tests
 
     [Fact]
-    public void LoginRequest_DefaultValues_ShouldHaveEmptyStrings()
+    public void LoginRequestDto_DefaultValues_ShouldHaveEmptyStrings()
     {
         // Act
-        var request = new LoginRequest();
+        var request = new LoginRequestDto();
 
         // Assert
         request.Email.Should().BeEmpty();
@@ -19,10 +21,10 @@ public class AuthDtoTests
     }
 
     [Fact]
-    public void LoginRequest_WithValues_ShouldSetCorrectly()
+    public void LoginRequestDto_WithValues_ShouldSetCorrectly()
     {
         // Act
-        var request = new LoginRequest
+        var request = new LoginRequestDto
         {
             Email = "test@example.com",
             Password = "password123"
@@ -35,13 +37,13 @@ public class AuthDtoTests
 
     #endregion
 
-    #region RegisterRequest Tests
+    #region RegisterRequestDto Tests
 
     [Fact]
-    public void RegisterRequest_DefaultValues_ShouldHaveEmptyStrings()
+    public void RegisterRequestDto_DefaultValues_ShouldHaveEmptyStrings()
     {
         // Act
-        var request = new RegisterRequest();
+        var request = new RegisterRequestDto();
 
         // Assert
         request.Username.Should().BeEmpty();
@@ -52,10 +54,10 @@ public class AuthDtoTests
     }
 
     [Fact]
-    public void RegisterRequest_WithValues_ShouldSetCorrectly()
+    public void RegisterRequestDto_WithValues_ShouldSetCorrectly()
     {
         // Act
-        var request = new RegisterRequest
+        var request = new RegisterRequestDto
         {
             Username = "testuser",
             Email = "test@example.com",
@@ -74,23 +76,23 @@ public class AuthDtoTests
 
     #endregion
 
-    #region RefreshTokenRequest Tests
+    #region RefreshTokenRequestDto Tests
 
     [Fact]
-    public void RefreshTokenRequest_DefaultValues_ShouldHaveEmptyString()
+    public void RefreshTokenRequestDto_DefaultValues_ShouldHaveEmptyString()
     {
         // Act
-        var request = new RefreshTokenRequest();
+        var request = new RefreshTokenRequestDto();
 
         // Assert
         request.RefreshToken.Should().BeEmpty();
     }
 
     [Fact]
-    public void RefreshTokenRequest_WithValue_ShouldSetCorrectly()
+    public void RefreshTokenRequestDto_WithValue_ShouldSetCorrectly()
     {
         // Act
-        var request = new RefreshTokenRequest
+        var request = new RefreshTokenRequestDto
         {
             RefreshToken = "refresh-token-value"
         };
@@ -101,13 +103,13 @@ public class AuthDtoTests
 
     #endregion
 
-    #region TokenResponse Tests
+    #region TokenResponseDto Tests
 
     [Fact]
-    public void TokenResponse_DefaultValues_ShouldHaveCorrectDefaults()
+    public void TokenResponseDto_DefaultValues_ShouldHaveCorrectDefaults()
     {
         // Act
-        var response = new TokenResponse();
+        var response = new TokenResponseDto();
 
         // Assert
         response.AccessToken.Should().BeEmpty();
@@ -117,10 +119,10 @@ public class AuthDtoTests
     }
 
     [Fact]
-    public void TokenResponse_WithValues_ShouldSetCorrectly()
+    public void TokenResponseDto_WithValues_ShouldSetCorrectly()
     {
         // Act
-        var response = new TokenResponse
+        var response = new TokenResponseDto
         {
             AccessToken = "access-token",
             RefreshToken = "refresh-token",
@@ -137,13 +139,13 @@ public class AuthDtoTests
 
     #endregion
 
-    #region UserInfo Tests
+    #region UserInfoDto Tests
 
     [Fact]
-    public void UserInfo_DefaultValues_ShouldHaveCorrectDefaults()
+    public void UserInfoDto_DefaultValues_ShouldHaveCorrectDefaults()
     {
         // Act
-        var userInfo = new UserInfo();
+        var userInfo = new UserInfoDto();
 
         // Assert
         userInfo.Id.Should().BeEmpty();
@@ -155,10 +157,10 @@ public class AuthDtoTests
     }
 
     [Fact]
-    public void UserInfo_WithValues_ShouldSetCorrectly()
+    public void UserInfoDto_WithValues_ShouldSetCorrectly()
     {
         // Act
-        var userInfo = new UserInfo
+        var userInfo = new UserInfoDto
         {
             Id = "user-123",
             Username = "testuser",
@@ -177,6 +179,148 @@ public class AuthDtoTests
         userInfo.Roles.Should().HaveCount(2);
         userInfo.Roles.Should().Contain("user");
         userInfo.Roles.Should().Contain("admin");
+    }
+
+    #endregion
+}
+
+public class AuthValidatorsTests
+{
+    #region LoginCommandValidator Tests
+
+    [Fact]
+    public void LoginCommandValidator_ValidCommand_ShouldPass()
+    {
+        // Arrange
+        var validator = new LoginCommandValidator();
+        var command = new LoginCommand("test@example.com", "password123");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void LoginCommandValidator_EmptyEmail_ShouldFail()
+    {
+        // Arrange
+        var validator = new LoginCommandValidator();
+        var command = new LoginCommand("", "password123");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Email");
+    }
+
+    [Fact]
+    public void LoginCommandValidator_InvalidEmail_ShouldFail()
+    {
+        // Arrange
+        var validator = new LoginCommandValidator();
+        var command = new LoginCommand("invalid-email", "password123");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Email");
+    }
+
+    [Fact]
+    public void LoginCommandValidator_ShortPassword_ShouldFail()
+    {
+        // Arrange
+        var validator = new LoginCommandValidator();
+        var command = new LoginCommand("test@example.com", "12345");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Password");
+    }
+
+    #endregion
+
+    #region RegisterCommandValidator Tests
+
+    [Fact]
+    public void RegisterCommandValidator_ValidCommand_ShouldPass()
+    {
+        // Arrange
+        var validator = new RegisterCommandValidator();
+        var request = new RegisterRequestDto
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "password123"
+        };
+        var command = new RegisterCommand(request);
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RegisterCommandValidator_ShortUsername_ShouldFail()
+    {
+        // Arrange
+        var validator = new RegisterCommandValidator();
+        var request = new RegisterRequestDto
+        {
+            Username = "ab",
+            Email = "test@example.com",
+            Password = "password123"
+        };
+        var command = new RegisterCommand(request);
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region RefreshTokenCommandValidator Tests
+
+    [Fact]
+    public void RefreshTokenCommandValidator_ValidCommand_ShouldPass()
+    {
+        // Arrange
+        var validator = new RefreshTokenCommandValidator();
+        var command = new RefreshTokenCommand("valid-refresh-token");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RefreshTokenCommandValidator_EmptyToken_ShouldFail()
+    {
+        // Arrange
+        var validator = new RefreshTokenCommandValidator();
+        var command = new RefreshTokenCommand("");
+
+        // Act
+        var result = validator.Validate(command);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
     }
 
     #endregion
