@@ -1,13 +1,13 @@
 import { cookies } from "next/headers";
 import { AuthModel } from "../models/auth.model";
-import { apiClient } from "./api-client.service";
+import { BaseService } from "./base.service";
 import { redirect } from "next/navigation";
 
-export abstract class AuthService {
-  static async login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
+export class AuthService extends BaseService {
+  async login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
     const validatedData = AuthModel.LoginRequestSchema.parse(data);
     console.log(validatedData)
-    const response = await apiClient.post<AuthModel.TokenResponse>(
+    const response = await this.client.post<AuthModel.TokenResponse>(
       "/auth/login",
       validatedData
     );
@@ -39,17 +39,16 @@ export abstract class AuthService {
     redirect("/dashboard")
   }
 
-  static async register(data: AuthModel.RegisterRequest): Promise<void> {
+  async register(data: AuthModel.RegisterRequest): Promise<void> {
     const validatedData = AuthModel.RegisterRequestSchema.parse(data);
 
-    await apiClient.post("/auth/register", validatedData);
+    await this.client.post("/auth/register", validatedData);
   }
 
-  static async refreshToken(): Promise<AuthModel.TokenResponse> {
-
+  async refreshToken(): Promise<AuthModel.TokenResponse> {
     const refreshToken = (await cookies()).get("refreshToken")?.value
 
-    const response = await apiClient.post<AuthModel.TokenResponse>(
+    const response = await this.client.post<AuthModel.TokenResponse>(
       "/auth/refresh",
       { refresh_token: refreshToken }
     );
@@ -57,23 +56,12 @@ export abstract class AuthService {
     return AuthModel.TokenResponseSchema.parse(response);
   }
 
-  static async logout(refreshToken?: string): Promise<void> {
-    await apiClient.post("/auth/logout", { refresh_token: refreshToken });
+  async logout(refreshToken?: string): Promise<void> {
+    await this.client.post("/auth/logout", { refresh_token: refreshToken }, undefined, this.token);
   }
 
-  static async getUserInfo(): Promise<AuthModel.UserInfo> {
-
-    const accessToken = (await cookies()).get("authToken")?.value
-
-
-    const response = await apiClient.get<AuthModel.UserInfo>("/auth/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    console.log(response)
-
+  async getUserInfo(): Promise<AuthModel.UserInfo> {
+    const response = await this.client.get<AuthModel.UserInfo>("/auth/me", undefined, this.token);
     return AuthModel.UserInfoSchema.parse(response);
   }
 }

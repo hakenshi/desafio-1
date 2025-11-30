@@ -14,17 +14,25 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 export class ApiClient {
   private async request<T>(
     endpoint: string,
-    options?: RequestInit
+    options?: RequestInit,
+    token?: string
   ): Promise<T> {
     const url = `${BASE_URL}${endpoint}`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options?.headers as Record<string, string>),
+    };
+
+    // Adicionar Authorization header se o token for fornecido
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
 
     try {
       const response = await fetch(url, {
         ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...options?.headers,
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -57,36 +65,38 @@ export class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: "GET" });
+  async get<T>(endpoint: string, options?: RequestInit, token?: string): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: "GET" }, token);
   }
 
   async post<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit
+    options?: RequestInit,
+    token?: string
   ): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: "POST",
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }, token);
   }
 
   async put<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit
+    options?: RequestInit,
+    token?: string
   ): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: "PUT",
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }, token);
   }
 
-  async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: "DELETE" });
+  async delete<T>(endpoint: string, options?: RequestInit, token?: string): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: "DELETE" }, token);
   }
 }
 

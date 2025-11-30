@@ -1,26 +1,33 @@
 import { ProductModel } from "../models/product.model";
-import { apiClient } from "./api-client.service";
-import { revalidateTag, cacheTag, cacheLife } from "next/cache";
+import { BaseService } from "./base.service";
 import { z } from "zod";
 
-export abstract class ProductService {
-  static async getAll(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.Product[]> {
+export class ProductService extends BaseService {
+  async getAll(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.Product[]> {
     const validatedQuery = ProductModel.GetAllProductsQuerySchema.parse(query || {});
     const params = new URLSearchParams({
       page: validatedQuery.page.toString(),
       pageSize: validatedQuery.pageSize.toString(),
     });
 
-    const response = await apiClient.get<ProductModel.Product[]>(`/products?${params.toString()}`);
+    const response = await this.client.get<ProductModel.Product[]>(
+      `/products?${params.toString()}`, 
+      undefined, 
+      this.token
+    );
     return z.array(ProductModel.ProductSchema).parse(response);
   }
 
-  static async getById(id: string): Promise<ProductModel.Product> {
-    const response = await apiClient.get<ProductModel.Product>(`/products/${id}`);
+  async getById(id: string): Promise<ProductModel.Product> {
+    const response = await this.client.get<ProductModel.Product>(
+      `/products/${id}`, 
+      undefined, 
+      this.token
+    );
     return ProductModel.ProductSchema.parse(response);
   }
 
-  static async search(query: ProductModel.SearchProductsQuery): Promise<ProductModel.Product[]> {
+  async search(query: ProductModel.SearchProductsQuery): Promise<ProductModel.Product[]> {
     const validatedQuery = ProductModel.SearchProductsQuerySchema.parse(query);
     const params = new URLSearchParams();
 
@@ -33,28 +40,46 @@ export abstract class ProductService {
     params.append("page", validatedQuery.page.toString());
     params.append("pageSize", validatedQuery.pageSize.toString());
 
-    const response = await apiClient.get<ProductModel.Product[]>(`/products/search?${params.toString()}`);
+    const response = await this.client.get<ProductModel.Product[]>(
+      `/products/search?${params.toString()}`, 
+      undefined, 
+      this.token
+    );
     return z.array(ProductModel.ProductSchema).parse(response);
   }
 
-  static async getLowStock(): Promise<ProductModel.Product[]> {
-    const response = await apiClient.get<ProductModel.Product[]>("/products/low-stock");
+  async getLowStock(): Promise<ProductModel.Product[]> {
+    const response = await this.client.get<ProductModel.Product[]>(
+      "/products/low-stock", 
+      undefined, 
+      this.token
+    );
     return z.array(ProductModel.ProductSchema).parse(response);
   }
 
-  static async create(data: ProductModel.CreateProductDto): Promise<ProductModel.Product> {
+  async create(data: ProductModel.CreateProductDto): Promise<ProductModel.Product> {
     const validatedData = ProductModel.CreateProductSchema.parse(data);
-    const response = await apiClient.post<ProductModel.Product>("/products", validatedData);
+    const response = await this.client.post<ProductModel.Product>(
+      "/products", 
+      validatedData, 
+      undefined, 
+      this.token
+    );
     return ProductModel.ProductSchema.parse(response);
   }
 
-  static async update(id: string, data: ProductModel.UpdateProductDto): Promise<ProductModel.Product> {
+  async update(id: string, data: ProductModel.UpdateProductDto): Promise<ProductModel.Product> {
     const validatedData = ProductModel.UpdateProductSchema.parse(data);
-    const response = await apiClient.put<ProductModel.Product>(`/products/${id}`, validatedData);
+    const response = await this.client.put<ProductModel.Product>(
+      `/products/${id}`, 
+      validatedData, 
+      undefined, 
+      this.token
+    );
     return ProductModel.ProductSchema.parse(response);
   }
 
-  static async delete(id: string): Promise<void> {
-    await apiClient.delete<void>(`/products/${id}`);
+  async delete(id: string): Promise<void> {
+    await this.client.delete<void>(`/products/${id}`, undefined, this.token);
   }
 }
