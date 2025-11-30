@@ -3,30 +3,36 @@
 import { CategoryModel } from "../models/category.model";
 import { CategoryService } from "../services/category.service";
 import { cacheTag, cacheLife, revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 const CACHE_TAGS = {
   categories: "categories",
   category: (id: string) => `category-${id}`,
 };
 
-export async function getAllCategories(): Promise<CategoryModel.Category[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.categories);
-  cacheLife("hours");
+async function getAuthToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get("authToken")?.value;
+}
 
-  return await CategoryService.getAll();
+async function getService(): Promise<CategoryService> {
+  const token = await getAuthToken();
+  return new CategoryService(token);
+}
+
+export async function getAllCategories(): Promise<CategoryModel.Category[]> {
+  const service = await getService();
+  return await service.getAll();
 }
 
 export async function getCategoryById(id: string): Promise<CategoryModel.Category> {
-  "use cache";
-  cacheTag(CACHE_TAGS.category(id));
-  cacheLife("hours");
-
-  return await CategoryService.getById(id);
+  const service = await getService();
+  return await service.getById(id);
 }
 
 export async function createCategory(data: CategoryModel.CreateCategoryDto): Promise<CategoryModel.Category> {
-  const category = await CategoryService.create(data);
+  const service = await getService();
+  const category = await service.create(data);
   revalidateTag(CACHE_TAGS.categories, "max");
   return category;
 }
@@ -35,14 +41,16 @@ export async function updateCategory(
   id: string,
   data: CategoryModel.UpdateCategoryDto
 ): Promise<CategoryModel.Category> {
-  const category = await CategoryService.update(id, data);
+  const service = await getService();
+  const category = await service.update(id, data);
   revalidateTag(CACHE_TAGS.category(id), "max");
   revalidateTag(CACHE_TAGS.categories, "max");
   return category;
 }
 
 export async function deleteCategory(id: string): Promise<void> {
-  await CategoryService.delete(id);
+  const service = await getService();
+  await service.delete(id);
   revalidateTag(CACHE_TAGS.category(id), "max");
   revalidateTag(CACHE_TAGS.categories, "max");
 }

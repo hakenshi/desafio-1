@@ -2,23 +2,39 @@
 
 import { AuthModel } from "../models/auth.model";
 import { AuthService } from "../services/auth.service";
+import { cookies } from "next/headers";
+
+async function getAuthToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get("authToken")?.value;
+}
+
+async function getService(withToken: boolean = false): Promise<AuthService> {
+  const token = withToken ? await getAuthToken() : undefined;
+  return new AuthService(token);
+}
 
 export async function login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
-  return await AuthService.login(data);
+  const service = await getService();
+  return await service.login(data);
 }
 
 export async function register(data: AuthModel.RegisterRequest): Promise<void> {
-  return await AuthService.register(data);
+  const service = await getService();
+  return await service.register(data);
 }
 
 export async function refreshToken(): Promise<AuthModel.TokenResponse> {
-  return await AuthService.refreshToken();
+  const service = await getService();
+  return await service.refreshToken();
 }
 
 export async function logout(refreshToken?: string): Promise<void> {
-  return await AuthService.logout(refreshToken);
+  const service = await getService(true);
+  return await service.logout(refreshToken);
 }
 
 export async function getUserInfo(): Promise<AuthModel.UserInfo> {
-  return await AuthService.getUserInfo();
+  const service = await getService(true);
+  return await service.getUserInfo();
 }
