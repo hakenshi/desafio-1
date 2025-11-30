@@ -8,10 +8,10 @@ export namespace AuthModel {
     });
 
     export const TokenResponseSchema = z.object({
-        access_token: z.string(),
-        refresh_token: z.string().optional(),
-        expires_in: z.number(),
-        token_type: z.string(),
+        accessToken: z.string(),
+        refreshToken: z.string().optional(),
+        expiresIn: z.number(),
+        tokenType: z.string(),
     });
 
     // Register
@@ -25,13 +25,12 @@ export namespace AuthModel {
 
     // User Info
     export const UserInfoSchema = z.object({
-        sub: z.string(),
-        username: z.string().optional(),
-        email: z.string().optional(),
-        email_verified: z.boolean().optional(),
-        given_name: z.string().optional(),
-        family_name: z.string().optional(),
-        roles: z.array(z.string()).optional(),
+        id: z.string(),
+        username: z.string(),
+        email: z.email(),
+        firstName: z.string(),
+        lastName: z.string(),
+        roles: z.array(z.string())
     });
 
     // Types
