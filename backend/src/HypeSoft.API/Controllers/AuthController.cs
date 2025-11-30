@@ -88,7 +88,29 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<UserInfoDto>> GetCurrentUser()
     {
-        var result = await _mediator.Send(new GetCurrentUserQuery(HttpContext.User));
+        var authHeader = Request.Headers.Authorization.ToString();
+        var token = authHeader.StartsWith("Bearer ") ? authHeader[7..] : authHeader;
+        
+        var result = await _mediator.Send(new GetCurrentUserQuery(token));
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Logout and invalidate refresh token
+    /// </summary>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
+    {
+        var success = await _mediator.Send(new LogoutCommand(request.RefreshToken));
+        
+        if (!success)
+        {
+            return BadRequest(new { message = "Failed to logout" });
+        }
+
+        return Ok(new { message = "Logged out successfully" });
     }
 }

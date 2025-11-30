@@ -168,6 +168,37 @@ public class KeycloakService : IKeycloakService
         }
     }
 
+    public async Task<bool> LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var logoutEndpoint = $"{_configuration["Keycloak:Authority"]}/protocol/openid-connect/logout";
+            
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = _configuration["Keycloak:ClientId"] ?? "hypesoft-api",
+                ["client_secret"] = _configuration["Keycloak:ClientSecret"] ?? "",
+                ["refresh_token"] = refreshToken
+            });
+
+            var response = await _httpClient.PostAsync(logoutEndpoint, content, cancellationToken);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Logout failed");
+                return false;
+            }
+
+            _logger.LogInformation("User logged out successfully");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during logout");
+            return false;
+        }
+    }
+
     private async Task<string?> GetAdminTokenAsync(CancellationToken cancellationToken = default)
     {
         try
