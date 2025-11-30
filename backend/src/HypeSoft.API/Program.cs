@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using FluentValidation;
 using HypeSoft.API.Middlewares;
 using HypeSoft.Application.Behaviors;
@@ -183,12 +184,12 @@ builder.Services.Configure<AspNetCoreRateLimit.IpRateLimitOptions>(options =>
         }
     };
 });
-// Rate limiting - commented out for now
-// builder.Services.AddSingleton<AspNetCoreRateLimit.IIpPolicyStore, AspNetCoreRateLimit.MemoryCacheIpPolicyStore>();
-// builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitCounterStore, AspNetCoreRateLimit.MemoryCacheRateLimitCounterStore>();
-// builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitConfiguration, AspNetCoreRateLimit.RateLimitConfiguration>();
-// builder.Services.AddSingleton<AspNetCoreRateLimit.IProcessingStrategy, AspNetCoreRateLimit.AsyncKeyLockProcessingStrategy>();
-// builder.Services.AddInMemoryRateLimiting();
+// Rate limiting
+builder.Services.AddSingleton<AspNetCoreRateLimit.IIpPolicyStore, AspNetCoreRateLimit.MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitCounterStore, AspNetCoreRateLimit.MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IRateLimitConfiguration, AspNetCoreRateLimit.RateLimitConfiguration>();
+builder.Services.AddSingleton<AspNetCoreRateLimit.IProcessingStrategy, AspNetCoreRateLimit.AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
 
 // Health Checks
 builder.Services.AddHealthChecks();
@@ -210,8 +211,8 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 // Correlation ID for request tracking
 app.UseMiddleware<CorrelationIdMiddleware>();
 
-// Rate limiting - commented out for now
-// app.UseIpRateLimiting();
+// Rate limiting
+app.UseIpRateLimiting();
 
 // Custom middleware for validation and error handling
 app.UseMiddleware<ValidationExceptionMiddleware>();
