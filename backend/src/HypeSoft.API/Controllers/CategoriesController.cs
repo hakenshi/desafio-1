@@ -47,9 +47,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new category
+    /// Create a new category (requires admin role)
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<CategoryDto>> Create([FromBody] CreateCategoryDto dto)
     {
         var category = await _mediator.Send(new CreateCategoryCommand(dto));
@@ -57,9 +58,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Update an existing category
+    /// Update an existing category (requires admin role)
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<CategoryDto>> Update(string id, [FromBody] UpdateCategoryDto dto)
     {
         try
@@ -74,9 +76,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Delete a category
+    /// Delete a category (requires admin role)
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult> Delete(string id)
     {
         try

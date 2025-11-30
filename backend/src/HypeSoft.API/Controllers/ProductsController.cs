@@ -74,29 +74,42 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Cria um novo produto
+    /// Cria um novo produto (requer role admin)
     /// </summary>
     /// <param name="dto">Dados do produto a ser criado</param>
     /// <returns>Produto criado</returns>
     /// <response code="201">Produto criado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
+    /// <response code="403">Acesso negado - requer role admin</response>
     [HttpPost]
+    [Authorize(Roles = "admin")]
     [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductDto dto)
     {
         var product = await _mediator.Send(new CreateProductCommand(dto));
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
 
+    /// <summary>
+    /// Atualiza um produto existente (requer role admin)
+    /// </summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductDto>> Update(string id, [FromBody] UpdateProductDto dto)
     {
         var product = await _mediator.Send(new UpdateProductCommand(id, dto));
         return Ok(product);
     }
 
+    /// <summary>
+    /// Remove um produto (requer role admin)
+    /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(string id)
     {
         await _mediator.Send(new DeleteProductCommand(id));
