@@ -1,6 +1,7 @@
 using HypeSoft.Application.DTOs;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 
 namespace HypeSoft.Application.Auth.Queries;
@@ -16,14 +17,23 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
 
     public Task<UserInfoDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
-        var user = request.User;
+        var token = request.AccessToken;
         
-        var roles = new List<string>();
-        var realmAccessClaim = user.FindFirst("realm_access")?.Value;
-        
-        if (!string.IsNullOrEmpty(realmAccessClaim))
+        if (string.IsNullOrEmpty(token))
         {
-            try
+            _logger.LogWarning("Access token is empty");
+            return Task.FromResult(new UserInfoDto());
+        }
+
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            
+            var roles = new List<string>();
+            var realmAccessClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "realm_access")?.Value;
+            
+            if (!string.IsNullOrEmpty(realmAccessClaim))
             {
                 var realmAccess = JsonSerializer.Deserialize<JsonElement>(realmAccessClaim);
                 if (realmAccess.TryGetProperty("roles", out var rolesElement))
@@ -34,22 +44,23 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
                         .ToList();
                 }
             }
-            catch (JsonException ex)
-            {
-                _logger.LogWarning(ex, "Failed to parse realm_access claim");
-            }
-        }
-        
-        var userInfo = new UserInfoDto
-        {
-            Id = user.FindFirst("sub")?.Value ?? "",
-            Username = user.FindFirst("preferred_username")?.Value ?? "",
-            Email = user.FindFirst("email")?.Value ?? "",
-            FirstName = user.FindFirst("given_name")?.Value,
-            LastName = user.FindFirst("family_name")?.Value,
-            Roles = roles
-        };
 
-        return Task.FromResult(userInfo);
+            var userInfo = new UserInfoDto
+            {
+                Id = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? "",
+                Username = jwtToken.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value ?? "",
+                Email = jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "",
+                FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value,
+                LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value,
+                Roles = roles
+            };
+
+            return Task.FromResult(userInfo);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to decode JWT token");
+            return Task.FromResult(new UserInfoDto());
+        }
     }
 }
