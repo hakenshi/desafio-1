@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AuthModel } from "@/server/models/auth.model";
+import { AuthModel } from "../../../server/models/auth.model";
 
 describe("AuthModel Schema Validation", () => {
   describe("LoginRequestSchema", () => {
