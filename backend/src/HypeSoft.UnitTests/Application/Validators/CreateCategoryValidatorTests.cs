@@ -27,13 +27,25 @@ public class CreateCategoryValidatorTests
         result.Errors.Should().BeEmpty();
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyName_ShouldHaveError(string name)
+    [Fact]
+    public void Validate_EmptyName_ShouldHaveError()
     {
         // Arrange
-        var dto = new CreateCategoryDto(name, "Valid description");
+        var dto = new CreateCategoryDto("", "Valid description");
+
+        // Act
+        var result = _validator.Validate(dto);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Name");
+    }
+
+    [Fact]
+    public void Validate_NullName_ShouldHaveError()
+    {
+        // Arrange
+        var dto = new CreateCategoryDto(null!, "Valid description");
 
         // Act
         var result = _validator.Validate(dto);
@@ -72,13 +84,25 @@ public class CreateCategoryValidatorTests
         result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("100"));
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyDescription_ShouldHaveError(string description)
+    [Fact]
+    public void Validate_EmptyDescription_ShouldHaveError()
     {
         // Arrange
-        var dto = new CreateCategoryDto("Valid Name", description);
+        var dto = new CreateCategoryDto("Valid Name", "");
+
+        // Act
+        var result = _validator.Validate(dto);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Description");
+    }
+
+    [Fact]
+    public void Validate_NullDescription_ShouldHaveError()
+    {
+        // Arrange
+        var dto = new CreateCategoryDto("Valid Name", null!);
 
         // Act
         var result = _validator.Validate(dto);

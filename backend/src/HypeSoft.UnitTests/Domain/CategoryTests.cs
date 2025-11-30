@@ -24,25 +24,51 @@ public class CategoryTests
         category.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData(null)]
-    public void Create_WithInvalidName_ShouldThrowArgumentException(string invalidName)
+    [Fact]
+    public void Create_WithEmptyName_ShouldThrowArgumentException()
     {
         // Act & Assert
-        var act = () => Category.Create(invalidName, "Valid Description");
+        var act = () => Category.Create("", "Valid Description");
         act.Should().Throw<ArgumentException>().WithParameterName("name");
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData(null)]
-    public void Create_WithInvalidDescription_ShouldThrowArgumentException(string invalidDescription)
+    [Fact]
+    public void Create_WithWhitespaceName_ShouldThrowArgumentException()
     {
         // Act & Assert
-        var act = () => Category.Create("Valid Name", invalidDescription);
+        var act = () => Category.Create(" ", "Valid Description");
+        act.Should().Throw<ArgumentException>().WithParameterName("name");
+    }
+
+    [Fact]
+    public void Create_WithNullName_ShouldThrowArgumentException()
+    {
+        // Act & Assert
+        var act = () => Category.Create(null!, "Valid Description");
+        act.Should().Throw<ArgumentException>().WithParameterName("name");
+    }
+
+    [Fact]
+    public void Create_WithEmptyDescription_ShouldThrowArgumentException()
+    {
+        // Act & Assert
+        var act = () => Category.Create("Valid Name", "");
+        act.Should().Throw<ArgumentException>().WithParameterName("description");
+    }
+
+    [Fact]
+    public void Create_WithWhitespaceDescription_ShouldThrowArgumentException()
+    {
+        // Act & Assert
+        var act = () => Category.Create("Valid Name", " ");
+        act.Should().Throw<ArgumentException>().WithParameterName("description");
+    }
+
+    [Fact]
+    public void Create_WithNullDescription_ShouldThrowArgumentException()
+    {
+        // Act & Assert
+        var act = () => Category.Create("Valid Name", null!);
         act.Should().Throw<ArgumentException>().WithParameterName("description");
     }
 

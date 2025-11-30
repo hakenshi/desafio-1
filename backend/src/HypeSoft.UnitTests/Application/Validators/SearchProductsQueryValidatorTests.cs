@@ -27,13 +27,25 @@ public class SearchProductsQueryValidatorTests
         result.Errors.Should().BeEmpty();
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyName_ShouldHaveError(string name)
+    [Fact]
+    public void Validate_EmptyName_ShouldHaveError()
     {
         // Arrange
-        var query = new SearchProductsQuery(name);
+        var query = new SearchProductsQuery("");
+
+        // Act
+        var result = _validator.Validate(query);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Name");
+    }
+
+    [Fact]
+    public void Validate_NullName_ShouldHaveError()
+    {
+        // Arrange
+        var query = new SearchProductsQuery(null!);
 
         // Act
         var result = _validator.Validate(query);

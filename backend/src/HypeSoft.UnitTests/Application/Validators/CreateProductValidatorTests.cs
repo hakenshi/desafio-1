@@ -33,13 +33,25 @@ public class CreateProductValidatorTests
         result.Errors.Should().BeEmpty();
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyName_ShouldHaveError(string name)
+    [Fact]
+    public void Validate_EmptyName_ShouldHaveError()
     {
         // Arrange
-        var dto = new CreateProductDto(name, "Valid Description Here", 10m, "cat1", 5);
+        var dto = new CreateProductDto("", "Valid Description Here", 10m, "cat1", 5);
+
+        // Act
+        var result = _validator.Validate(dto);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Name");
+    }
+
+    [Fact]
+    public void Validate_NullName_ShouldHaveError()
+    {
+        // Arrange
+        var dto = new CreateProductDto(null!, "Valid Description Here", 10m, "cat1", 5);
 
         // Act
         var result = _validator.Validate(dto);
@@ -78,13 +90,25 @@ public class CreateProductValidatorTests
         result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("200"));
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyDescription_ShouldHaveError(string description)
+    [Fact]
+    public void Validate_EmptyDescription_ShouldHaveError()
     {
         // Arrange
-        var dto = new CreateProductDto("Valid Name", description, 10m, "cat1", 5);
+        var dto = new CreateProductDto("Valid Name", "", 10m, "cat1", 5);
+
+        // Act
+        var result = _validator.Validate(dto);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Description");
+    }
+
+    [Fact]
+    public void Validate_NullDescription_ShouldHaveError()
+    {
+        // Arrange
+        var dto = new CreateProductDto("Valid Name", null!, 10m, "cat1", 5);
 
         // Act
         var result = _validator.Validate(dto);
@@ -154,13 +178,25 @@ public class CreateProductValidatorTests
         result.Errors.Should().Contain(e => e.PropertyName == "Price" && e.ErrorMessage.Contains("1.000.000"));
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void Validate_EmptyCategoryId_ShouldHaveError(string categoryId)
+    [Fact]
+    public void Validate_EmptyCategoryId_ShouldHaveError()
     {
         // Arrange
-        var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, categoryId, 5);
+        var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, "", 5);
+
+        // Act
+        var result = _validator.Validate(dto);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "CategoryId");
+    }
+
+    [Fact]
+    public void Validate_NullCategoryId_ShouldHaveError()
+    {
+        // Arrange
+        var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, null!, 5);
 
         // Act
         var result = _validator.Validate(dto);
