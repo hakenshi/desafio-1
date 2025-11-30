@@ -1,3 +1,9 @@
+import DashboardShell from "@/components/dashboard/dashboard-shell";
+
 export default function DashboardPage(){
-    return "dashboard"
+    return (
+        <DashboardShell title="Dashboard">
+
+        </DashboardShell>
+    )
 }

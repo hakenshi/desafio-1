@@ -4,10 +4,10 @@ import { PropsWithChildren } from "react";
 
 export default function DashboardLayout({ children }: PropsWithChildren) {
     return (
-        <div>
+        <div className="grid h-screen grid-rows-[auto_1fr] grid-cols-[12rem_auto]">
             <Header />
             <Sidebar />
-            <main>
+            <main className="row-start-2 col-start-2 overflow-hidden">
                 {children}
             </main>
         </div>
