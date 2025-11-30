@@ -40,6 +40,9 @@ builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
+// Services
+builder.Services.AddScoped<IKeycloakService, HypeSoft.Infraestructure.Services.KeycloakService>();
+
 // MediatR with Validation, Caching and Cache Invalidation Behaviors
 builder.Services.AddMediatR(cfg =>
 {
