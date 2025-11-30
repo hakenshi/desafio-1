@@ -1,20 +1,22 @@
 "use client"
 
-import { AuthModel } from "@/server/models/auth.model"
+import { AuthModel } from "../../server/models/auth.model"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { actions } from "@/server/controllers"
+import { actions } from "../../server/controllers"
 import Image from "next/image"
+import { redirect } from "next/navigation"
+import { Spinner } from "../ui/spinner"
 
 export function LoginForm() {
     const form = useForm<AuthModel.LoginRequest>({
         resolver: zodResolver(AuthModel.LoginRequestSchema),
         defaultValues: {
-            email: "",
-            password: ""
+            email: "admin@hypesoft.com",
+            password: "admin123"
         }
     })
 
@@ -24,18 +26,21 @@ export function LoginForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className="grid border border-gray-300 p-5 max-w-xl w-full h-100 bg-white rounded-2xl">
-                <div>
-                    <Image
-                        width={300}
-                        height={100}
-                        src="/logo.svg"
-                        alt="hypesoft logo"
-                    />
-                    <p className="text-gray-500 text-center">Enter your credentials to access the dashboard</p>
+            <form onSubmit={form.handleSubmit(submit)} className="grid gap-6 border border-gray-300 p-8 max-w-xl w-full bg-white rounded-2xl">
+                <div className="flex flex-col items-center gap-5">
+                    <div>
+                        <Image
+                            width={75}
+                            height={10}
+                            priority
+                            src="/logo.svg"
+                            alt="hypesoft logo"
+                        />
+                    </div>
+                    <p className="text-gray-500">Enter your credentials to access the dashboard</p>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6">
                     <FormField
                         control={form.control}
                         name="email"
@@ -43,7 +48,7 @@ export function LoginForm() {
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="example@email.com" {...field} />
+                                    <Input type="email" placeholder="example@email.com" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -63,13 +68,11 @@ export function LoginForm() {
                         )}
                     />
                 </div>
-                <div className="flex items-end justify-end">
-                    <Button type="submit">
-                        Login
-                    </Button>
-                </div>
+
+                <Button disabled={form.formState.isSubmitting} type="submit" className="w-full">
+                    {form.formState.isSubmitting ? (<> <Spinner /> Login </>) : "Login"}
+                </Button>
             </form>
         </Form>
     )
-
 }
