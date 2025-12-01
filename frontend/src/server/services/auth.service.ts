@@ -70,4 +70,9 @@ export class AuthService extends BaseService {
     const response = await this.client.get<AuthModel.KeycloakUser[]>("/auth/users", undefined, this.token);
     return z.array(AuthModel.KeycloakUserSchema).parse(response);
   }
+
+  async updateUser(id: string, data: AuthModel.UpdateUserRequest): Promise<void> {
+    const validatedData = AuthModel.UpdateUserRequestSchema.parse(data);
+    await this.client.put(`/auth/users/${id}`, validatedData, undefined, this.token);
+  }
 }

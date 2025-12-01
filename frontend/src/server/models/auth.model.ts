@@ -21,6 +21,7 @@ export namespace AuthModel {
         password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
         firstName: z.string().optional(),
         lastName: z.string().optional(),
+        role: z.enum(["admin", "manager", "user"]),
     });
 
     // User Info
@@ -44,10 +45,19 @@ export namespace AuthModel {
         role: z.enum(["admin", "manager", "user"]),
     });
 
+    // Update User
+    export const UpdateUserRequestSchema = z.object({
+        email: z.string().email("Email inválido"),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        role: z.enum(["admin", "manager", "user"]),
+    });
+
     // Types
     export type LoginRequest = z.infer<typeof LoginRequestSchema>;
     export type TokenResponse = z.infer<typeof TokenResponseSchema>;
     export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
     export type UserInfo = z.infer<typeof UserInfoSchema>;
     export type KeycloakUser = z.infer<typeof KeycloakUserSchema>;
+    export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>;
 }

@@ -43,3 +43,8 @@ export async function getUsers(): Promise<AuthModel.KeycloakUser[]> {
   const service = await getService(true);
   return await service.getUsers();
 }
+
+export async function updateUser(id: string, data: AuthModel.UpdateUserRequest): Promise<void> {
+  const service = await getService(true);
+  return await service.updateUser(id, data);
+}
