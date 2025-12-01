@@ -1,5 +1,6 @@
 using AutoMapper;
 using HypeSoft.Application.DTOs;
+using HypeSoft.Application.Interfaces;
 using HypeSoft.Domain.Repositories;
 using MediatR;
 
@@ -9,15 +10,21 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IAuditService _auditService;
+    private readonly ICurrentUserService _currentUser;
     private readonly IMapper _mapper;
 
     public UpdateProductCommandHandler(
-        IProductRepository productRepository, 
+        IProductRepository productRepository,
         ICategoryRepository categoryRepository,
+        IAuditService auditService,
+        ICurrentUserService currentUser,
         IMapper mapper)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _auditService = auditService;
+        _currentUser = currentUser;
         _mapper = mapper;
     }
 
@@ -36,9 +43,21 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         );
 
         await _productRepository.UpdateAsync(product, cancellationToken);
-        
+
         var category = await _categoryRepository.GetByIdAsync(product.CategoryId, cancellationToken);
         var categoryName = category?.Name ?? "Unknown";
+
+        // Log the action
+        await _auditService.LogAsync(
+            _currentUser.UserId ?? "system",
+            _currentUser.Username ?? "system",
+            "Update",
+            "Product",
+            product.Id,
+            product.Name,
+            $"Updated product",
+            cancellationToken
+        );
 
         return new ProductDto(
             product.Id,

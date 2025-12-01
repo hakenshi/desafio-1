@@ -1,5 +1,6 @@
 using AutoMapper;
 using HypeSoft.Application.DTOs;
+using HypeSoft.Application.Interfaces;
 using HypeSoft.Domain.Entities;
 using HypeSoft.Domain.Repositories;
 using MediatR;
@@ -10,15 +11,21 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IAuditService _auditService;
+    private readonly ICurrentUserService _currentUser;
     private readonly IMapper _mapper;
 
     public CreateProductCommandHandler(
-        IProductRepository productRepository, 
+        IProductRepository productRepository,
         ICategoryRepository categoryRepository,
+        IAuditService auditService,
+        ICurrentUserService currentUser,
         IMapper mapper)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _auditService = auditService;
+        _currentUser = currentUser;
         _mapper = mapper;
     }
 
@@ -33,9 +40,21 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
         );
 
         var created = await _productRepository.CreateAsync(product, cancellationToken);
-        
+
         var category = await _categoryRepository.GetByIdAsync(created.CategoryId, cancellationToken);
         var categoryName = category?.Name ?? "Unknown";
+
+        // Log the action
+        await _auditService.LogAsync(
+            _currentUser.UserId ?? "system",
+            _currentUser.Username ?? "system",
+            "Create",
+            "Product",
+            created.Id,
+            created.Name,
+            $"Created product with price {created.Price:C}",
+            cancellationToken
+        );
 
         return new ProductDto(
             created.Id,
