@@ -77,8 +77,20 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: "categoryId",
-    header: "Category ID",
+    accessorKey: "categoryName",
+    header: "Category",
+  },
+  {
+    accessorKey: "isLowStock",
+    header: "Status",
+    cell: ({ row }) => {
+      const isLowStock = row.getValue("isLowStock") as boolean
+      return (
+        <span className={`px-2 py-1 rounded-md text-xs ${isLowStock ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}>
+          {isLowStock ? "Low Stock" : "In Stock"}
+        </span>
+      )
+    },
   },
   {
     accessorKey: "createdAt",
