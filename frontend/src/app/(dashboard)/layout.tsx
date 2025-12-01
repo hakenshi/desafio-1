@@ -7,7 +7,7 @@ export default function DashboardLayout({ children }: PropsWithChildren) {
         <div className="grid h-screen grid-rows-[auto_1fr] grid-cols-[12rem_auto]">
             <Header />
             <Sidebar />
-            <main className="row-start-2 col-start-2 overflow-hidden">
+            <main className="row-start-2 col-start-2 overflow-y-scroll">
                 {children}
             </main>
         </div>
