@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Input } from "./ui/input";
-import { BellIcon, Dot, Ellipsis, EllipsisIcon, SearchIcon, SunIcon } from "lucide-react";
+import { BellIcon, EllipsisIcon, SearchIcon, SunIcon } from "lucide-react";
 import Icon from "./icon";
 import { actions } from "@/server/controllers";
 import Link from "next/link";
@@ -34,7 +34,7 @@ export async function Header() {
                         <Icon />
                         <div className="text-start">
                             <p className="text-gray-800 text-sm">{user.firstName}</p>
-                            <p className="text-xs text-gray-500">{user.roles[0]}</p>
+                            <p className="text-xs text-gray-500">{user.role}</p>
                         </div>
                         <EllipsisIcon className="ml-5 text-gray-600" />
                     </div>

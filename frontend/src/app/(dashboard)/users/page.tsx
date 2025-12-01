@@ -1,22 +1,37 @@
 import DashboardShell from "@/components/dashboard/dashboard-shell"
 import { DataTable } from "@/components/ui/data-table"
 import { columns } from "./columns"
-import { getUserInfo } from "@/server/controllers/auth.controller"
+import { getUserInfo, getUsers } from "@/server/controllers/auth.controller"
+import { redirect } from "next/navigation"
 
 export default async function UsersPage() {
-  // Por enquanto, mostra apenas o usuário atual
-  // TODO: Criar endpoint no backend para listar todos os usuários (admin only)
   const currentUser = await getUserInfo()
-  const users = [currentUser]
+  
+  // Only admin can view users list
+  if (currentUser.role !== "admin") {
+    redirect("/dashboard")
+  }
+
+  let users = []
+  let error = null
+
+  try {
+    users = await getUsers()
+  } catch (e) {
+    error = e instanceof Error ? e.message : "Failed to load users"
+    // Fallback to current user only
+    users = [{ ...currentUser, enabled: true }]
+  }
 
   return (
     <DashboardShell title="Users">
-      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-        <p className="text-sm text-blue-800">
-          <strong>Note:</strong> Currently showing only your user profile. 
-          A full user management endpoint needs to be implemented in the backend.
-        </p>
-      </div>
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-800">
+            <strong>Error:</strong> {error}
+          </p>
+        </div>
+      )}
       <DataTable 
         columns={columns} 
         data={users}

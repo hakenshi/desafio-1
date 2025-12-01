@@ -11,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { UserModel } from "@/server/models/user.model"
+import { AuthModel } from "@/server/models/auth.model"
 
-export type User = UserModel.User
+export type User = AuthModel.KeycloakUser
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -45,21 +45,35 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
-    accessorKey: "roles",
-    header: "Roles",
+    accessorKey: "role",
+    header: "Role",
     cell: ({ row }) => {
-      const roles = row.getValue("roles") as string[]
+      const role = row.getValue("role") as string
+      const roleColors: Record<string, string> = {
+        admin: "bg-red-100 text-red-800",
+        manager: "bg-blue-100 text-blue-800",
+        user: "bg-gray-100 text-gray-800",
+      }
       return (
-        <div className="flex gap-1 flex-wrap">
-          {roles.map((role) => (
-            <span 
-              key={role}
-              className="capitalize px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs"
-            >
-              {role}
-            </span>
-          ))}
-        </div>
+        <span 
+          className={`capitalize px-2 py-1 rounded-md text-xs ${roleColors[role] || "bg-secondary text-secondary-foreground"}`}
+        >
+          {role}
+        </span>
+      )
+    },
+  },
+  {
+    accessorKey: "enabled",
+    header: "Status",
+    cell: ({ row }) => {
+      const enabled = row.getValue("enabled") as boolean
+      return (
+        <span 
+          className={`px-2 py-1 rounded-md text-xs ${enabled ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+        >
+          {enabled ? "Active" : "Disabled"}
+        </span>
       )
     },
   },
