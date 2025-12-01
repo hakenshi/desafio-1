@@ -153,7 +153,41 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = false,
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role
+        };
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                // Map Keycloak realm_access.roles to standard roles claim
+                var claimsIdentity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
+                if (claimsIdentity == null) return Task.CompletedTask;
+
+                // Get realm_access claim from the identity (already parsed by JWT handler)
+                var realmAccessClaim = claimsIdentity.FindFirst("realm_access")?.Value;
+                if (!string.IsNullOrEmpty(realmAccessClaim))
+                {
+                    try
+                    {
+                        var realmAccess = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(realmAccessClaim);
+                        if (realmAccess.TryGetProperty("roles", out var rolesElement))
+                        {
+                            foreach (var role in rolesElement.EnumerateArray())
+                            {
+                                var roleValue = role.GetString();
+                                if (!string.IsNullOrEmpty(roleValue))
+                                {
+                                    claimsIdentity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, roleValue));
+                                }
+                            }
+                        }
+                    }
+                    catch { /* Ignore JSON parsing errors */ }
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 

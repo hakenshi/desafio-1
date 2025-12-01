@@ -23,6 +23,20 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Get all users (requires admin role)
+    /// </summary>
+    [HttpGet("users")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(typeof(IEnumerable<KeycloakUserDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IEnumerable<KeycloakUserDto>>> GetUsers()
+    {
+        var users = await _mediator.Send(new GetUsersQuery());
+        return Ok(users);
+    }
+
+    /// <summary>
     /// Login with email and password
     /// </summary>
     [HttpPost("login")]

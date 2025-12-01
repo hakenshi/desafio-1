@@ -24,13 +24,13 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Get all categories
+    /// Get all categories with pagination
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<CategoryDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var categories = await _mediator.Send(new GetAllCategoriesQuery());
-        return Ok(categories);
+        var result = await _mediator.Send(new GetAllCategoriesQuery(page, pageSize));
+        return Ok(result);
     }
 
     /// <summary>
@@ -47,10 +47,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new category (requires admin role)
+    /// Create a new category (requires admin or manager role)
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     public async Task<ActionResult<CategoryDto>> Create([FromBody] CreateCategoryDto dto)
     {
         var category = await _mediator.Send(new CreateCategoryCommand(dto));
@@ -58,10 +58,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Update an existing category (requires admin role)
+    /// Update an existing category (requires admin or manager role)
     /// </summary>
     [HttpPut("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     public async Task<ActionResult<CategoryDto>> Update(string id, [FromBody] UpdateCategoryDto dto)
     {
         try
@@ -76,10 +76,10 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Delete a category (requires admin role)
+    /// Delete a category (requires admin or manager role)
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     public async Task<ActionResult> Delete(string id)
     {
         try

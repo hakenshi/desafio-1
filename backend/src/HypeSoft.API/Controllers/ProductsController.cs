@@ -32,12 +32,12 @@ public class ProductsController : ControllerBase
     /// <response code="200">Retorna a lista de produtos</response>
     /// <response code="400">Parâmetros de paginação inválidos</response>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginatedResponse<ProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<ActionResult<PaginatedResponse<ProductDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var products = await _mediator.Send(new GetAllProductsQuery(page, pageSize));
-        return Ok(products);
+        var result = await _mediator.Send(new GetAllProductsQuery(page, pageSize));
+        return Ok(result);
     }
 
     /// <summary>
@@ -74,15 +74,15 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Cria um novo produto (requer role admin)
+    /// Cria um novo produto (requer role admin ou manager)
     /// </summary>
     /// <param name="dto">Dados do produto a ser criado</param>
     /// <returns>Produto criado</returns>
     /// <response code="201">Produto criado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
-    /// <response code="403">Acesso negado - requer role admin</response>
+    /// <response code="403">Acesso negado - requer role admin ou manager</response>
     [HttpPost]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -93,10 +93,10 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Atualiza um produto existente (requer role admin)
+    /// Atualiza um produto existente (requer role admin ou manager)
     /// </summary>
     [HttpPut("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ProductDto>> Update(string id, [FromBody] UpdateProductDto dto)
     {
@@ -105,10 +105,10 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Remove um produto (requer role admin)
+    /// Remove um produto (requer role admin ou manager)
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,manager")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(string id)
     {
