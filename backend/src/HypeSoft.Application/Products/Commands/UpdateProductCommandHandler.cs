@@ -8,11 +8,16 @@ namespace HypeSoft.Application.Products.Commands;
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
 
-    public UpdateProductCommandHandler(IProductRepository productRepository, IMapper mapper)
+    public UpdateProductCommandHandler(
+        IProductRepository productRepository, 
+        ICategoryRepository categoryRepository,
+        IMapper mapper)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _mapper = mapper;
     }
 
@@ -31,6 +36,21 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         );
 
         await _productRepository.UpdateAsync(product, cancellationToken);
-        return _mapper.Map<ProductDto>(product);
+        
+        var category = await _categoryRepository.GetByIdAsync(product.CategoryId, cancellationToken);
+        var categoryName = category?.Name ?? "Unknown";
+
+        return new ProductDto(
+            product.Id,
+            product.Name,
+            product.Description,
+            product.Price,
+            product.CategoryId,
+            categoryName,
+            product.StockQuantity,
+            product.IsLowStock(),
+            product.CreatedAt,
+            product.UpdatedAt
+        );
     }
 }

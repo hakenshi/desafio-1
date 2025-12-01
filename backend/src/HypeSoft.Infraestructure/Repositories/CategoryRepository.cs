@@ -21,11 +21,33 @@ public class CategoryRepository : ICategoryRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+        return await _context.Categories
+            .Find(c => idList.Contains(c.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<Category>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Categories
             .Find(_ => true)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Category>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .Find(_ => true)
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> GetTotalCountAsync(CancellationToken cancellationToken = default)
+    {
+        return (int)await _context.Categories.CountDocumentsAsync(_ => true, cancellationToken: cancellationToken);
     }
 
     public async Task<Category> CreateAsync(Category category, CancellationToken cancellationToken = default)

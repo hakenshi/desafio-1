@@ -8,17 +8,38 @@ namespace HypeSoft.Application.Products.Queries;
 public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
 
-    public GetProductByIdQueryHandler(IProductRepository productRepository, IMapper mapper)
+    public GetProductByIdQueryHandler(
+        IProductRepository productRepository, 
+        ICategoryRepository categoryRepository,
+        IMapper mapper)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _mapper = mapper;
     }
 
     public async Task<ProductDto?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
-        return product == null ? null : _mapper.Map<ProductDto>(product);
+        if (product == null) return null;
+
+        var category = await _categoryRepository.GetByIdAsync(product.CategoryId, cancellationToken);
+        var categoryName = category?.Name ?? "Unknown";
+
+        return new ProductDto(
+            product.Id,
+            product.Name,
+            product.Description,
+            product.Price,
+            product.CategoryId,
+            categoryName,
+            product.StockQuantity,
+            product.IsLowStock(),
+            product.CreatedAt,
+            product.UpdatedAt
+        );
     }
 }
