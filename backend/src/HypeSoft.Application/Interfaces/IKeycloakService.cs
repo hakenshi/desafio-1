@@ -8,4 +8,5 @@ public interface IKeycloakService
     Task<bool> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default);
     Task<TokenResponseDto?> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
     Task<bool> LogoutAsync(string refreshToken, CancellationToken cancellationToken = default);
+    Task<IEnumerable<KeycloakUserDto>> GetUsersAsync(CancellationToken cancellationToken = default);
 }

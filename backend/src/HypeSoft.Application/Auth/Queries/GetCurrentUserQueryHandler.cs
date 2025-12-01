@@ -30,7 +30,8 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             
-            var roles = new List<string>();
+            // Get the highest priority role (admin > manager > user)
+            var role = "user";
             var realmAccessClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "realm_access")?.Value;
             
             if (!string.IsNullOrEmpty(realmAccessClaim))
@@ -38,10 +39,18 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
                 var realmAccess = JsonSerializer.Deserialize<JsonElement>(realmAccessClaim);
                 if (realmAccess.TryGetProperty("roles", out var rolesElement))
                 {
-                    roles = rolesElement.EnumerateArray()
+                    var roles = rolesElement.EnumerateArray()
                         .Select(r => r.GetString() ?? "")
                         .Where(r => !string.IsNullOrEmpty(r))
                         .ToList();
+
+                    // Priority: admin > manager > user
+                    if (roles.Contains("admin"))
+                        role = "admin";
+                    else if (roles.Contains("manager"))
+                        role = "manager";
+                    else if (roles.Contains("user"))
+                        role = "user";
                 }
             }
 
@@ -52,7 +61,7 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
                 Email = jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "",
                 FirstName = jwtToken.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value,
                 LastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value,
-                Roles = roles
+                Role = role
             };
 
             return Task.FromResult(userInfo);

@@ -199,6 +199,94 @@ public class KeycloakService : IKeycloakService
         }
     }
 
+    public async Task<IEnumerable<KeycloakUserDto>> GetUsersAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var adminToken = await GetAdminTokenAsync(cancellationToken);
+            if (string.IsNullOrEmpty(adminToken))
+            {
+                _logger.LogError("Unable to get admin token for listing users");
+                return Enumerable.Empty<KeycloakUserDto>();
+            }
+
+            var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
+            var usersEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users";
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, usersEndpoint);
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Failed to get users: {Error}", error);
+                return Enumerable.Empty<KeycloakUserDto>();
+            }
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            var users = JsonSerializer.Deserialize<List<KeycloakUserResponse>>(json) ?? new List<KeycloakUserResponse>();
+
+            var result = new List<KeycloakUserDto>();
+            foreach (var user in users)
+            {
+                var role = await GetUserRoleAsync(user.Id ?? "", adminToken, cancellationToken);
+                result.Add(new KeycloakUserDto
+                {
+                    Id = user.Id ?? "",
+                    Username = user.Username ?? "",
+                    Email = user.Email ?? "",
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Enabled = user.Enabled,
+                    Role = role
+                });
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting users from Keycloak");
+            return Enumerable.Empty<KeycloakUserDto>();
+        }
+    }
+
+    private async Task<string> GetUserRoleAsync(string userId, string adminToken, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
+            var rolesEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}/role-mappings/realm";
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, rolesEndpoint);
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return "user";
+            }
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            var roles = JsonSerializer.Deserialize<List<KeycloakRoleResponse>>(json) ?? new List<KeycloakRoleResponse>();
+
+            // Priority: admin > manager > user
+            if (roles.Any(r => r.Name == "admin"))
+                return "admin";
+            if (roles.Any(r => r.Name == "manager"))
+                return "manager";
+            
+            return "user";
+        }
+        catch
+        {
+            return "user";
+        }
+    }
+
     private async Task<string?> GetAdminTokenAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -248,4 +336,31 @@ internal class KeycloakTokenResponse
     
     [JsonPropertyName("token_type")]
     public string? TokenType { get; set; }
+}
+
+internal class KeycloakUserResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+    
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
+    
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
+    
+    [JsonPropertyName("firstName")]
+    public string? FirstName { get; set; }
+    
+    [JsonPropertyName("lastName")]
+    public string? LastName { get; set; }
+    
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+}
+
+internal class KeycloakRoleResponse
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 }
