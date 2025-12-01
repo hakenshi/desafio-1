@@ -1,10 +1,9 @@
 import { DashboardModel } from "../models/dashboard.model";
-import { apiClient } from "./api-client.service";
-import { cacheTag, cacheLife } from "next/cache";
+import { BaseService } from "./base.service";
 
-export abstract class DashboardService {
-  static async getData(): Promise<DashboardModel.Dashboard> {
-    const response = await apiClient.get<DashboardModel.Dashboard>("/dashboard");
+export class DashboardService extends BaseService {
+  async getData(): Promise<DashboardModel.Dashboard> {
+    const response = await this.client.get<DashboardModel.Dashboard>("/dashboard", undefined, this.token);
     return DashboardModel.DashboardSchema.parse(response);
   }
 }

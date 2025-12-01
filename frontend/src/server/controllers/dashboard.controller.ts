@@ -1,17 +1,16 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { DashboardModel } from "../models/dashboard.model";
 import { DashboardService } from "../services/dashboard.service";
-import { cacheTag, cacheLife } from "next/cache";
 
-const CACHE_TAGS = {
-  dashboard: "dashboard",
-};
+async function getAuthToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get("authToken")?.value;
+}
 
 export async function getDashboardData(): Promise<DashboardModel.Dashboard> {
-  "use cache";
-  cacheTag(CACHE_TAGS.dashboard);
-  cacheLife("seconds");
-  
-  return await DashboardService.getData();
+  const token = await getAuthToken();
+  const service = new DashboardService(token);
+  return await service.getData();
 }
