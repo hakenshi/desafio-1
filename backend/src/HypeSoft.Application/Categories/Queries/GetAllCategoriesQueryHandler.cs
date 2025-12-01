@@ -5,7 +5,7 @@ using MediatR;
 
 namespace HypeSoft.Application.Categories.Queries;
 
-public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, IEnumerable<CategoryDto>>
+public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, PaginatedResponse<CategoryDto>>
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
@@ -16,9 +16,18 @@ public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuer
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var categories = await _categoryRepository.GetAllAsync(cancellationToken);
-        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+        var categories = await _categoryRepository.GetAllAsync(request.Page, request.PageSize, cancellationToken);
+        var totalCount = await _categoryRepository.GetTotalCountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        return new PaginatedResponse<CategoryDto>(
+            Items: _mapper.Map<IEnumerable<CategoryDto>>(categories),
+            Page: request.Page,
+            PageSize: request.PageSize,
+            TotalCount: totalCount,
+            TotalPages: totalPages
+        );
     }
 }
