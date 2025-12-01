@@ -128,6 +128,124 @@ public class KeycloakService : IKeycloakService
         }
     }
 
+    public async Task<bool> UpdateUserAsync(string userId, UpdateUserRequestDto request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var adminToken = await GetAdminTokenAsync(cancellationToken);
+            if (string.IsNullOrEmpty(adminToken))
+            {
+                _logger.LogError("Unable to get admin token for user update");
+                return false;
+            }
+
+            var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
+            var userEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}";
+
+            // Update user info
+            var userPayload = new
+            {
+                email = request.Email,
+                firstName = request.FirstName,
+                lastName = request.LastName
+            };
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Put, userEndpoint)
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(userPayload),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                )
+            };
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Failed to update user: {Error}", error);
+                return false;
+            }
+
+            // Update user role
+            await UpdateUserRoleAsync(userId, request.Role, adminToken, cancellationToken);
+
+            _logger.LogInformation("User {UserId} updated successfully", userId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during update for user {UserId}", userId);
+            return false;
+        }
+    }
+
+    private async Task UpdateUserRoleAsync(string userId, string newRole, string adminToken, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
+            
+            // Get available realm roles
+            var rolesEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/roles";
+            var rolesRequest = new HttpRequestMessage(HttpMethod.Get, rolesEndpoint);
+            rolesRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+            
+            var rolesResponse = await _httpClient.SendAsync(rolesRequest, cancellationToken);
+            if (!rolesResponse.IsSuccessStatusCode) return;
+
+            var rolesJson = await rolesResponse.Content.ReadAsStringAsync(cancellationToken);
+            var availableRoles = JsonSerializer.Deserialize<List<KeycloakRoleResponse>>(rolesJson) ?? new List<KeycloakRoleResponse>();
+
+            // Get current user roles
+            var userRolesEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}/role-mappings/realm";
+            var currentRolesRequest = new HttpRequestMessage(HttpMethod.Get, userRolesEndpoint);
+            currentRolesRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+            
+            var currentRolesResponse = await _httpClient.SendAsync(currentRolesRequest, cancellationToken);
+            var currentRolesJson = await currentRolesResponse.Content.ReadAsStringAsync(cancellationToken);
+            var currentRoles = JsonSerializer.Deserialize<List<KeycloakRoleWithIdResponse>>(currentRolesJson) ?? new List<KeycloakRoleWithIdResponse>();
+
+            // Remove old roles (admin, manager, user)
+            var rolesToRemove = currentRoles.Where(r => r.Name == "admin" || r.Name == "manager" || r.Name == "user").ToList();
+            if (rolesToRemove.Any())
+            {
+                var removeRequest = new HttpRequestMessage(HttpMethod.Delete, userRolesEndpoint)
+                {
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(rolesToRemove.Select(r => new { id = r.Id, name = r.Name })),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    )
+                };
+                removeRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+                await _httpClient.SendAsync(removeRequest, cancellationToken);
+            }
+
+            // Add new role
+            var roleToAdd = availableRoles.FirstOrDefault(r => r.Name == newRole);
+            if (roleToAdd != null)
+            {
+                var addRequest = new HttpRequestMessage(HttpMethod.Post, userRolesEndpoint)
+                {
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(new[] { new { id = roleToAdd.Id, name = roleToAdd.Name } }),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    )
+                };
+                addRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+                await _httpClient.SendAsync(addRequest, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating role for user {UserId}", userId);
+        }
+    }
+
     public async Task<TokenResponseDto?> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         try
@@ -361,6 +479,18 @@ internal class KeycloakUserResponse
 
 internal class KeycloakRoleResponse
 {
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+    
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}
+
+internal class KeycloakRoleWithIdResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+    
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 }

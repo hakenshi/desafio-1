@@ -48,3 +48,11 @@ public record KeycloakUserDto
     public bool Enabled { get; init; }
     public string Role { get; init; } = "user";
 }
+
+public record UpdateUserRequestDto
+{
+    public string Email { get; init; } = "";
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
+    public string Role { get; init; } = "user";
+}

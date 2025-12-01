@@ -37,6 +37,27 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Update a user (requires admin role)
+    /// </summary>
+    [HttpPut("users/{id}")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequestDto request)
+    {
+        var success = await _mediator.Send(new UpdateUserCommand(id, request));
+        
+        if (!success)
+        {
+            return BadRequest(new { message = "Failed to update user" });
+        }
+
+        return Ok(new { message = "User updated successfully" });
+    }
+
+    /// <summary>
     /// Login with email and password
     /// </summary>
     [HttpPost("login")]
