@@ -1,8 +1,18 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import { Package, DollarSign, AlertTriangle, Layers } from "lucide-react";
-import { getDashboardData } from "@/server/controllers/dashboard.controller";
+import { DashboardModel } from "@/server/models/dashboard.model";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const COLORS = [
   "hsl(var(--chart-1))",
@@ -17,9 +27,19 @@ const COLORS = [
   "#00C49F",
 ];
 
-export async function DashboardStats() {
-  const dashboard = await getDashboardData();
+interface DashboardProps {
+  dashboard: DashboardModel.Dashboard;
+}
 
+interface AuditLogsProps {
+  logs: DashboardModel.AuditLog[];
+}
+
+interface RecentProductsProps {
+  products: DashboardModel.RecentProduct[];
+}
+
+export function DashboardStats({ dashboard }: DashboardProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -40,10 +60,7 @@ export async function DashboardStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(dashboard.totalStockValue)}
+            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(dashboard.totalStockValue)}
           </div>
           <p className="text-xs text-muted-foreground">Total inventory value</p>
         </CardContent>
@@ -74,19 +91,14 @@ export async function DashboardStats() {
   );
 }
 
-export async function DashboardCharts() {
-  const dashboard = await getDashboardData();
-
+export function DashboardCharts({ dashboard }: DashboardProps) {
   const categoryData = Object.entries(dashboard.productsByCategory)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
   const chartConfig = categoryData.reduce((acc, item, index) => {
-    acc[item.name] = {
-      label: item.name,
-      color: COLORS[index % COLORS.length],
-    };
+    acc[item.name] = { label: item.name, color: COLORS[index % COLORS.length] };
     return acc;
   }, {} as Record<string, { label: string; color: string }>);
 
@@ -129,7 +141,7 @@ export async function DashboardCharts() {
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={({ name, percent }) => `${name.slice(0, 10)}${name.length > 10 ? '...' : ''} (${(percent * 100).toFixed(0)}%)`}
+                label={({ name, percent }) => `${name.slice(0, 8)}... (${(percent * 100).toFixed(0)}%)`}
                 labelLine={false}
               >
                 {categoryData.map((_, index) => (
@@ -141,5 +153,115 @@ export async function DashboardCharts() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getActionColor(action: string) {
+  switch (action.toLowerCase()) {
+    case "create":
+      return "bg-green-100 text-green-800";
+    case "update":
+      return "bg-blue-100 text-blue-800";
+    case "delete":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
+
+export function AuditLogsTable({ logs }: AuditLogsProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Changes</CardTitle>
+        <CardDescription>Latest activity in the system</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {logs.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No recent changes</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Entity</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="font-medium">{log.username}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-md text-xs ${getActionColor(log.action)}`}>
+                      {log.action}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-muted-foreground">{log.entityType}:</span>{" "}
+                    {log.entityName || log.entityId.slice(0, 8)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(log.createdAt)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function RecentProductsTable({ products }: RecentProductsProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Products</CardTitle>
+        <CardDescription>Latest products added to inventory</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {products.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No recent products</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Stock</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell className="font-medium">{product.name.slice(0, 30)}{product.name.length > 30 ? "..." : ""}</TableCell>
+                  <TableCell className="text-muted-foreground">{product.categoryName}</TableCell>
+                  <TableCell>
+                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
+                  </TableCell>
+                  <TableCell>
+                    <span className={product.stockQuantity < 10 ? "text-destructive font-medium" : ""}>
+                      {product.stockQuantity}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
   );
 }

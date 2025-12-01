@@ -14,4 +14,5 @@ public interface IProductRepository
     Task DeleteAsync(string id, CancellationToken cancellationToken = default);
     Task<int> GetTotalCountAsync(CancellationToken cancellationToken = default);
     Task<decimal> GetTotalStockValueAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Product>> GetRecentAsync(int count = 10, CancellationToken cancellationToken = default);
 }

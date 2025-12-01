@@ -81,4 +81,13 @@ public class ProductRepository : IProductRepository
         var products = await _context.Products.Find(_ => true).ToListAsync(cancellationToken);
         return products.Sum(p => p.Price * p.StockQuantity);
     }
+
+    public async Task<IEnumerable<Product>> GetRecentAsync(int count = 10, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .Find(_ => true)
+            .SortByDescending(p => p.CreatedAt)
+            .Limit(count)
+            .ToListAsync(cancellationToken);
+    }
 }

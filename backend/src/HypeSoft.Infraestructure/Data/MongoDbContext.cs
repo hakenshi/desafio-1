@@ -16,6 +16,7 @@ public class MongoDbContext
 
     public IMongoCollection<Product> Products => _database.GetCollection<Product>("products");
     public IMongoCollection<Category> Categories => _database.GetCollection<Category>("categories");
+    public IMongoCollection<AuditLog> AuditLogs => _database.GetCollection<AuditLog>("audit_logs");
 }
 
 public class MongoDbSettings

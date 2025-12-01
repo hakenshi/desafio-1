@@ -50,11 +50,50 @@ export function ChartsSkeleton() {
   );
 }
 
+export function DashboardTableSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-5 w-40 mb-1" />
+        <Skeleton className="h-4 w-56" />
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex gap-4">
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-4 flex-1" />
+          </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex gap-4">
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 flex-1" />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function DashboardTablesSkeleton() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 mt-4">
+      <DashboardTableSkeleton />
+      <DashboardTableSkeleton />
+    </div>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
     <>
       <StatCardsSkeleton />
       <ChartsSkeleton />
+      <DashboardTablesSkeleton />
     </>
   );
 }

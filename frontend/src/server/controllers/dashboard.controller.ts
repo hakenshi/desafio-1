@@ -9,8 +9,22 @@ async function getAuthToken(): Promise<string | undefined> {
   return cookieStore.get("authToken")?.value;
 }
 
-export async function getDashboardData(): Promise<DashboardModel.Dashboard> {
+async function getService(): Promise<DashboardService> {
   const token = await getAuthToken();
-  const service = new DashboardService(token);
+  return new DashboardService(token);
+}
+
+export async function getDashboardData(): Promise<DashboardModel.Dashboard> {
+  const service = await getService();
   return await service.getData();
+}
+
+export async function getAuditLogs(count = 10): Promise<DashboardModel.AuditLog[]> {
+  const service = await getService();
+  return await service.getAuditLogs(count);
+}
+
+export async function getRecentProducts(count = 10): Promise<DashboardModel.RecentProduct[]> {
+  const service = await getService();
+  return await service.getRecentProducts(count);
 }

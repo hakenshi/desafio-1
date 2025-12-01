@@ -7,7 +7,7 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/login", request.url))
     }
 
-    if (token && request.url === "/") {
+    if (request.url === "/") {
         return NextResponse.redirect(new URL("/dashboard", request.url))
     }
 

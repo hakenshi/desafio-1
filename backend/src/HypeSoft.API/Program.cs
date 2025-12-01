@@ -40,6 +40,7 @@ builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 // Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 // Services
 builder.Services.AddScoped<IKeycloakService, HypeSoft.Infraestructure.Services.KeycloakService>();
