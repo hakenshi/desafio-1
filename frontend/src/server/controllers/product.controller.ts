@@ -2,7 +2,7 @@
 
 import { ProductModel } from "../models/product.model";
 import { ProductService } from "../services/product.service";
-import { cacheTag, cacheLife, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const CACHE_TAGS = {

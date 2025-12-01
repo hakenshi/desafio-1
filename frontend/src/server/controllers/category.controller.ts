@@ -2,7 +2,7 @@
 
 import { CategoryModel } from "../models/category.model";
 import { CategoryService } from "../services/category.service";
-import { cacheTag, cacheLife, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const CACHE_TAGS = {
