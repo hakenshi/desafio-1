@@ -3,13 +3,19 @@ import { BaseService } from "./base.service";
 import { z } from "zod";
 
 export class CategoryService extends BaseService {
-  async getAll(): Promise<CategoryModel.Category[]> {
-    const response = await this.client.get<CategoryModel.Category[]>(
-      "/categories", 
+  async getAll(query?: CategoryModel.GetAllCategoriesQuery): Promise<CategoryModel.PaginatedCategories> {
+    const validatedQuery = CategoryModel.GetAllCategoriesQuerySchema.parse(query || {});
+    const params = new URLSearchParams({
+      page: validatedQuery.page.toString(),
+      pageSize: validatedQuery.pageSize.toString(),
+    });
+
+    const response = await this.client.get<CategoryModel.PaginatedCategories>(
+      `/categories?${params.toString()}`, 
       undefined, 
       this.token
     );
-    return z.array(CategoryModel.CategorySchema).parse(response);
+    return CategoryModel.PaginatedCategoriesSchema.parse(response);
   }
 
   async getById(id: string): Promise<CategoryModel.Category> {

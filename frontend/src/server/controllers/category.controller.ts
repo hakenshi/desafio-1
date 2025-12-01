@@ -20,9 +20,9 @@ async function getService(): Promise<CategoryService> {
   return new CategoryService(token);
 }
 
-export async function getAllCategories(): Promise<CategoryModel.Category[]> {
+export async function getAllCategories(query?: CategoryModel.GetAllCategoriesQuery): Promise<CategoryModel.PaginatedCategories> {
   const service = await getService();
-  return await service.getAll();
+  return await service.getAll(query);
 }
 
 export async function getCategoryById(id: string): Promise<CategoryModel.Category> {

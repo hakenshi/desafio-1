@@ -3,19 +3,19 @@ import { BaseService } from "./base.service";
 import { z } from "zod";
 
 export class ProductService extends BaseService {
-  async getAll(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.Product[]> {
+  async getAll(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.PaginatedProducts> {
     const validatedQuery = ProductModel.GetAllProductsQuerySchema.parse(query || {});
     const params = new URLSearchParams({
       page: validatedQuery.page.toString(),
       pageSize: validatedQuery.pageSize.toString(),
     });
 
-    const response = await this.client.get<ProductModel.Product[]>(
+    const response = await this.client.get<ProductModel.PaginatedProducts>(
       `/products?${params.toString()}`, 
       undefined, 
       this.token
     );
-    return z.array(ProductModel.ProductSchema).parse(response);
+    return ProductModel.PaginatedProductsSchema.parse(response);
   }
 
   async getById(id: string): Promise<ProductModel.Product> {

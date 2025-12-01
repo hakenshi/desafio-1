@@ -22,7 +22,7 @@ async function getService(): Promise<ProductService> {
   return new ProductService(token);
 }
 
-export async function getAllProducts(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.Product[]> {
+export async function getAllProducts(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.PaginatedProducts> {
   const service = await getService();
   return await service.getAll(query);
 }
