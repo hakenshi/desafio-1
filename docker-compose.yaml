@@ -94,6 +94,8 @@ services:
       Keycloak__Authority: http://keycloak:8080/realms/hypesoft
       Keycloak__Audience: hypesoft-api
       Keycloak__RequireHttpsMetadata: false
+      Keycloak__AdminUsername: admin
+      Keycloak__AdminPassword: admin123
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
     depends_on:
       mongodb:

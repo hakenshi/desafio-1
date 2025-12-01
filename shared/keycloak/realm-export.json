@@ -22,11 +22,15 @@
     "realm": [
       {
         "name": "user",
-        "description": "Regular user role"
+        "description": "Regular user role - read-only access to products and categories"
+      },
+      {
+        "name": "manager",
+        "description": "Manager role - can manage products and categories, but cannot view users"
       },
       {
         "name": "admin",
-        "description": "Administrator role"
+        "description": "Administrator role - full access to the platform"
       }
     ],
     "client": {
@@ -162,7 +166,23 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["admin", "user"]
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "manager",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "manager@hypesoft.com",
+      "firstName": "Manager",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "manager123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["manager"]
     },
     {
       "username": "user",
