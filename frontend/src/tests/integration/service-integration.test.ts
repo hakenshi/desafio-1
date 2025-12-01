@@ -4,53 +4,32 @@ import request from "supertest";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const API_TIMEOUT = 15000;
 
+// Usuário admin pré-configurado no Keycloak
+const ADMIN_USER = {
+  email: "admin@hypesoft.com",
+  password: "admin123",
+};
+
 describe("Service Integration Tests - Real API Calls", () => {
   let accessToken: string;
 
-  // Setup: autenticar antes de todos os testes
+  // Setup: autenticar com usuário admin antes de todos os testes
   beforeAll(async () => {
-    const testUser = {
-      username: `testuser_${Date.now()}`,
-      email: `test_${Date.now()}@example.com`,
-      password: "Test@123456",
-      firstName: "Test",
-      lastName: "User",
-    };
-
-    // Registrar usuário
-    await request(API_URL).post("/auth/register").send(testUser);
-
-    // Login para obter token
     const loginResponse = await request(API_URL)
       .post("/auth/login")
-      .send({ email: testUser.email, password: testUser.password });
+      .send(ADMIN_USER);
 
     accessToken = loginResponse.body.accessToken;
   });
 
   describe("AuthService Integration", () => {
-    const testUser = {
-      username: `authtest_${Date.now()}`,
-      email: `authtest_${Date.now()}@example.com`,
-      password: "Test@123456",
-      firstName: "Auth",
-      lastName: "Test",
-    };
     let authAccessToken: string;
     let authRefreshToken: string;
 
-    it("should register a new user", async () => {
-      const response = await request(API_URL)
-        .post("/auth/register")
-        .send(testUser);
-
-      expect([201, 400]).toContain(response.status);
-    }, API_TIMEOUT);
-
-    it("should login with valid credentials", async () => {
+    it("should login with valid credentials (admin user)", async () => {
       const response = await request(API_URL)
         .post("/auth/login")
-        .send({ email: testUser.email, password: testUser.password });
+        .send(ADMIN_USER);
 
       expect(response.body).toHaveProperty("accessToken");
       expect(response.body).toHaveProperty("refreshToken");
@@ -84,18 +63,31 @@ describe("Service Integration Tests - Real API Calls", () => {
       const response = await request(API_URL).get("/auth/me");
       expect(response.status).toBe(401);
     }, API_TIMEOUT);
+
+    it("should reject login with invalid credentials", async () => {
+      const response = await request(API_URL)
+        .post("/auth/login")
+        .send({ email: "invalid@example.com", password: "wrongpassword" });
+
+      expect(response.status).toBe(401);
+    }, API_TIMEOUT);
   });
 
   describe("CategoryService Integration", () => {
     let testCategoryId: string;
 
-    it("should fetch all categories", async () => {
+    it("should fetch all categories with pagination", async () => {
       const response = await request(API_URL)
-        .get("/categories")
+        .get("/categories?page=1&pageSize=10")
         .set("Authorization", `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty("items");
+      expect(response.body).toHaveProperty("page");
+      expect(response.body).toHaveProperty("pageSize");
+      expect(response.body).toHaveProperty("totalCount");
+      expect(response.body).toHaveProperty("totalPages");
+      expect(Array.isArray(response.body.items)).toBe(true);
     }, API_TIMEOUT);
 
     it("should create category", async () => {
@@ -164,13 +156,18 @@ describe("Service Integration Tests - Real API Calls", () => {
       testCategoryId = response.body.id;
     });
 
-    it("should fetch all products", async () => {
+    it("should fetch all products with pagination", async () => {
       const response = await request(API_URL)
         .get("/products?page=1&pageSize=10")
         .set("Authorization", `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty("items");
+      expect(response.body).toHaveProperty("page");
+      expect(response.body).toHaveProperty("pageSize");
+      expect(response.body).toHaveProperty("totalCount");
+      expect(response.body).toHaveProperty("totalPages");
+      expect(Array.isArray(response.body.items)).toBe(true);
     }, API_TIMEOUT);
 
     it("should create product", async () => {
@@ -184,7 +181,6 @@ describe("Service Integration Tests - Real API Calls", () => {
           categoryId: testCategoryId,
           stockQuantity: 100,
         });
-
       expect(response.status).toBe(201);
       testProductId = response.body.id;
       expect(response.body.price).toBe(99.99);

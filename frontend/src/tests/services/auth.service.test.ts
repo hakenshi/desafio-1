@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AuthModel } from "../../../server/models/auth.model";
+import { AuthModel } from "@/server/models/auth.model";
 
 describe("AuthModel Schema Validation", () => {
   describe("LoginRequestSchema", () => {
@@ -80,43 +80,74 @@ describe("AuthModel Schema Validation", () => {
   describe("TokenResponseSchema", () => {
     it("should validate valid token response", () => {
       const result = AuthModel.TokenResponseSchema.safeParse({
-        access_token: "token123",
-        expires_in: 3600,
-        token_type: "Bearer",
+        accessToken: "token123",
+        expiresIn: 3600,
+        tokenType: "Bearer",
       });
       expect(result.success).toBe(true);
     });
 
-    it("should accept optional refresh_token", () => {
+    it("should accept optional refreshToken", () => {
       const result = AuthModel.TokenResponseSchema.safeParse({
-        access_token: "token123",
-        refresh_token: "refresh123",
-        expires_in: 3600,
-        token_type: "Bearer",
+        accessToken: "token123",
+        refreshToken: "refresh123",
+        expiresIn: 3600,
+        tokenType: "Bearer",
       });
       expect(result.success).toBe(true);
     });
   });
 
   describe("UserInfoSchema", () => {
-    it("should validate valid user info", () => {
+    it("should validate valid user info with required fields", () => {
       const result = AuthModel.UserInfoSchema.safeParse({
-        sub: "user-123",
+        id: "user-123",
+        username: "testuser",
+        email: "test@example.com",
+        role: "user",
       });
       expect(result.success).toBe(true);
     });
 
-    it("should accept all optional fields", () => {
+    it("should accept optional firstName and lastName", () => {
       const result = AuthModel.UserInfoSchema.safeParse({
-        sub: "user-123",
+        id: "user-123",
         username: "testuser",
         email: "test@example.com",
-        email_verified: true,
-        given_name: "Test",
-        family_name: "User",
-        roles: ["user", "admin"],
+        firstName: "Test",
+        lastName: "User",
+        role: "admin",
       });
       expect(result.success).toBe(true);
+    });
+
+    it("should accept null firstName and lastName", () => {
+      const result = AuthModel.UserInfoSchema.safeParse({
+        id: "user-123",
+        username: "testuser",
+        email: "test@example.com",
+        firstName: null,
+        lastName: null,
+        role: "manager",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject invalid role", () => {
+      const result = AuthModel.UserInfoSchema.safeParse({
+        id: "user-123",
+        username: "testuser",
+        email: "test@example.com",
+        role: "invalid-role",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject missing required fields", () => {
+      const result = AuthModel.UserInfoSchema.safeParse({
+        id: "user-123",
+      });
+      expect(result.success).toBe(false);
     });
   });
 });
