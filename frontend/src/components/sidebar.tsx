@@ -49,7 +49,7 @@ export default async function Sidebar() {
                     <p className="text-gray-500 font-semibold text-sm">Support</p>
                     <ul className="pt-2">
                         <li className="hover:bg-gray-200 p-2 rounded-md">
-                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/dashboard"} >
+                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/settings"} >
                                 <Settings />
                                 <p className="text-gray-700">Settings</p>
                             </Link>
