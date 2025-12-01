@@ -27,10 +27,21 @@ export namespace AuthModel {
     export const UserInfoSchema = z.object({
         id: z.string(),
         username: z.string(),
-        email: z.email(),
-        firstName: z.string(),
-        lastName: z.string(),
-        roles: z.array(z.string())
+        email: z.string().email(),
+        firstName: z.string().nullable().optional(),
+        lastName: z.string().nullable().optional(),
+        role: z.enum(["admin", "manager", "user"]),
+    });
+
+    // Keycloak User (for admin listing)
+    export const KeycloakUserSchema = z.object({
+        id: z.string(),
+        username: z.string(),
+        email: z.string().email(),
+        firstName: z.string().nullable().optional(),
+        lastName: z.string().nullable().optional(),
+        enabled: z.boolean(),
+        role: z.enum(["admin", "manager", "user"]),
     });
 
     // Types
@@ -38,4 +49,5 @@ export namespace AuthModel {
     export type TokenResponse = z.infer<typeof TokenResponseSchema>;
     export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
     export type UserInfo = z.infer<typeof UserInfoSchema>;
+    export type KeycloakUser = z.infer<typeof KeycloakUserSchema>;
 }

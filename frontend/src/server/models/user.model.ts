@@ -7,7 +7,7 @@ export namespace UserModel {
     email: z.email(),
     firstName: z.string().nullable().optional(),
     lastName: z.string().nullable().optional(),
-    roles: z.array(z.string()),
+    role: z.enum(["admin", "manager", "user"]),
   });
 
   export type User = z.infer<typeof UserSchema>;

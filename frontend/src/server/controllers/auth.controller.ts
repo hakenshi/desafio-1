@@ -38,3 +38,8 @@ export async function getUserInfo(): Promise<AuthModel.UserInfo> {
   const service = await getService(true);
   return await service.getUserInfo();
 }
+
+export async function getUsers(): Promise<AuthModel.KeycloakUser[]> {
+  const service = await getService(true);
+  return await service.getUsers();
+}

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { PaginationModel } from "./pagination.model";
+
 export namespace ProductModel {
   // Product Schema
   export const ProductSchema = z.object({
@@ -7,10 +9,15 @@ export namespace ProductModel {
     description: z.string(),
     price: z.number(),
     categoryId: z.string(),
+    categoryName: z.string(),
     stockQuantity: z.number(),
+    isLowStock: z.boolean(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   });
+
+  // Paginated Response Schema
+  export const PaginatedProductsSchema = PaginationModel.PaginatedResponseSchema(ProductSchema);
 
   // Create Product Schema
   export const CreateProductSchema = z.object({
@@ -40,6 +47,7 @@ export namespace ProductModel {
 
   // Types
   export type Product = z.infer<typeof ProductSchema>;
+  export type PaginatedProducts = PaginationModel.PaginatedResponse<Product>;
   export type CreateProductDto = z.infer<typeof CreateProductSchema>;
   export type UpdateProductDto = z.infer<typeof UpdateProductSchema>;
   export type SearchProductsQuery = z.infer<typeof SearchProductsQuerySchema>;

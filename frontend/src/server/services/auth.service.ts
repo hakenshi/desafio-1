@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { z } from "zod";
 import { AuthModel } from "../models/auth.model";
 import { BaseService } from "./base.service";
 import { redirect } from "next/navigation";
@@ -63,5 +64,10 @@ export class AuthService extends BaseService {
   async getUserInfo(): Promise<AuthModel.UserInfo> {
     const response = await this.client.get<AuthModel.UserInfo>("/auth/me", undefined, this.token);
     return AuthModel.UserInfoSchema.parse(response);
+  }
+
+  async getUsers(): Promise<AuthModel.KeycloakUser[]> {
+    const response = await this.client.get<AuthModel.KeycloakUser[]>("/auth/users", undefined, this.token);
+    return z.array(AuthModel.KeycloakUserSchema).parse(response);
   }
 }
