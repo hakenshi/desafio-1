@@ -44,6 +44,9 @@ builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 // Services
 builder.Services.AddScoped<IKeycloakService, HypeSoft.Infraestructure.Services.KeycloakService>();
+builder.Services.AddScoped<IAuditService, HypeSoft.Infraestructure.Services.AuditService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, HypeSoft.API.Services.CurrentUserService>();
 
 // MediatR with Validation, Caching and Cache Invalidation Behaviors
 builder.Services.AddMediatR(cfg =>
