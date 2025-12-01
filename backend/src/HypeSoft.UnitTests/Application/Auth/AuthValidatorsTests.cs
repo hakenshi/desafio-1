@@ -153,32 +153,111 @@ public class AuthDtoTests
         userInfo.Email.Should().BeEmpty();
         userInfo.FirstName.Should().BeNull();
         userInfo.LastName.Should().BeNull();
-        userInfo.Roles.Should().BeEmpty();
+        userInfo.Role.Should().Be("user"); // Default role is "user"
     }
 
     [Fact]
-    public void UserInfoDto_WithValues_ShouldSetCorrectly()
+    public void UserInfoDto_WithAdminRole_ShouldSetCorrectly()
     {
         // Act
         var userInfo = new UserInfoDto
         {
             Id = "user-123",
-            Username = "testuser",
-            Email = "test@example.com",
-            FirstName = "Test",
+            Username = "admin",
+            Email = "admin@example.com",
+            FirstName = "Admin",
             LastName = "User",
-            Roles = new List<string> { "user", "admin" }
+            Role = "admin"
         };
 
         // Assert
         userInfo.Id.Should().Be("user-123");
-        userInfo.Username.Should().Be("testuser");
-        userInfo.Email.Should().Be("test@example.com");
-        userInfo.FirstName.Should().Be("Test");
+        userInfo.Username.Should().Be("admin");
+        userInfo.Email.Should().Be("admin@example.com");
+        userInfo.FirstName.Should().Be("Admin");
         userInfo.LastName.Should().Be("User");
-        userInfo.Roles.Should().HaveCount(2);
-        userInfo.Roles.Should().Contain("user");
-        userInfo.Roles.Should().Contain("admin");
+        userInfo.Role.Should().Be("admin");
+    }
+
+    [Fact]
+    public void UserInfoDto_WithManagerRole_ShouldSetCorrectly()
+    {
+        // Act
+        var userInfo = new UserInfoDto
+        {
+            Id = "user-456",
+            Username = "manager",
+            Email = "manager@example.com",
+            FirstName = "Manager",
+            LastName = "User",
+            Role = "manager"
+        };
+
+        // Assert
+        userInfo.Role.Should().Be("manager");
+    }
+
+    [Fact]
+    public void UserInfoDto_WithUserRole_ShouldSetCorrectly()
+    {
+        // Act
+        var userInfo = new UserInfoDto
+        {
+            Id = "user-789",
+            Username = "regularuser",
+            Email = "user@example.com",
+            FirstName = "Regular",
+            LastName = "User",
+            Role = "user"
+        };
+
+        // Assert
+        userInfo.Role.Should().Be("user");
+    }
+
+    #endregion
+
+    #region KeycloakUserDto Tests
+
+    [Fact]
+    public void KeycloakUserDto_DefaultValues_ShouldHaveCorrectDefaults()
+    {
+        // Act
+        var user = new KeycloakUserDto();
+
+        // Assert
+        user.Id.Should().BeEmpty();
+        user.Username.Should().BeEmpty();
+        user.Email.Should().BeEmpty();
+        user.FirstName.Should().BeNull();
+        user.LastName.Should().BeNull();
+        user.Enabled.Should().BeFalse();
+        user.Role.Should().Be("user");
+    }
+
+    [Fact]
+    public void KeycloakUserDto_WithValues_ShouldSetCorrectly()
+    {
+        // Act
+        var user = new KeycloakUserDto
+        {
+            Id = "kc-user-123",
+            Username = "keycloakuser",
+            Email = "kc@example.com",
+            FirstName = "Keycloak",
+            LastName = "User",
+            Enabled = true,
+            Role = "admin"
+        };
+
+        // Assert
+        user.Id.Should().Be("kc-user-123");
+        user.Username.Should().Be("keycloakuser");
+        user.Email.Should().Be("kc@example.com");
+        user.FirstName.Should().Be("Keycloak");
+        user.LastName.Should().Be("User");
+        user.Enabled.Should().BeTrue();
+        user.Role.Should().Be("admin");
     }
 
     #endregion
