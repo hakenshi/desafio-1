@@ -11,3 +11,10 @@ export const actions = {
   dashboard: dashboardController,
   token: tokenController,
 };
+
+// Export individual actions for convenience
+export * from "./auth.controller";
+export * from "./category.controller";
+export * from "./product.controller";
+export * from "./dashboard.controller";
+export * from "./token.controller";

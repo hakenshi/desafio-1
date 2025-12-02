@@ -6,7 +6,6 @@ export abstract class BaseService {
   constructor(token?: string) {
     this.token = token;
   }
-
   protected get client() {
     return apiClient;
   }
