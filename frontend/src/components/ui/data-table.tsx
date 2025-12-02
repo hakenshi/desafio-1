@@ -21,7 +21,7 @@ import {
 } from "./table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PropsWithChildren, useMemo, useState } from "react"
+import { cloneElement, isValidElement, PropsWithChildren, ReactElement, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, PlusIcon, X } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "./dialog"
@@ -74,6 +74,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [filterSearch, setFilterSearch] = useState("")
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -191,7 +192,7 @@ export function DataTable<TData, TValue>({
             </DropdownMenu>
           )}
 
-          <Dialog>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusIcon />
@@ -201,7 +202,11 @@ export function DataTable<TData, TValue>({
               <DialogHeader>
                 <DialogTitle className="sr-only">Create new Resource form</DialogTitle>
               </DialogHeader>
-              {children}
+              {isValidElement(children) 
+                ? cloneElement(children as ReactElement<{ onSuccess?: () => void }>, { 
+                    onSuccess: () => setIsCreateDialogOpen(false) 
+                  })
+                : children}
             </DialogContent>
           </Dialog>
         </div>
