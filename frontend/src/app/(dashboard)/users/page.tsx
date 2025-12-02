@@ -2,28 +2,39 @@ import { Suspense } from "react";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
-import { getUserInfo, getUsers } from "@/server/controllers/auth.controller";
 import { redirect } from "next/navigation";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
 import UserForm from "@/components/forms/user-form";
+import { actions } from "@/server/controllers";
+import { AuthModel } from "@/server/models/auth.model";
 
-async function UsersTable() {
-  const currentUser = await getUserInfo();
+interface UsersPageProps {
+  searchParams: Promise<{ role?: string }>;
+}
+
+async function UsersTable({ roleFilter }: { roleFilter?: string }) {
+  const token = await actions.token.getValidAuthToken();
+  const currentUser = await actions.auth.getUserInfo(token);
 
   // Only admin can view users list
   if (currentUser.role !== "admin") {
     redirect("/dashboard");
   }
 
-  let users = [];
+  let users: AuthModel.KeycloakUser[] = [];
   let error = null;
 
   try {
-    users = await getUsers();
+    users = await actions.auth.getUsers(token);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load users";
     users = [{ ...currentUser, enabled: true }];
   }
+
+  // Apply role filter client-side
+  const filteredUsers = roleFilter
+    ? users.filter((user) => user.role === roleFilter)
+    : users;
 
   return (
     <>
@@ -36,7 +47,7 @@ async function UsersTable() {
       )}
       <DataTable
         columns={columns}
-        data={users}
+        data={filteredUsers}
         searchKey="username"
         searchPlaceholder="Search users..."
         filterKey="role"
@@ -46,6 +57,7 @@ async function UsersTable() {
           { label: "User", value: "user" },
         ]}
         filterPlaceholder="Role"
+        currentFilter={roleFilter}
       >
         <UserForm />
       </DataTable>
@@ -53,11 +65,14 @@ async function UsersTable() {
   );
 }
 
-export default function UsersPage() {
+export default async function UsersPage({ searchParams }: UsersPageProps) {
+  const params = await searchParams;
+  const roleFilter = params.role;
+
   return (
     <DashboardShell title="Users">
       <Suspense fallback={<TableSkeleton columns={5} rows={10} />}>
-        <UsersTable />
+        <UsersTable roleFilter={roleFilter} />
       </Suspense>
     </DashboardShell>
   );
