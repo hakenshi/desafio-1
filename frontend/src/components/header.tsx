@@ -6,20 +6,35 @@ import { BellIcon, EllipsisIcon, LogOut, SearchIcon, SunIcon, UserIcon } from "l
 import Icon from "./icon";
 import { actions } from "@/server/controllers";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import UserCard from "./user-card";
 import { AuthModel } from "@/server/models/auth.model";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
     user: AuthModel.UserInfo
 }
 
 export function Header({ user }: Props) {
+    const router = useRouter();
+    const [showUserDetails, setShowUserDetails] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const [showUserDetails, setShowUserDetails] = useState(false)
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await actions.auth.logout();
+            router.push("/login");
+            router.refresh();
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
 
     return (
         <header className="w-full bg-white col-span-2 row-span-1">
@@ -55,8 +70,8 @@ export function Header({ user }: Props) {
                             <DropdownMenuItem onSelect={() => setShowUserDetails(true)}>
                                 <UserIcon /> User Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <LogOut /> Exit
+                            <DropdownMenuItem onSelect={handleLogout} disabled={isLoggingOut}>
+                                <LogOut /> {isLoggingOut ? "Logging out..." : "Logout"}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
