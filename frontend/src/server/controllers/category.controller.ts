@@ -2,7 +2,7 @@
 
 import { CategoryModel } from "../models/category.model";
 import { CategoryService } from "../services/category.service";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const CACHE_TAGS = {
@@ -33,7 +33,7 @@ export async function getCategoryById(id: string): Promise<CategoryModel.Categor
 export async function createCategory(data: CategoryModel.CreateCategoryDto): Promise<CategoryModel.Category> {
   const service = await getService();
   const category = await service.create(data);
-  revalidateTag(CACHE_TAGS.categories);
+  revalidatePath("/categories")
   return category;
 }
 
@@ -43,14 +43,12 @@ export async function updateCategory(
 ): Promise<CategoryModel.Category> {
   const service = await getService();
   const category = await service.update(id, data);
-  revalidateTag(CACHE_TAGS.category(id));
-  revalidateTag(CACHE_TAGS.categories);
+  revalidatePath("/categories")
   return category;
 }
 
 export async function deleteCategory(id: string): Promise<void> {
   const service = await getService();
   await service.delete(id);
-  revalidateTag(CACHE_TAGS.category(id));
-  revalidateTag(CACHE_TAGS.categories);
+  revalidatePath("/categories")
 }

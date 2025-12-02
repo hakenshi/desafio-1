@@ -30,11 +30,20 @@ builder.Services.Configure<MongoDbSettings>(
 builder.Services.AddSingleton<MongoDbContext>();
 
 // Redis Cache
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = redisConnectionString;
     options.InstanceName = "HypeSoft:";
 });
+
+// Register IConnectionMultiplexer for cache invalidation by prefix
+if (!string.IsNullOrEmpty(redisConnectionString))
+{
+    builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+        StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString));
+}
+
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
 // Repositories

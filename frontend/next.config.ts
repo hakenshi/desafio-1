@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  experimental: {
-    useCache: true,
-  },
+  cacheComponents: true
 };
 
 export default nextConfig;

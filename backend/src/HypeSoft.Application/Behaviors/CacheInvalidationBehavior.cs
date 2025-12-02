@@ -52,9 +52,12 @@ public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         // Invalidate product-related caches
         if (requestType.Contains("Product"))
         {
-            await _cacheService.RemoveAsync("GetAllProductsQuery:Page:1:PageSize:10", cancellationToken);
-            await _cacheService.RemoveAsync("GetLowStockProductsQuery:", cancellationToken);
-            await _cacheService.RemoveAsync("GetDashboardQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetAllProductsQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetProductByIdQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetLowStockProductsQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("SearchProductsQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetDashboardQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetRecentProductsQuery:", cancellationToken);
             
             _logger.LogInformation("Invalidated product-related caches for {RequestType}", requestType);
         }
@@ -62,8 +65,9 @@ public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         // Invalidate category-related caches
         if (requestType.Contains("Category"))
         {
-            await _cacheService.RemoveAsync("GetAllCategoriesQuery:", cancellationToken);
-            await _cacheService.RemoveAsync("GetDashboardQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetAllCategoriesQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetCategoryByIdQuery:", cancellationToken);
+            await _cacheService.RemoveByPrefixAsync("GetDashboardQuery:", cancellationToken);
             
             _logger.LogInformation("Invalidated category-related caches for {RequestType}", requestType);
         }

@@ -1,17 +1,20 @@
 using System.Text.Json;
 using HypeSoft.Application.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
+using StackExchange.Redis;
 
 namespace HypeSoft.Infraestructure.Caching;
 
 public class RedisCacheService : ICacheService
 {
     private readonly IDistributedCache _cache;
+    private readonly IConnectionMultiplexer? _redis;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public RedisCacheService(IDistributedCache cache)
+    public RedisCacheService(IDistributedCache cache, IConnectionMultiplexer? redis = null)
     {
         _cache = cache;
+        _redis = redis;
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -46,10 +49,20 @@ public class RedisCacheService : ICacheService
         await _cache.RemoveAsync(key, cancellationToken);
     }
 
-    public Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
+    public async Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
     {
-        // Note: Redis pattern-based deletion would require StackExchange.Redis directly
-        // For now, this is a placeholder - implement if needed
-        return Task.CompletedTask;
+        if (_redis == null)
+            return;
+
+        var server = _redis.GetServers().FirstOrDefault();
+        if (server == null)
+            return;
+
+        var keys = server.Keys(pattern: $"*{prefix}*").ToArray();
+        if (keys.Length > 0)
+        {
+            var db = _redis.GetDatabase();
+            await db.KeyDeleteAsync(keys);
+        }
     }
 }

@@ -14,7 +14,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 export class ApiClient {
   private async request<T>(
     endpoint: string,
-    options?: RequestInit,
+    options?: RequestInit & { next?: { tags?: string[]; revalidate?: number } },
     token?: string
   ): Promise<T> {
     const url = `${BASE_URL}${endpoint}`;
@@ -33,6 +33,7 @@ export class ApiClient {
       const response = await fetch(url, {
         ...options,
         headers,
+        cache: options?.next ? undefined : "no-store",
       });
 
       if (!response.ok) {
