@@ -15,16 +15,31 @@ import {
 } from "@/components/ui/table";
 
 const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-  "#8884d8",
-  "#82ca9d",
-  "#ffc658",
-  "#ff7300",
-  "#00C49F",
+  "#9333ea", // purple-600 (primary)
+  "#a855f7", // purple-500
+  "#7c3aed", // violet-600
+  "#8b5cf6", // violet-500
+  "#6366f1", // indigo-500
+  "#c084fc", // purple-400
+  "#a78bfa", // violet-400
+  "#818cf8", // indigo-400
+  "#d8b4fe", // purple-300
+  "#c4b5fd", // violet-300
+  "#a5b4fc", // indigo-300
+  "#7e22ce", // purple-700
+  "#6d28d9", // violet-700
+  "#4f46e5", // indigo-600
+  "#581c87", // purple-900
+  "#5b21b6", // violet-800
+  "#4338ca", // indigo-700
+  "#e9d5ff", // purple-200
+  "#ddd6fe", // violet-200
+  "#c7d2fe", // indigo-200
+  "#f3e8ff", // purple-100
+  "#ede9fe", // violet-100
+  "#e0e7ff", // indigo-100
+  "#3730a3", // indigo-800
+  "#312e81", // indigo-900
 ];
 
 interface DashboardProps {
@@ -48,7 +63,7 @@ export function DashboardStats({ dashboard }: DashboardProps) {
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{dashboard.totalProducts.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{new Intl.NumberFormat("en-US").format(dashboard.totalProducts)}</div>
           <p className="text-xs text-muted-foreground">Products in inventory</p>
         </CardContent>
       </Card>
@@ -141,7 +156,18 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={({ name, percent }) => `${name.slice(0, 8)}... (${(percent * 100).toFixed(0)}%)`}
+                label={({ name, percent, cx, x, y }) => (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="#6b7280"
+                    textAnchor={x > cx ? "start" : "end"}
+                    dominantBaseline="central"
+                    fontSize={11}
+                  >
+                    {`${name.slice(0, 8)}... (${(percent * 100).toFixed(0)}%)`}
+                  </text>
+                )}
                 labelLine={false}
               >
                 {categoryData.map((_, index) => (
