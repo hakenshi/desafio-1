@@ -74,4 +74,8 @@ export class AuthService extends BaseService {
     const validatedData = AuthModel.UpdateUserRequestSchema.parse(data);
     await this.client.put(`/auth/users/${id}`, validatedData, undefined, this.token);
   }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.client.delete(`/auth/users/${id}`, undefined, this.token);
+  }
 }
