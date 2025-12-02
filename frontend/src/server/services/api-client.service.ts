@@ -9,7 +9,11 @@ export class ApiClientError extends Error {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+// Use internal URL for server-side requests (Docker), public URL for client-side
+const BASE_URL =
+  process.env.INTERNAL_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000/api";
 
 type FetchOptions = {
   method?: string;

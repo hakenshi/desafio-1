@@ -158,7 +158,8 @@ test.describe("Products CRUD", () => {
   });
 
   test("should paginate products", async ({ page }) => {
-    const pagination = page.locator("text=/Page \\d+ of \\d+/");
+    // Pagination shows "X / Y" format
+    const pagination = page.locator("text=/\\d+ \\/ \\d+/");
     await expect(pagination).toBeVisible();
 
     const nextButton = page

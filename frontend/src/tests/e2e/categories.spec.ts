@@ -152,7 +152,8 @@ test.describe("Categories CRUD", () => {
   });
 
   test("should paginate categories", async ({ page }) => {
-    const pagination = page.locator("text=/Page \\d+ of \\d+/");
+    // Pagination shows "X / Y" format
+    const pagination = page.locator("text=/\\d+ \\/ \\d+/");
     await expect(pagination).toBeVisible();
   });
 });
