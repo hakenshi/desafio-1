@@ -7,51 +7,51 @@ export default async function Sidebar() {
     const isAdmin = user.role === "admin"
 
     return (
-        <aside className="bg-white row-start-2  col-start-1">
+        <aside className="bg-card border-r row-start-2 col-start-1">
             <nav className="space-y-8 px-5 py-2 flex flex-col justify-center h-8/12">
                 <div>
-                    <p className="text-gray-500 font-semibold text-sm">General</p>
+                    <p className="text-muted-foreground font-semibold text-sm">General</p>
                     <ul className="pt-2">
-                        <li className="hover:bg-gray-200 p-2 rounded-md">
-                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/dashboard"} >
+                        <li className="hover:bg-accent p-2 rounded-md">
+                            <Link className="flex gap-2 text-foreground hover:text-primary" href={"/dashboard"} >
                                 <HomeIcon />
-                                <p className="text-gray-700">Dashboard</p>
+                                <p>Dashboard</p>
                             </Link>
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <p className="text-gray-500 font-semibold text-sm">Shop</p>
+                    <p className="text-muted-foreground font-semibold text-sm">Shop</p>
                     <ul className="pt-2">
-                        <li className="hover:bg-gray-200 p-2 rounded-md">
-                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/products"} >
+                        <li className="hover:bg-accent p-2 rounded-md">
+                            <Link className="flex gap-2 text-foreground hover:text-primary" href={"/products"} >
                                 <ShoppingBag />
-                                <p className="text-gray-700">Products</p>
+                                <p>Products</p>
                             </Link>
                         </li>
-                        <li className="hover:bg-gray-200 p-2 rounded-md">
-                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/categories"} >
+                        <li className="hover:bg-accent p-2 rounded-md">
+                            <Link className="flex gap-2 text-foreground hover:text-primary" href={"/categories"} >
                                 <StoreIcon />
-                                <p className="text-gray-700">Categories</p>
+                                <p>Categories</p>
                             </Link>
                         </li>
                         {isAdmin && (
-                            <li className="hover:bg-gray-200 p-2 rounded-md">
-                                <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/users"} >
+                            <li className="hover:bg-accent p-2 rounded-md">
+                                <Link className="flex gap-2 text-foreground hover:text-primary" href={"/users"} >
                                     <Users />
-                                    <p className="text-gray-700">Users</p>
+                                    <p>Users</p>
                                 </Link>
                             </li>
                         )}
                     </ul>
                 </div>
                 <div>
-                    <p className="text-gray-500 font-semibold text-sm">Support</p>
+                    <p className="text-muted-foreground font-semibold text-sm">Support</p>
                     <ul className="pt-2">
-                        <li className="hover:bg-gray-200 p-2 rounded-md">
-                            <Link className="flex gap-2 text-gray-700 hover:text-primary" href={"/settings"} >
+                        <li className="hover:bg-accent p-2 rounded-md">
+                            <Link className="flex gap-2 text-foreground hover:text-primary" href={"/settings"} >
                                 <Settings />
-                                <p className="text-gray-700">Settings</p>
+                                <p>Settings</p>
                             </Link>
                         </li>
                     </ul>

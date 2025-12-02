@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Input } from "./ui/input";
-import { BellIcon, EllipsisIcon, LogOut, SearchIcon, SunIcon, UserIcon } from "lucide-react";
+import { BellIcon, EllipsisIcon, LogOut, SearchIcon, Settings, UserIcon } from "lucide-react";
 import Icon from "./icon";
 import { actions } from "@/server/controllers";
 import Link from "next/link";
@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import UserCard from "./user-card";
 import { AuthModel } from "@/server/models/auth.model";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ThemeToggle } from "./theme-toggle";
 
 interface Props {
     user: AuthModel.UserInfo
@@ -37,7 +38,7 @@ export function Header({ user }: Props) {
     };
 
     return (
-        <header className="w-full bg-white col-span-2 row-span-1">
+        <header className="w-full bg-card border-b col-span-2 row-span-1">
             <nav className="flex justify-between items-center px-5 py-3 mx-auto">
                 <Link href={"/dashboard"} className="text-center flex">
                     <Image
@@ -46,31 +47,36 @@ export function Header({ user }: Props) {
                         priority
                         src="/logo.svg"
                         alt="hypesoft logo"
+                        className="dark:invert"
                     />
                 </Link>
                 <div className="relative w-1/4">
-                    <SearchIcon className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400" size={18} />
-                    <Input placeholder="Search" className="pl-10 bg-gray-100 rounded-full border-none w-full" />
+                    <SearchIcon className="absolute top-1/2 -translate-y-1/2 left-3 text-muted-foreground" size={18} />
+                    <Input placeholder="Search" className="pl-10 bg-muted rounded-full border-none w-full" />
                 </div>
                 <div className="flex gap-2 items-center">
-                    <div className="flex gap-2 border-r border-gray-300 px-2">
-                        <SunIcon stroke="#6a7282" fill="#6a7282" />
-                        <BellIcon stroke="#6a7282" fill="#6a7282" />
+                    <div className="flex gap-2 border-r border-border px-2 items-center">
+                        <ThemeToggle />
+                        <BellIcon className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <Icon />
                     <div className="text-start">
-                        <p className="text-gray-800 text-sm">{user.firstName}</p>
-                        <p className="text-xs text-gray-500">{user.role}</p>
+                        <p className="text-foreground text-sm">{user.firstName}</p>
+                        <p className="text-xs text-muted-foreground">{user.role}</p>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger className="cursor-pointer">
-                            <EllipsisIcon />
+                            <EllipsisIcon className="text-foreground" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="mr-2 mt-5 p-2 space-y-2">
+                        <DropdownMenuContent className="mr-2 mt-5 p-2">
                             <DropdownMenuItem onSelect={() => setShowUserDetails(true)}>
                                 <UserIcon /> User Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={handleLogout} disabled={isLoggingOut}>
+                            <DropdownMenuItem onSelect={() => router.push("/settings")}>
+                                <Settings /> Settings
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onSelect={handleLogout} disabled={isLoggingOut} className="text-destructive">
                                 <LogOut /> {isLoggingOut ? "Logging out..." : "Logout"}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
