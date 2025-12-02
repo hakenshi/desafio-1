@@ -182,6 +182,42 @@ public class KeycloakService : IKeycloakService
         }
     }
 
+    public async Task<bool> DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var adminToken = await GetAdminTokenAsync(cancellationToken);
+            if (string.IsNullOrEmpty(adminToken))
+            {
+                _logger.LogError("Unable to get admin token for user deletion");
+                return false;
+            }
+
+            var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
+            var userEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}";
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Delete, userEndpoint);
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Failed to delete user: {Error}", error);
+                return false;
+            }
+
+            _logger.LogInformation("User {UserId} deleted successfully", userId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during deletion for user {UserId}", userId);
+            return false;
+        }
+    }
+
     private async Task UpdateUserRoleAsync(string userId, string newRole, string adminToken, CancellationToken cancellationToken)
     {
         try

@@ -58,6 +58,27 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Delete a user (requires admin role)
+    /// </summary>
+    [HttpDelete("users/{id}")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        var success = await _mediator.Send(new DeleteUserCommand(id));
+        
+        if (!success)
+        {
+            return BadRequest(new { message = "Failed to delete user" });
+        }
+
+        return Ok(new { message = "User deleted successfully" });
+    }
+
+    /// <summary>
     /// Login with email and password
     /// </summary>
     [HttpPost("login")]
