@@ -30,6 +30,28 @@ public class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<Product>> GetAllAsync(int page, int pageSize, string? categoryId, CancellationToken cancellationToken = default)
+    {
+        var filter = string.IsNullOrEmpty(categoryId)
+            ? Builders<Product>.Filter.Empty
+            : Builders<Product>.Filter.Eq(p => p.CategoryId, categoryId);
+
+        return await _context.Products
+            .Find(filter)
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> GetTotalCountAsync(string? categoryId, CancellationToken cancellationToken = default)
+    {
+        var filter = string.IsNullOrEmpty(categoryId)
+            ? Builders<Product>.Filter.Empty
+            : Builders<Product>.Filter.Eq(p => p.CategoryId, categoryId);
+
+        return (int)await _context.Products.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+    }
+
     public async Task<IEnumerable<Product>> SearchByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         var filter = Builders<Product>.Filter.Regex(p => p.Name, new MongoDB.Bson.BsonRegularExpression(name, "i"));

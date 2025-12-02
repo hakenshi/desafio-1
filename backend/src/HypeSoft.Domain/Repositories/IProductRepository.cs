@@ -6,6 +6,8 @@ public interface IProductRepository
 {
     Task<Product?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     Task<IEnumerable<Product>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Product>> GetAllAsync(int page, int pageSize, string? categoryId, CancellationToken cancellationToken = default);
+    Task<int> GetTotalCountAsync(string? categoryId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Product>> SearchByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<IEnumerable<Product>> GetByCategoryIdAsync(string categoryId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Product>> GetLowStockProductsAsync(CancellationToken cancellationToken = default);

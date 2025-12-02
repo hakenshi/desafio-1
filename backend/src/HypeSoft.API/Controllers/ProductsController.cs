@@ -28,15 +28,19 @@ public class ProductsController : ControllerBase
     /// </summary>
     /// <param name="page">Número da página (padrão: 1)</param>
     /// <param name="pageSize">Tamanho da página (padrão: 10, máximo: 100)</param>
+    /// <param name="categoryId">ID da categoria para filtrar (opcional)</param>
     /// <returns>Lista paginada de produtos</returns>
     /// <response code="200">Retorna a lista de produtos</response>
     /// <response code="400">Parâmetros de paginação inválidos</response>
     [HttpGet]
     [ProducesResponseType(typeof(PaginatedResponse<ProductDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PaginatedResponse<ProductDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<ActionResult<PaginatedResponse<ProductDto>>> GetAll(
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? categoryId = null)
     {
-        var result = await _mediator.Send(new GetAllProductsQuery(page, pageSize));
+        var result = await _mediator.Send(new GetAllProductsQuery(page, pageSize, categoryId));
         return Ok(result);
     }
 
