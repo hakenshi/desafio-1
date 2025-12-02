@@ -34,6 +34,7 @@ describe("AuthModel Schema Validation", () => {
         username: "testuser",
         email: "test@example.com",
         password: "password123",
+        role: "user",
       });
       expect(result.success).toBe(true);
     });
@@ -43,6 +44,7 @@ describe("AuthModel Schema Validation", () => {
         username: "ab",
         email: "test@example.com",
         password: "password123",
+        role: "user",
       });
       expect(result.success).toBe(false);
     });
@@ -52,6 +54,7 @@ describe("AuthModel Schema Validation", () => {
         username: "testuser",
         email: "invalid-email",
         password: "password123",
+        role: "user",
       });
       expect(result.success).toBe(false);
     });
@@ -61,6 +64,7 @@ describe("AuthModel Schema Validation", () => {
         username: "testuser",
         email: "test@example.com",
         password: "12345",
+        role: "user",
       });
       expect(result.success).toBe(false);
     });
@@ -72,8 +76,28 @@ describe("AuthModel Schema Validation", () => {
         password: "password123",
         firstName: "Test",
         lastName: "User",
+        role: "admin",
       });
       expect(result.success).toBe(true);
+    });
+
+    it("should reject invalid role", () => {
+      const result = AuthModel.RegisterRequestSchema.safeParse({
+        username: "testuser",
+        email: "test@example.com",
+        password: "password123",
+        role: "invalid-role",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject missing role", () => {
+      const result = AuthModel.RegisterRequestSchema.safeParse({
+        username: "testuser",
+        email: "test@example.com",
+        password: "password123",
+      });
+      expect(result.success).toBe(false);
     });
   });
 
@@ -146,6 +170,127 @@ describe("AuthModel Schema Validation", () => {
     it("should reject missing required fields", () => {
       const result = AuthModel.UserInfoSchema.safeParse({
         id: "user-123",
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("UpdateUserRequestSchema", () => {
+    it("should validate valid update user data", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        email: "updated@example.com",
+        role: "manager",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept optional firstName and lastName", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        email: "updated@example.com",
+        firstName: "Updated",
+        lastName: "User",
+        role: "admin",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject invalid email format", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        email: "invalid-email",
+        role: "user",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject invalid role", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        email: "test@example.com",
+        role: "superadmin",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject missing email", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        role: "user",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject missing role", () => {
+      const result = AuthModel.UpdateUserRequestSchema.safeParse({
+        email: "test@example.com",
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("KeycloakUserSchema", () => {
+    it("should validate valid keycloak user data", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "kcuser@example.com",
+        enabled: true,
+        role: "user",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept optional firstName and lastName", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "kcuser@example.com",
+        firstName: "KC",
+        lastName: "User",
+        enabled: true,
+        role: "admin",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should accept null firstName and lastName", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "kcuser@example.com",
+        firstName: null,
+        lastName: null,
+        enabled: false,
+        role: "manager",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject missing enabled field", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "kcuser@example.com",
+        role: "user",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject invalid role", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "kcuser@example.com",
+        enabled: true,
+        role: "invalid",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject invalid email format", () => {
+      const result = AuthModel.KeycloakUserSchema.safeParse({
+        id: "kc-user-123",
+        username: "kcuser",
+        email: "invalid-email",
+        enabled: true,
+        role: "user",
       });
       expect(result.success).toBe(false);
     });
