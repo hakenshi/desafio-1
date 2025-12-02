@@ -37,7 +37,7 @@ export default function ProductsForm({ product, onSuccess }: Props) {
     
     const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
         queryKey: ["categories"],
-        queryFn: () => actions.category.getAllCategories({ page: 1, pageSize: 100 }),
+        queryFn: () => actions.category.getCategories({ page: 1, pageSize: 100 }),
     });
     
     const categories = categoriesData?.items ?? [];
@@ -62,13 +62,17 @@ export default function ProductsForm({ product, onSuccess }: Props) {
     });
 
     const submit = async (values: ProductModel.CreateProductDto) => {
-        if (isUpdating) {
-            await actions.product.updateProduct(product.id, values);
-        } else {
-            await actions.product.createProduct(values);
+        try {
+            if (isUpdating) {
+                await actions.product.updateProduct(product.id, values);
+            } else {
+                await actions.product.createProduct(values);
+            }
+            router.refresh();
+            onSuccess?.();
+        } catch (error) {
+            console.error("Failed to save product:", error);
         }
-        router.refresh();
-        onSuccess?.();
     };
 
     return (

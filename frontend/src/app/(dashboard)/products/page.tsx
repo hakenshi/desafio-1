@@ -10,18 +10,21 @@ interface ProductsPageProps {
   searchParams: Promise<{ page?: string; pageSize?: string; categoryId?: string }>;
 }
 
-async function ProductsTable({ 
-  page, 
-  pageSize, 
-  categoryId 
-}: { 
-  page: number; 
-  pageSize: number; 
+async function ProductsTable({
+  page,
+  pageSize,
+  categoryId,
+}: {
+  page: number;
+  pageSize: number;
   categoryId?: string;
 }) {
-  const products = await actions.product.getAllProducts({ page, pageSize, categoryId });
-  const categoriesPromise = actions.category.getAllCategories({ page: 1, pageSize: 100 });
-  const categories = await categoriesPromise;
+  const token = await actions.token.getValidAuthToken();
+
+  const [products, categories] = await Promise.all([
+    actions.product.getAllProducts(token, { page, pageSize, categoryId }),
+    actions.category.getAllCategories(token, { page: 1, pageSize: 100 }),
+  ]);
 
   return (
     <DataTable
@@ -36,7 +39,7 @@ async function ProductsTable({
         hasNextPage: products.hasNextPage,
       }}
       filterKey="categoryId"
-      filterOptions={categories.items.map(c => ({ label: c.name, value: c.id }))}
+      filterOptions={categories.items.map((c) => ({ label: c.name, value: c.id }))}
       filterPlaceholder="Category"
       currentFilter={categoryId}
       searchKey="name"

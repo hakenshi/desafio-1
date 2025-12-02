@@ -41,13 +41,17 @@ export default function CategoryForm({ category, onSuccess }: Props) {
     });
 
     const submit = async (values: CategoryModel.CreateCategoryDto) => {
-        if (isUpdating) {
-            await actions.category.updateCategory(category.id, values);
-        } else {
-            await actions.category.createCategory(values);
+        try {
+            if (isUpdating) {
+                await actions.category.updateCategory(category.id, values);
+            } else {
+                await actions.category.createCategory(values);
+            }
+            router.refresh();
+            onSuccess?.();
+        } catch (error) {
+            console.error("Failed to save category:", error);
         }
-        router.refresh();
-        onSuccess?.();
     };
 
     return (

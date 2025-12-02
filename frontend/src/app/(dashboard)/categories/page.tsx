@@ -2,16 +2,17 @@ import { Suspense } from "react";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
-import { getAllCategories } from "@/server/controllers/category.controller";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
 import CategoryForm from "@/components/forms/category-form";
+import { actions } from "@/server/controllers";
 
 interface CategoriesPageProps {
   searchParams: Promise<{ page?: string; pageSize?: string }>;
 }
 
 async function CategoriesTable({ page, pageSize }: { page: number; pageSize: number }) {
-  const result = await getAllCategories({ page, pageSize });
+  const token = await actions.token.getValidAuthToken();
+  const result = await actions.category.getAllCategories(token, { page, pageSize });
 
   return (
     <DataTable

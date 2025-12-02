@@ -1,13 +1,14 @@
 import { Suspense } from "react";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
-import { getUserInfo } from "@/server/controllers/auth.controller";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
 import SettingsForm from "@/components/forms/settings-form";
 import ThemeSettings from "@/components/settings/theme-settings";
+import { actions } from "@/server/controllers";
 
 async function SettingsContent() {
-  const user = await getUserInfo();
+  const token = await actions.token.getValidAuthToken();
+  const user = await actions.auth.getUserInfo(token);
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
