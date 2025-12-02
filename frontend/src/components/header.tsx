@@ -1,6 +1,5 @@
 'use client'
 
-import Image from "next/image";
 import { Input } from "./ui/input";
 import { BellIcon, EllipsisIcon, LogOut, SearchIcon, Settings, UserIcon } from "lucide-react";
 import Icon from "./icon";
@@ -14,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
+import { Logo } from "./logo";
 
 interface Props {
     user: AuthModel.UserInfo
@@ -41,14 +41,7 @@ export function Header({ user }: Props) {
         <header className="w-full bg-card border-b col-span-2 row-span-1">
             <nav className="flex justify-between items-center px-5 py-3 mx-auto">
                 <Link href={"/dashboard"} className="text-center flex">
-                    <Image
-                        width={100}
-                        height={10}
-                        priority
-                        src="/logo.svg"
-                        alt="hypesoft logo"
-                        className="dark:invert"
-                    />
+                    <Logo width={100} height={10} />
                 </Link>
                 <div className="relative w-1/4">
                     <SearchIcon className="absolute top-1/2 -translate-y-1/2 left-3 text-muted-foreground" size={18} />
