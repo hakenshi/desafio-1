@@ -118,17 +118,27 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
   }, {} as Record<string, { label: string; color: string }>);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 mt-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Products by Category</CardTitle>
-          <CardDescription>Top 10 categories by product count</CardDescription>
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 mt-4">
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base sm:text-lg">Products by Category</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Top 10 categories by product count</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <BarChart data={categoryData} layout="vertical" margin={{ left: 20, right: 20 }}>
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11 }} />
+        <CardContent className="p-2 sm:p-6">
+          <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
+            <BarChart 
+              data={categoryData} 
+              layout="vertical" 
+              margin={{ left: 0, right: 10, top: 5, bottom: 5 }}
+            >
+              <XAxis type="number" tick={{ fontSize: 10 }} />
+              <YAxis 
+                dataKey="name" 
+                type="category" 
+                width={70} 
+                tick={{ fontSize: 9 }} 
+                tickFormatter={(value) => value.length > 10 ? `${value.slice(0, 10)}...` : value}
+              />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="value" radius={4}>
                 {categoryData.map((_, index) => (
@@ -140,13 +150,13 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Category Distribution</CardTitle>
-          <CardDescription>Pie chart of products per category</CardDescription>
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base sm:text-lg">Category Distribution</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Pie chart of products per category</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
+        <CardContent className="p-2 sm:p-6">
+          <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
             <PieChart>
               <ChartTooltip content={<ChartTooltipContent />} />
               <Pie
@@ -155,20 +165,8 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                label={({ name, percent, cx, x, y }) => (
-                  <text
-                    x={x}
-                    y={y}
-                    className="fill-muted-foreground"
-                    textAnchor={x > cx ? "start" : "end"}
-                    dominantBaseline="central"
-                    fontSize={11}
-                  >
-                    {`${name.slice(0, 8)}... (${(percent * 100).toFixed(0)}%)`}
-                  </text>
-                )}
-                labelLine={false}
+                outerRadius="70%"
+                label={false}
               >
                 {categoryData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -176,6 +174,20 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
               </Pie>
             </PieChart>
           </ChartContainer>
+          {/* Legend for mobile */}
+          <div className="flex flex-wrap gap-2 mt-2 justify-center">
+            {categoryData.slice(0, 5).map((item, index) => (
+              <div key={item.name} className="flex items-center gap-1 text-xs">
+                <div 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }} 
+                />
+                <span className="text-muted-foreground truncate max-w-[60px] sm:max-w-[80px]">
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -208,41 +220,43 @@ function getActionColor(action: string) {
 export function AuditLogsTable({ logs }: AuditLogsProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Recent Changes</CardTitle>
-        <CardDescription>Latest activity in the system</CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base sm:text-lg">Recent Changes</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">Latest activity in the system</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2 sm:p-6">
         {logs.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No recent changes</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Entity</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="font-medium">{log.username}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-md text-xs ${getActionColor(log.action)}`}>
-                      {log.action}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-muted-foreground">{log.entityType}:</span>{" "}
-                    {log.entityName || log.entityId.slice(0, 8)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDate(log.createdAt)}</TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">User</TableHead>
+                  <TableHead className="text-xs">Action</TableHead>
+                  <TableHead className="text-xs hidden sm:table-cell">Entity</TableHead>
+                  <TableHead className="text-xs">Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="font-medium text-xs sm:text-sm py-2">{log.username}</TableCell>
+                    <TableCell className="py-2">
+                      <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs ${getActionColor(log.action)}`}>
+                        {log.action}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell py-2">
+                      <span className="text-muted-foreground text-xs">{log.entityType}:</span>{" "}
+                      <span className="text-xs">{log.entityName || log.entityId.slice(0, 8)}</span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs py-2">{formatDate(log.createdAt)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -252,40 +266,46 @@ export function AuditLogsTable({ logs }: AuditLogsProps) {
 export function RecentProductsTable({ products }: RecentProductsProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Recent Products</CardTitle>
-        <CardDescription>Latest products added to inventory</CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base sm:text-lg">Recent Products</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">Latest products added to inventory</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-2 sm:p-6">
         {products.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">No recent products</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name.slice(0, 30)}{product.name.length > 30 ? "..." : ""}</TableCell>
-                  <TableCell className="text-muted-foreground">{product.categoryName}</TableCell>
-                  <TableCell>
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
-                  </TableCell>
-                  <TableCell>
-                    <span className={product.stockQuantity < 10 ? "text-destructive font-medium" : ""}>
-                      {product.stockQuantity}
-                    </span>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">Name</TableHead>
+                  <TableHead className="text-xs hidden sm:table-cell">Category</TableHead>
+                  <TableHead className="text-xs">Price</TableHead>
+                  <TableHead className="text-xs">Stock</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium text-xs sm:text-sm py-2 max-w-[120px] sm:max-w-none truncate">
+                      {product.name}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs hidden sm:table-cell py-2">
+                      {product.categoryName}
+                    </TableCell>
+                    <TableCell className="text-xs sm:text-sm py-2">
+                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(product.price)}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <span className={`text-xs sm:text-sm ${product.stockQuantity < 10 ? "text-destructive font-medium" : ""}`}>
+                        {product.stockQuantity}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
