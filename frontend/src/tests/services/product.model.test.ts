@@ -6,6 +6,7 @@ describe("ProductModel Schema Validation", () => {
     it("should validate valid product data", () => {
       const result = ProductModel.ProductSchema.safeParse({
         id: "prod-123",
+        sku: "SKU-001",
         name: "Test Product",
         description: "A test product description",
         price: 99.99,
@@ -22,6 +23,7 @@ describe("ProductModel Schema Validation", () => {
     it("should validate product with low stock", () => {
       const result = ProductModel.ProductSchema.safeParse({
         id: "prod-123",
+        sku: "SKU-002",
         name: "Test Product",
         description: "A test product description",
         price: 99.99,
@@ -41,6 +43,7 @@ describe("ProductModel Schema Validation", () => {
     it("should reject invalid datetime format", () => {
       const result = ProductModel.ProductSchema.safeParse({
         id: "prod-123",
+        sku: "SKU-003",
         name: "Test Product",
         description: "A test product description",
         price: 99.99,
@@ -132,6 +135,7 @@ describe("ProductModel Schema Validation", () => {
         items: [
           {
             id: "prod-123",
+            sku: "SKU-001",
             name: "Test Product",
             description: "Description",
             price: 99.99,
