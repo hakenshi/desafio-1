@@ -1,6 +1,7 @@
 using System.Text.Json;
 using HypeSoft.Application.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace HypeSoft.Infraestructure.Caching;
@@ -9,17 +10,28 @@ public class RedisCacheService : ICacheService
 {
     private readonly IDistributedCache _cache;
     private readonly IConnectionMultiplexer? _redis;
+    private readonly ILogger<RedisCacheService> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
+    private const string InstancePrefix = "HypeSoft:";
 
-    public RedisCacheService(IDistributedCache cache, IConnectionMultiplexer? redis = null)
+    public RedisCacheService(
+        IDistributedCache cache, 
+        ILogger<RedisCacheService> logger,
+        IConnectionMultiplexer? redis = null)
     {
         _cache = cache;
         _redis = redis;
+        _logger = logger;
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = false
         };
+        
+        if (_redis == null)
+        {
+            _logger.LogWarning("IConnectionMultiplexer not injected - cache invalidation by prefix will not work");
+        }
     }
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
@@ -52,17 +64,36 @@ public class RedisCacheService : ICacheService
     public async Task RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
     {
         if (_redis == null)
-            return;
-
-        var server = _redis.GetServers().FirstOrDefault();
-        if (server == null)
-            return;
-
-        var keys = server.Keys(pattern: $"*{prefix}*").ToArray();
-        if (keys.Length > 0)
         {
-            var db = _redis.GetDatabase();
-            await db.KeyDeleteAsync(keys);
+            _logger.LogWarning("Cannot invalidate cache by prefix '{Prefix}' - IConnectionMultiplexer not available", prefix);
+            return;
+        }
+
+        try
+        {
+            var server = _redis.GetServers().FirstOrDefault();
+            if (server == null)
+            {
+                _logger.LogWarning("No Redis server found for cache invalidation");
+                return;
+            }
+
+            // Include the instance prefix in the pattern
+            var pattern = $"{InstancePrefix}*{prefix}*";
+            var keys = server.Keys(pattern: pattern).ToArray();
+            
+            _logger.LogInformation("Found {KeyCount} keys matching pattern '{Pattern}' for invalidation", keys.Length, pattern);
+            
+            if (keys.Length > 0)
+            {
+                var db = _redis.GetDatabase();
+                await db.KeyDeleteAsync(keys);
+                _logger.LogInformation("Successfully deleted {KeyCount} cache keys", keys.Length);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error invalidating cache by prefix '{Prefix}'", prefix);
         }
     }
 }

@@ -38,13 +38,27 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 // Register IConnectionMultiplexer for cache invalidation by prefix
+StackExchange.Redis.IConnectionMultiplexer? redisConnection = null;
 if (!string.IsNullOrEmpty(redisConnectionString))
 {
-    builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
-        StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString));
+    try
+    {
+        redisConnection = StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString);
+        builder.Services.AddSingleton(redisConnection);
+        Log.Information("Redis connection established for cache invalidation");
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "Failed to connect to Redis for cache invalidation - prefix-based invalidation will not work");
+    }
 }
 
-builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+builder.Services.AddSingleton<ICacheService>(sp =>
+{
+    var cache = sp.GetRequiredService<Microsoft.Extensions.Caching.Distributed.IDistributedCache>();
+    var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RedisCacheService>>();
+    return new RedisCacheService(cache, logger, redisConnection);
+});
 
 // Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
