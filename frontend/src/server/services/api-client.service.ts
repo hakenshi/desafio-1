@@ -11,29 +11,38 @@ export class ApiClientError extends Error {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+type FetchOptions = {
+  method?: string;
+  body?: string;
+  headers?: Record<string, string>;
+  cache?: RequestCache;
+  next?: { tags?: string[]; revalidate?: number | false };
+};
+
 export class ApiClient {
   private async request<T>(
     endpoint: string,
-    options?: RequestInit & { next?: { tags?: string[]; revalidate?: number } },
+    options?: FetchOptions,
     token?: string
   ): Promise<T> {
     const url = `${BASE_URL}${endpoint}`;
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(options?.headers as Record<string, string>),
+      ...options?.headers,
     };
 
-    // Adicionar Authorization header se o token for fornecido
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
 
     try {
       const response = await fetch(url, {
-        ...options,
+        method: options?.method,
+        body: options?.body,
         headers,
-        cache: options?.next ? undefined : "no-store",
+        cache: options?.cache,
+        next: options?.next,
       });
 
       if (!response.ok) {
@@ -48,7 +57,6 @@ export class ApiClient {
         );
       }
 
-      // Handle 204 No Content
       if (response.status === 204) {
         return undefined as T;
       }
@@ -66,40 +74,47 @@ export class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, options?: RequestInit, token?: string): Promise<T> {
+  async get<T>(endpoint: string, options?: FetchOptions, token?: string): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "GET" }, token);
   }
 
   async post<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit,
+    options?: FetchOptions,
     token?: string
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
-    }, token);
+    return this.request<T>(
+      endpoint,
+      {
+        ...options,
+        method: "POST",
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      token
+    );
   }
 
   async put<T>(
     endpoint: string,
     data?: unknown,
-    options?: RequestInit,
+    options?: FetchOptions,
     token?: string
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: "PUT",
-      body: data ? JSON.stringify(data) : undefined,
-    }, token);
+    return this.request<T>(
+      endpoint,
+      {
+        ...options,
+        method: "PUT",
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      token
+    );
   }
 
-  async delete<T>(endpoint: string, options?: RequestInit, token?: string): Promise<T> {
+  async delete<T>(endpoint: string, options?: FetchOptions, token?: string): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" }, token);
   }
 }
 
-// Singleton instance
 export const apiClient = new ApiClient();

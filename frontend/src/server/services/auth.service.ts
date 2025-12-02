@@ -5,27 +5,6 @@ import { BaseService } from "./base.service";
 import { redirect } from "next/navigation";
 
 export class AuthService extends BaseService {
-  private static instance: AuthService | null = null;
-
-  private constructor(token?: string) {
-    super(token);
-  }
-
-  static initialize(token?: string): AuthService {
-    if (!AuthService.instance) {
-      AuthService.instance = new AuthService(token);
-    } else {
-      AuthService.instance.setToken(token);
-    }
-    return AuthService.instance;
-  }
-
-  static getInstance(): AuthService {
-    if (!AuthService.instance) {
-      AuthService.instance = new AuthService();
-    }
-    return AuthService.instance;
-  }
   async login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
     const validatedData = AuthModel.LoginRequestSchema.parse(data);
     const response = await this.client.post<AuthModel.TokenResponse>(
@@ -34,19 +13,17 @@ export class AuthService extends BaseService {
     );
 
     const authData = AuthModel.TokenResponseSchema.parse({ ...response });
-    console.log(authData)
-    const cookie = await cookies()
+    const cookie = await cookies();
 
-    const expiresAt = new Date(Date.now() + authData.expiresIn * 1000)
+    const expiresAt = new Date(Date.now() + authData.expiresIn * 1000);
 
     cookie.set({
       name: "authToken",
       value: authData.accessToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      expires: expiresAt
-    })
-
+      expires: expiresAt,
+    });
 
     if (authData.refreshToken) {
       cookie.set({
@@ -54,20 +31,19 @@ export class AuthService extends BaseService {
         value: authData.refreshToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      })
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
     }
-    redirect("/dashboard")
+    redirect("/dashboard");
   }
 
   async register(data: AuthModel.RegisterRequest): Promise<void> {
     const validatedData = AuthModel.RegisterRequestSchema.parse(data);
-
     await this.client.post("/auth/register", validatedData);
   }
 
   async refreshToken(): Promise<AuthModel.TokenResponse> {
-    const refreshToken = (await cookies()).get("refreshToken")?.value
+    const refreshToken = (await cookies()).get("refreshToken")?.value;
 
     const response = await this.client.post<AuthModel.TokenResponse>(
       "/auth/refresh",

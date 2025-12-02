@@ -1,67 +1,66 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { AuthModel } from "../models/auth.model";
 import { AuthService } from "../services/auth.service";
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
 import { getValidAuthToken } from "./token.controller";
 
-async function getService(withToken: boolean = false): Promise<AuthService> {
-  const token = withToken ? await getValidAuthToken() : undefined;
-  return AuthService.initialize(token);
-}
-
+// Public actions - no token needed
 export async function login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
-  const service = await getService();
+  const service = new AuthService();
   return await service.login(data);
 }
 
 export async function register(data: AuthModel.RegisterRequest): Promise<void> {
-  const service = await getService();
+  const service = new AuthService();
   await service.register(data);
-  revalidatePath("/users");
+  revalidateTag("users", "page");
 }
 
 export async function refreshToken(): Promise<AuthModel.TokenResponse> {
-  const service = await getService();
+  const service = new AuthService();
   return await service.refreshToken();
 }
 
+// For server components - token passed explicitly
+export async function getUserInfo(token: string): Promise<AuthModel.UserInfo> {
+  const service = new AuthService(token);
+  return await service.getUserInfo();
+}
+
+export async function getUsers(token: string): Promise<AuthModel.KeycloakUser[]> {
+  const service = new AuthService(token);
+  return await service.getUsers();
+}
+
+// For client components - token fetched internally
 export async function logout(): Promise<void> {
+  const token = await getValidAuthToken();
   const cookieStore = await cookies();
   const refreshTokenValue = cookieStore.get("refreshToken")?.value;
 
-  // Try to logout from Keycloak
   try {
-    const service = await getService(true);
+    const service = new AuthService(token);
     await service.logout(refreshTokenValue);
   } catch {
     // Ignore errors, we'll clear cookies anyway
   }
 
-  // Clear cookies
   cookieStore.delete("authToken");
   cookieStore.delete("refreshToken");
 }
 
-export async function getUserInfo(): Promise<AuthModel.UserInfo> {
-  const service = await getService(true);
-  return await service.getUserInfo();
-}
-
-export async function getUsers(): Promise<AuthModel.KeycloakUser[]> {
-  const service = await getService(true);
-  return await service.getUsers();
-}
-
 export async function updateUser(id: string, data: AuthModel.UpdateUserRequest): Promise<void> {
-  const service = await getService(true);
+  const token = await getValidAuthToken();
+  const service = new AuthService(token);
   await service.updateUser(id, data);
-  revalidatePath("/users");
+  revalidateTag("users", "max");
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const service = await getService(true);
+  const token = await getValidAuthToken();
+  const service = new AuthService(token);
   await service.deleteUser(id);
-  revalidatePath("/users");
+  revalidateTag("users", "max");
 }
