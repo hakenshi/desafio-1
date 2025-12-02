@@ -68,7 +68,6 @@ export default function UserForm({ user }: Props) {
                             <FormControl>
                                 <Input
                                     placeholder="Username"
-                                    disabled={isUpdating}
                                     {...field}
                                 />
                             </FormControl>
@@ -153,7 +152,7 @@ export default function UserForm({ user }: Props) {
                             <FormLabel>Role</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
                                 </FormControl>

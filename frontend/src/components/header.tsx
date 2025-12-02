@@ -1,13 +1,25 @@
+'use client'
+
 import Image from "next/image";
 import { Input } from "./ui/input";
-import { BellIcon, EllipsisIcon, SearchIcon, SunIcon } from "lucide-react";
+import { BellIcon, EllipsisIcon, LogOut, SearchIcon, SunIcon, UserIcon } from "lucide-react";
 import Icon from "./icon";
 import { actions } from "@/server/controllers";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "./ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import UserCard from "./user-card";
+import { AuthModel } from "@/server/models/auth.model";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useState } from "react";
 
-export async function Header() {
+interface Props {
+    user: AuthModel.UserInfo
+}
 
-    const user = await actions.auth.getUserInfo()
+export function Header({ user }: Props) {
+
+    const [showUserDetails, setShowUserDetails] = useState(false)
 
     return (
         <header className="w-full bg-white col-span-2 row-span-1">
@@ -30,14 +42,32 @@ export async function Header() {
                         <SunIcon stroke="#6a7282" fill="#6a7282" />
                         <BellIcon stroke="#6a7282" fill="#6a7282" />
                     </div>
-                    <div className="flex items-center gap-3">
-                        <Icon />
-                        <div className="text-start">
-                            <p className="text-gray-800 text-sm">{user.firstName}</p>
-                            <p className="text-xs text-gray-500">{user.role}</p>
-                        </div>
-                        <EllipsisIcon className="ml-5 text-gray-600" />
+                    <Icon />
+                    <div className="text-start">
+                        <p className="text-gray-800 text-sm">{user.firstName}</p>
+                        <p className="text-xs text-gray-500">{user.role}</p>
                     </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="cursor-pointer">
+                            <EllipsisIcon />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="mr-2 mt-5 p-2 space-y-2">
+                            <DropdownMenuItem onSelect={() => setShowUserDetails(true)}>
+                                <UserIcon /> User Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <LogOut /> Exit
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
+                        <DialogContent>
+                            <DialogHeader className="sr-only">
+                                <DialogTitle>User Card</DialogTitle>
+                            </DialogHeader>
+                            <UserCard user={user} />
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </nav>
         </header>

@@ -19,10 +19,9 @@ import { Textarea } from "../ui/textarea";
 
 interface Props {
     category?: CategoryModel.Category;
-    onSuccess?: () => void;
 }
 
-export default function CategoryForm({ category, onSuccess }: Props) {
+export default function CategoryForm({ category }: Props) {
     const isUpdating = !!category;
 
     const form = useForm<CategoryModel.CreateCategoryDto>({
@@ -44,7 +43,6 @@ export default function CategoryForm({ category, onSuccess }: Props) {
         } else {
             await actions.category.createCategory(values);
         }
-        onSuccess?.();
     };
 
     return (
