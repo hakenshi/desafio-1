@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 export class AuthService extends BaseService {
   async login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
     const validatedData = AuthModel.LoginRequestSchema.parse(data);
-    console.log(validatedData)
     const response = await this.client.post<AuthModel.TokenResponse>(
       "/auth/login",
       validatedData
