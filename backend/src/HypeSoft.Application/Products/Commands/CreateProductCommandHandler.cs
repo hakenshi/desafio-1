@@ -58,6 +58,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
         return new ProductDto(
             created.Id,
+            created.Sku,
             created.Name,
             created.Description,
             created.Price,

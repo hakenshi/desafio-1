@@ -61,6 +61,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
         return new ProductDto(
             product.Id,
+            product.Sku,
             product.Name,
             product.Description,
             product.Price,

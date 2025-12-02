@@ -32,6 +32,7 @@ public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, I
 
         return productList.Select(p => new ProductDto(
             p.Id,
+            string.IsNullOrEmpty(p.Sku) ? $"PRD{p.Id[..6].ToUpper()}" : p.Sku,
             p.Name,
             p.Description,
             p.Price,

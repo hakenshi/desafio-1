@@ -16,13 +16,16 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
+import { useRouter } from "next/navigation";
 
 interface Props {
     category?: CategoryModel.Category;
+    onSuccess?: () => void;
 }
 
-export default function CategoryForm({ category }: Props) {
+export default function CategoryForm({ category, onSuccess }: Props) {
     const isUpdating = !!category;
+    const router = useRouter();
 
     const form = useForm<CategoryModel.CreateCategoryDto>({
         resolver: zodResolver(CategoryModel.CreateCategorySchema),
@@ -43,6 +46,8 @@ export default function CategoryForm({ category }: Props) {
         } else {
             await actions.category.createCategory(values);
         }
+        router.refresh();
+        onSuccess?.();
     };
 
     return (

@@ -60,9 +60,9 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const role = row.getValue("role") as string
       const roleColors: Record<string, string> = {
-        admin: "bg-red-100 text-red-800",
-        manager: "bg-blue-100 text-blue-800",
-        user: "bg-gray-100 text-gray-800",
+        admin: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+        manager: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+        user: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
       }
       return (
         <span
@@ -80,7 +80,7 @@ export const columns: ColumnDef<User>[] = [
       const enabled = row.getValue("enabled") as boolean
       return (
         <span
-          className={`px-2 py-1 rounded-md text-xs ${enabled ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+          className={`px-2 py-1 rounded-md text-xs ${enabled ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"}`}
         >
           {enabled ? "Active" : "Disabled"}
         </span>

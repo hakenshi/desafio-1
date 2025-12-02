@@ -30,8 +30,7 @@ export default function Icon({ src, size = "sm" }: Props) {
                 <div className={cn("rounded-full", styles.fallback)}>
                     <User2Icon 
                         strokeWidth={0} 
-                        fill="#6a7282" 
-                        className={cn("text-gray-500", styles.icon)} 
+                        className={cn("text-muted-foreground fill-muted-foreground", styles.icon)} 
                     />
                 </div>
             </AvatarFallback>

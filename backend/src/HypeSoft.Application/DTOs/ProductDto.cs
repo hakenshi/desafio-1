@@ -2,6 +2,7 @@ namespace HypeSoft.Application.DTOs;
 
 public record ProductDto(
     string Id,
+    string Sku,
     string Name,
     string Description,
     decimal Price,

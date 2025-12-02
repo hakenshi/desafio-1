@@ -31,6 +31,7 @@ public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, P
 
         return new ProductDto(
             product.Id,
+            string.IsNullOrEmpty(product.Sku) ? $"PRD{product.Id[..6].ToUpper()}" : product.Sku,
             product.Name,
             product.Description,
             product.Price,

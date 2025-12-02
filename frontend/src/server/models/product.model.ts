@@ -5,6 +5,7 @@ export namespace ProductModel {
   // Product Schema
   export const ProductSchema = z.object({
     id: z.string(),
+    sku: z.string(),
     name: z.string(),
     description: z.string(),
     price: z.number(),

@@ -3,8 +3,10 @@ namespace HypeSoft.Domain.Entities;
 public class Product
 {
     public const int LowStockThreshold = 10;
+    private static int _skuCounter = 1;
     
     public string Id { get; private set; } = null!;
+    public string Sku { get; private set; } = string.Empty;
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public decimal Price { get; private set; }
@@ -18,6 +20,11 @@ public class Product
     
     public bool IsLowStock() => StockQuantity < LowStockThreshold;
 
+    private static string GenerateSku()
+    {
+        return $"PRD{_skuCounter++:D6}";
+    }
+
     public static Product Create(string name, string description, decimal price, string categoryId, int stockQuantity)
     {
         ValidateProductData(name, description, price, stockQuantity);
@@ -25,6 +32,7 @@ public class Product
         return new Product
         {
             Id = Guid.NewGuid().ToString(),
+            Sku = GenerateSku(),
             Name = name,
             Description = description,
             Price = price,

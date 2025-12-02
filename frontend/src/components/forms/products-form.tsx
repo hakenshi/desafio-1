@@ -2,7 +2,6 @@
 
 import { actions } from "@/server/controllers";
 import { ProductModel } from "@/server/models/product.model";
-import { CategoryModel } from "@/server/models/category.model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -24,14 +23,24 @@ import {
     SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
     product?: ProductModel.Product;
-    categories: CategoryModel.Category[];
+    onSuccess?: () => void;
 }
 
-export default function ProductsForm({ product, categories }: Props) {
+export default function ProductsForm({ product, onSuccess }: Props) {
     const isUpdating = !!product;
+    const router = useRouter();
+    
+    const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
+        queryKey: ["categories"],
+        queryFn: () => actions.category.getAllCategories({ page: 1, pageSize: 100 }),
+    });
+    
+    const categories = categoriesData?.items ?? [];
 
     const form = useForm<ProductModel.CreateProductDto>({
         resolver: zodResolver(ProductModel.CreateProductSchema),
@@ -58,6 +67,8 @@ export default function ProductsForm({ product, categories }: Props) {
         } else {
             await actions.product.createProduct(values);
         }
+        router.refresh();
+        onSuccess?.();
     };
 
     return (
@@ -144,13 +155,13 @@ export default function ProductsForm({ product, categories }: Props) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingCategories}>
                                 <FormControl>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a category" />
+                                        <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="w-full">
                                     {categories.map((category) => (
                                         <SelectItem key={category.id} value={category.id}>
                                             {category.name}

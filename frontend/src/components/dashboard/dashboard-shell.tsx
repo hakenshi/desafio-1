@@ -7,7 +7,7 @@ interface Props extends PropsWithChildren{
 export default function DashboardShell({title, children}: Props){
     return (
         <div className="p-5">
-            <main className="bg-white p-5 rounded-md h-full">
+            <main className="bg-card p-5 rounded-md h-full">
                 <p className="text-lg font-semibold pb-5">{title}</p>
                 {children}
             </main>

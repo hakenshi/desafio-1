@@ -20,7 +20,8 @@ async function ProductsTable({
   categoryId?: string;
 }) {
   const products = await actions.product.getAllProducts({ page, pageSize, categoryId });
-  const categories = await actions.category.getAllCategories({ page: 1, pageSize: 100 });
+  const categoriesPromise = actions.category.getAllCategories({ page: 1, pageSize: 100 });
+  const categories = await categoriesPromise;
 
   return (
     <DataTable
@@ -41,7 +42,7 @@ async function ProductsTable({
       searchKey="name"
       searchPlaceholder="Search products..."
     >
-      <ProductsForm categories={categories.items} />
+      <ProductsForm />
     </DataTable>
   );
 }

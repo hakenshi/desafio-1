@@ -8,7 +8,6 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { actions } from "../../server/controllers"
 import Image from "next/image"
-import { redirect } from "next/navigation"
 import { Spinner } from "../ui/spinner"
 
 export function LoginForm() {
@@ -26,18 +25,27 @@ export function LoginForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className="grid gap-6 border border-gray-300 p-8 max-w-xl w-full bg-white rounded-2xl">
+            <form onSubmit={form.handleSubmit(submit)} className="grid gap-6 border border-border p-8 max-w-xl w-full bg-card rounded-2xl">
                 <div className="flex flex-col items-center gap-5">
                     <div>
                         <Image
-                            width={75}
+                            width={150}
                             height={10}
                             priority
                             src="/logo.svg"
                             alt="hypesoft logo"
+                            className="dark:hidden"
+                        />
+                        <Image
+                            width={150}
+                            height={10}
+                            priority
+                            src="/logo-dark.svg"
+                            alt="hypesoft logo"
+                            className="hidden dark:block"
                         />
                     </div>
-                    <p className="text-gray-500">Enter your credentials to access the dashboard</p>
+                    <p className="text-muted-foreground">Enter your credentials to access the dashboard</p>
                 </div>
 
                 <div className="space-y-6">

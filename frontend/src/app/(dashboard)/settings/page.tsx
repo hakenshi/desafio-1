@@ -53,7 +53,7 @@ async function SettingsContent() {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">User ID</p>
-            <p className="text-sm font-mono text-xs">{user.id}</p>
+            <p className="text-sm font-mono">{user.id}</p>
           </div>
         </CardContent>
       </Card>
