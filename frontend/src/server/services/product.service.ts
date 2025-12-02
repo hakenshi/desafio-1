@@ -10,6 +10,10 @@ export class ProductService extends BaseService {
       pageSize: validatedQuery.pageSize.toString(),
     });
 
+    if (validatedQuery.categoryId) {
+      params.append("categoryId", validatedQuery.categoryId);
+    }
+
     const response = await this.client.get<ProductModel.PaginatedProducts>(
       `/products?${params.toString()}`, 
       undefined, 

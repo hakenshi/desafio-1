@@ -43,6 +43,7 @@ export namespace ProductModel {
   export const GetAllProductsQuerySchema = z.object({
     page: z.number().int().positive().optional().default(1),
     pageSize: z.number().int().positive().optional().default(10),
+    categoryId: z.string().optional(),
   });
 
   // Types

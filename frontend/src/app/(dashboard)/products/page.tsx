@@ -2,31 +2,47 @@ import { Suspense } from "react";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
-import { getAllProducts } from "@/server/controllers/product.controller";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
+import { actions } from "@/server/controllers";
+import ProductsForm from "@/components/forms/products-form";
 
 interface ProductsPageProps {
-  searchParams: Promise<{ page?: string; pageSize?: string }>;
+  searchParams: Promise<{ page?: string; pageSize?: string; categoryId?: string }>;
 }
 
-async function ProductsTable({ page, pageSize }: { page: number; pageSize: number }) {
-  const result = await getAllProducts({ page, pageSize });
+async function ProductsTable({ 
+  page, 
+  pageSize, 
+  categoryId 
+}: { 
+  page: number; 
+  pageSize: number; 
+  categoryId?: string;
+}) {
+  const products = await actions.product.getAllProducts({ page, pageSize, categoryId });
+  const categories = await actions.category.getAllCategories({ page: 1, pageSize: 100 });
 
   return (
     <DataTable
       columns={columns}
-      data={result.items}
+      data={products.items}
       pagination={{
-        page: result.page,
-        pageSize: result.pageSize,
-        totalCount: result.totalCount,
-        totalPages: result.totalPages,
-        hasPreviousPage: result.hasPreviousPage,
-        hasNextPage: result.hasNextPage,
+        page: products.page,
+        pageSize: products.pageSize,
+        totalCount: products.totalCount,
+        totalPages: products.totalPages,
+        hasPreviousPage: products.hasPreviousPage,
+        hasNextPage: products.hasNextPage,
       }}
+      filterKey="categoryId"
+      filterOptions={categories.items.map(c => ({ label: c.name, value: c.id }))}
+      filterPlaceholder="Category"
+      currentFilter={categoryId}
       searchKey="name"
       searchPlaceholder="Search products..."
-    />
+    >
+      <ProductsForm categories={categories.items} />
+    </DataTable>
   );
 }
 
@@ -34,11 +50,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
+  const categoryId = params.categoryId;
 
   return (
     <DashboardShell title="Products">
-      <Suspense fallback={<TableSkeleton columns={6} rows={pageSize} />}>
-        <ProductsTable page={page} pageSize={pageSize} />
+      <Suspense fallback={<TableSkeleton columns={10} rows={pageSize} />}>
+        <ProductsTable page={page} pageSize={pageSize} categoryId={categoryId} />
       </Suspense>
     </DashboardShell>
   );

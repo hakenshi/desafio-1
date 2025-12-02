@@ -21,9 +21,17 @@ import {
 } from "./table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { PropsWithChildren, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, PlusIcon, X } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "./dialog"
+import { DialogTitle } from "@radix-ui/react-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu"
 
 interface PaginationInfo {
   page: number
@@ -34,12 +42,21 @@ interface PaginationInfo {
   hasNextPage: boolean
 }
 
-interface DataTableProps<TData, TValue> {
+interface FilterOption {
+  label: string
+  value: string
+}
+
+interface DataTableProps<TData, TValue> extends PropsWithChildren {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pagination?: PaginationInfo
   searchKey?: string
   searchPlaceholder?: string
+  filterKey?: string
+  filterOptions?: FilterOption[]
+  filterPlaceholder?: string
+  currentFilter?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -48,9 +65,15 @@ export function DataTable<TData, TValue>({
   pagination,
   searchKey,
   searchPlaceholder = "Search...",
+  children,
+  filterKey,
+  filterOptions,
+  filterPlaceholder = "Filter by...",
+  currentFilter,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [filterSearch, setFilterSearch] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -76,17 +99,112 @@ export function DataTable<TData, TValue>({
     router.push(`?${params.toString()}`)
   }
 
+  const handleFilterSelect = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) {
+      params.set(filterKey || "filter", value)
+      params.set("page", "1") // Reset to page 1 when filtering
+    } else {
+      params.delete(filterKey || "filter")
+    }
+    router.push(`?${params.toString()}`)
+    setFilterSearch("")
+  }
+
+  const filteredOptions = useMemo(() => {
+    if (!filterOptions) return []
+    if (!filterSearch) return filterOptions
+    return filterOptions.filter(opt => 
+      opt.label.toLowerCase().includes(filterSearch.toLowerCase())
+    )
+  }, [filterOptions, filterSearch])
+
+  const currentFilterLabel = currentFilter 
+    ? filterOptions?.find(o => o.value === currentFilter)?.label 
+    : null
+
   return (
     <div className="space-y-4">
       {searchKey && (
-        <Input
-          placeholder={searchPlaceholder}
-          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(searchKey)?.setFilterValue(event.target.value)
-          }
-          className="w-full"
-        />
+        <div className="flex gap-2">
+          <Input
+            placeholder={searchPlaceholder}
+            value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn(searchKey)?.setFilterValue(event.target.value)
+            }
+            className="w-full"
+          />
+          
+          {filterKey && filterOptions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2 min-w-[140px]">
+                  <Filter className="h-4 w-4" />
+                  {currentFilterLabel || filterPlaceholder}
+                  {currentFilter && (
+                    <X 
+                      className="h-3 w-3 ml-1 hover:text-destructive" 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleFilterSelect("")
+                      }}
+                    />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="p-2">
+                  <Input
+                    placeholder="Search..."
+                    value={filterSearch}
+                    onChange={(e) => setFilterSearch(e.target.value)}
+                    className="h-8"
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  {currentFilter && (
+                    <DropdownMenuItem onClick={() => handleFilterSelect("")}>
+                      <span className="text-muted-foreground">Clear filter</span>
+                    </DropdownMenuItem>
+                  )}
+                  {filteredOptions.length > 0 ? (
+                    filteredOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() => handleFilterSelect(option.value)}
+                        className="flex items-center justify-between"
+                      >
+                        {option.label}
+                        {currentFilter === option.value && (
+                          <Check className="h-4 w-4" />
+                        )}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      No options found
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusIcon />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="sr-only">Create new Resource form</DialogTitle>
+              </DialogHeader>
+              {children}
+            </DialogContent>
+          </Dialog>
+        </div>
       )}
       <div className="rounded-md border">
         <Table>
