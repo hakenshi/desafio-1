@@ -45,27 +45,27 @@ export async function getLowStockProducts(): Promise<ProductModel.Product[]> {
 export async function createProduct(data: ProductModel.CreateProductDto): Promise<ProductModel.Product> {
   const service = await getService();
   const product = await service.create(data);
-  revalidateTag(CACHE_TAGS.products, "max");
-  revalidateTag(CACHE_TAGS.lowStock, "max");
-  revalidateTag(CACHE_TAGS.search, "max");
+  revalidateTag(CACHE_TAGS.products);
+  revalidateTag(CACHE_TAGS.lowStock);
+  revalidateTag(CACHE_TAGS.search);
   return product;
 }
 
 export async function updateProduct(id: string, data: ProductModel.UpdateProductDto): Promise<ProductModel.Product> {
   const service = await getService();
   const product = await service.update(id, data);
-  revalidateTag(CACHE_TAGS.product(id), "max");
-  revalidateTag(CACHE_TAGS.products, "max");
-  revalidateTag(CACHE_TAGS.lowStock, "max");
-  revalidateTag(CACHE_TAGS.search, "max");
+  revalidateTag(CACHE_TAGS.product(id));
+  revalidateTag(CACHE_TAGS.products);
+  revalidateTag(CACHE_TAGS.lowStock);
+  revalidateTag(CACHE_TAGS.search);
   return product;
 }
 
 export async function deleteProduct(id: string): Promise<void> {
   const service = await getService();
   await service.delete(id);
-  revalidateTag(CACHE_TAGS.product(id), "max");
-  revalidateTag(CACHE_TAGS.products, "max");
-  revalidateTag(CACHE_TAGS.lowStock, "max");
-  revalidateTag(CACHE_TAGS.search, "max");
+  revalidateTag(CACHE_TAGS.product(id));
+  revalidateTag(CACHE_TAGS.products);
+  revalidateTag(CACHE_TAGS.lowStock);
+  revalidateTag(CACHE_TAGS.search);
 }
