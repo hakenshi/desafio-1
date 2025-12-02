@@ -79,6 +79,9 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "categoryName",
     header: "Category",
+    filterFn: (row, id, filterValue) => {
+      return row.getValue(id) === filterValue
+    },
   },
   {
     accessorKey: "isLowStock",

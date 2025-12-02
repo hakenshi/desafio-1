@@ -5,6 +5,7 @@ import { columns } from "./columns";
 import { getUserInfo, getUsers } from "@/server/controllers/auth.controller";
 import { redirect } from "next/navigation";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
+import UserForm from "@/components/forms/user-form";
 
 async function UsersTable() {
   const currentUser = await getUserInfo();
@@ -38,7 +39,16 @@ async function UsersTable() {
         data={users}
         searchKey="username"
         searchPlaceholder="Search users..."
-      />
+        filterKey="role"
+        filterOptions={[
+          { label: "Admin", value: "admin" },
+          { label: "Manager", value: "manager" },
+          { label: "User", value: "user" },
+        ]}
+        filterPlaceholder="Role"
+      >
+        <UserForm />
+      </DataTable>
     </>
   );
 }

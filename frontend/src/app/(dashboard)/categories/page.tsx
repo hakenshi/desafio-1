@@ -4,6 +4,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
 import { getAllCategories } from "@/server/controllers/category.controller";
 import { TableSkeleton } from "@/components/dashboard/table-skeleton";
+import CategoryForm from "@/components/forms/category-form";
 
 interface CategoriesPageProps {
   searchParams: Promise<{ page?: string; pageSize?: string }>;
@@ -26,7 +27,9 @@ async function CategoriesTable({ page, pageSize }: { page: number; pageSize: num
       }}
       searchKey="name"
       searchPlaceholder="Search categories..."
-    />
+    >
+      <CategoryForm />
+    </DataTable>
   );
 }
 
