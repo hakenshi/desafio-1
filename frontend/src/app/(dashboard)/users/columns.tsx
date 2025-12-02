@@ -13,9 +13,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { AuthModel } from "@/server/models/auth.model"
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import UserCard from "@/components/user-card"
 import UserForm from "@/components/forms/user-form"
+import { actions } from "@/server/controllers"
+import { useRouter } from "next/navigation"
+import { Spinner } from "@/components/ui/spinner"
 
 export type User = AuthModel.KeycloakUser
 
@@ -88,11 +91,25 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     cell: ({ row }) => {
       const user = row.original
+      const router = useRouter()
 
       const [showUserDetails, setShowUserDetails] = useState(false)
       const [showUpdateDialog, setShowUpdateDialog] = useState(false)
       const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+      const [isDeleting, setIsDeleting] = useState(false)
 
+      const handleDelete = async () => {
+        setIsDeleting(true)
+        try {
+          await actions.auth.deleteUser(user.id)
+          router.refresh()
+          setShowDeleteDialog(false)
+        } catch (error) {
+          console.error("Failed to delete user:", error)
+        } finally {
+          setIsDeleting(false)
+        }
+      }
 
       return (
         <>
@@ -132,10 +149,28 @@ export const columns: ColumnDef<User>[] = [
           </Dialog>
           <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
             <DialogContent>
-              <DialogHeader className="sr-only">
-                <DialogTitle>Updating User: {`${user.firstName} ${user.lastName}`}</DialogTitle>
+              <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
               </DialogHeader>
-              <UserForm user={user} />
+              <UserForm user={user} onSuccess={() => setShowUpdateDialog(false)} />
+            </DialogContent>
+          </Dialog>
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete User</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete user &quot;{user.username}&quot;? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? <><Spinner /> Deleting...</> : "Delete"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </>

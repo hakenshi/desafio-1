@@ -22,24 +22,26 @@ import {
     SelectValue,
 } from "../ui/select";
 import { actions } from "@/server/controllers";
-
-
+import { useRouter } from "next/navigation";
 
 interface Props {
     user?: AuthModel.KeycloakUser;
+    onSuccess?: () => void;
 }
 
-export default function UserForm({ user }: Props) {
+export default function UserForm({ user, onSuccess }: Props) {
     const isUpdating = !!user;
+    const router = useRouter();
 
     const form = useForm<AuthModel.RegisterRequest>({
         resolver: zodResolver(AuthModel.RegisterRequestSchema),
         defaultValues: {
-            username: user?.username ?? "",
-            email: user?.email ?? "",
-            firstName: user?.firstName ?? "",
-            lastName: user?.lastName ?? "",
-            role: user?.role ?? "user",
+            username: user?.username || "",
+            email: user?.email || "",
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            password: "",
+            role: user?.role || "user",
         }
     });
 
@@ -54,6 +56,8 @@ export default function UserForm({ user }: Props) {
         } else {
             await actions.auth.register(values);
         }
+        router.refresh();
+        onSuccess?.();
     };
 
     return (
