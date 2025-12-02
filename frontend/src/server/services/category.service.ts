@@ -1,8 +1,28 @@
 import { CategoryModel } from "../models/category.model";
 import { BaseService } from "./base.service";
-import { z } from "zod";
 
 export class CategoryService extends BaseService {
+  private static instance: CategoryService | null = null;
+
+  private constructor(token?: string) {
+    super(token);
+  }
+
+  static initialize(token?: string): CategoryService {
+    if (!CategoryService.instance) {
+      CategoryService.instance = new CategoryService(token);
+    } else {
+      CategoryService.instance.setToken(token);
+    }
+    return CategoryService.instance;
+  }
+
+  static getInstance(): CategoryService {
+    if (!CategoryService.instance) {
+      CategoryService.instance = new CategoryService();
+    }
+    return CategoryService.instance;
+  }
   async getAll(query?: CategoryModel.GetAllCategoriesQuery): Promise<CategoryModel.PaginatedCategories> {
     const validatedQuery = CategoryModel.GetAllCategoriesQuerySchema.parse(query || {});
     const params = new URLSearchParams({

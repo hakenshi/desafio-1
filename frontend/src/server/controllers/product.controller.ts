@@ -19,7 +19,7 @@ async function getAuthToken(): Promise<string | undefined> {
 
 async function getService(): Promise<ProductService> {
   const token = await getAuthToken();
-  return new ProductService(token);
+  return ProductService.initialize(token);
 }
 
 export async function getAllProducts(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.PaginatedProducts> {

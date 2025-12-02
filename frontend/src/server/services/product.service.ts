@@ -3,6 +3,27 @@ import { BaseService } from "./base.service";
 import { z } from "zod";
 
 export class ProductService extends BaseService {
+  private static instance: ProductService | null = null;
+
+  private constructor(token?: string) {
+    super(token);
+  }
+
+  static initialize(token?: string): ProductService {
+    if (!ProductService.instance) {
+      ProductService.instance = new ProductService(token);
+    } else {
+      ProductService.instance.setToken(token);
+    }
+    return ProductService.instance;
+  }
+
+  static getInstance(): ProductService {
+    if (!ProductService.instance) {
+      ProductService.instance = new ProductService();
+    }
+    return ProductService.instance;
+  }
   async getAll(query?: ProductModel.GetAllProductsQuery): Promise<ProductModel.PaginatedProducts> {
     const validatedQuery = ProductModel.GetAllProductsQuerySchema.parse(query || {});
     const params = new URLSearchParams({

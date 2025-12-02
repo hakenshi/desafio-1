@@ -3,6 +3,27 @@ import { DashboardModel } from "../models/dashboard.model";
 import { BaseService } from "./base.service";
 
 export class DashboardService extends BaseService {
+  private static instance: DashboardService | null = null;
+
+  private constructor(token?: string) {
+    super(token);
+  }
+
+  static initialize(token?: string): DashboardService {
+    if (!DashboardService.instance) {
+      DashboardService.instance = new DashboardService(token);
+    } else {
+      DashboardService.instance.setToken(token);
+    }
+    return DashboardService.instance;
+  }
+
+  static getInstance(): DashboardService {
+    if (!DashboardService.instance) {
+      DashboardService.instance = new DashboardService();
+    }
+    return DashboardService.instance;
+  }
   async getData(): Promise<DashboardModel.Dashboard> {
     const response = await this.client.get<DashboardModel.Dashboard>("/dashboard", undefined, this.token);
     return DashboardModel.DashboardSchema.parse(response);

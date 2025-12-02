@@ -11,7 +11,7 @@ async function getAuthToken(): Promise<string | undefined> {
 
 async function getService(): Promise<DashboardService> {
   const token = await getAuthToken();
-  return new DashboardService(token);
+  return DashboardService.initialize(token);
 }
 
 export async function getDashboardData(): Promise<DashboardModel.Dashboard> {

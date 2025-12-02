@@ -5,6 +5,27 @@ import { BaseService } from "./base.service";
 import { redirect } from "next/navigation";
 
 export class AuthService extends BaseService {
+  private static instance: AuthService | null = null;
+
+  private constructor(token?: string) {
+    super(token);
+  }
+
+  static initialize(token?: string): AuthService {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService(token);
+    } else {
+      AuthService.instance.setToken(token);
+    }
+    return AuthService.instance;
+  }
+
+  static getInstance(): AuthService {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
   async login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
     const validatedData = AuthModel.LoginRequestSchema.parse(data);
     const response = await this.client.post<AuthModel.TokenResponse>(

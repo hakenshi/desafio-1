@@ -8,7 +8,7 @@ import { getValidAuthToken } from "./token.controller";
 
 async function getService(withToken: boolean = false): Promise<AuthService> {
   const token = withToken ? await getValidAuthToken() : undefined;
-  return new AuthService(token);
+  return AuthService.initialize(token);
 }
 
 export async function login(data: AuthModel.LoginRequest): Promise<AuthModel.TokenResponse> {
