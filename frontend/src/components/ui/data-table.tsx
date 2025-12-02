@@ -127,92 +127,94 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {searchKey && (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Input
             placeholder={searchPlaceholder}
             value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn(searchKey)?.setFilterValue(event.target.value)
             }
-            className="w-full"
+            className="w-full sm:flex-1"
           />
           
-          {filterKey && filterOptions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 min-w-[140px]">
-                  <Filter className="h-4 w-4" />
-                  {currentFilterLabel || filterPlaceholder}
-                  {currentFilter && (
-                    <X 
-                      className="h-3 w-3 ml-1 hover:text-destructive" 
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleFilterSelect("")
-                      }}
+          <div className="flex gap-2">
+            {filterKey && filterOptions && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 flex-1 sm:flex-none sm:min-w-[140px]">
+                    <Filter className="h-4 w-4" />
+                    <span className="truncate">{currentFilterLabel || filterPlaceholder}</span>
+                    {currentFilter && (
+                      <X 
+                        className="h-3 w-3 ml-1 hover:text-destructive shrink-0" 
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleFilterSelect("")
+                        }}
+                      />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Search..."
+                      value={filterSearch}
+                      onChange={(e) => setFilterSearch(e.target.value)}
+                      className="h-8"
                     />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="p-2">
-                  <Input
-                    placeholder="Search..."
-                    value={filterSearch}
-                    onChange={(e) => setFilterSearch(e.target.value)}
-                    className="h-8"
-                  />
-                </div>
-                <div className="max-h-48 overflow-y-auto">
-                  {currentFilter && (
-                    <DropdownMenuItem onClick={() => handleFilterSelect("")}>
-                      <span className="text-muted-foreground">Clear filter</span>
-                    </DropdownMenuItem>
-                  )}
-                  {filteredOptions.length > 0 ? (
-                    filteredOptions.map((option) => (
-                      <DropdownMenuItem
-                        key={option.value}
-                        onClick={() => handleFilterSelect(option.value)}
-                        className="flex items-center justify-between"
-                      >
-                        {option.label}
-                        {currentFilter === option.value && (
-                          <Check className="h-4 w-4" />
-                        )}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    {currentFilter && (
+                      <DropdownMenuItem onClick={() => handleFilterSelect("")}>
+                        <span className="text-muted-foreground">Clear filter</span>
                       </DropdownMenuItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      No options found
-                    </div>
-                  )}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                    )}
+                    {filteredOptions.length > 0 ? (
+                      filteredOptions.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          onClick={() => handleFilterSelect(option.value)}
+                          className="flex items-center justify-between"
+                        >
+                          {option.label}
+                          {currentFilter === option.value && (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground text-center">
+                        No options found
+                      </div>
+                    )}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusIcon />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle className="sr-only">Create new Resource form</DialogTitle>
-              </DialogHeader>
-              {isValidElement(children) 
-                ? cloneElement(children as ReactElement<{ onSuccess?: () => void }>, { 
-                    onSuccess: () => setIsCreateDialogOpen(false) 
-                  })
-                : children}
-            </DialogContent>
-          </Dialog>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusIcon />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="sr-only">Create new Resource form</DialogTitle>
+                </DialogHeader>
+                {isValidElement(children) 
+                  ? cloneElement(children as ReactElement<{ onSuccess?: () => void }>, { 
+                      onSuccess: () => setIsCreateDialogOpen(false) 
+                    })
+                  : children}
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       )}
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border overflow-x-auto">
+        <Table className="min-w-[600px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -257,18 +259,19 @@ export function DataTable<TData, TValue>({
       </div>
 
       {pagination && (
-        <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-2">
+          <div className="text-sm text-muted-foreground text-center sm:text-left">
             Showing {((pagination.page - 1) * pagination.pageSize) + 1} to{" "}
             {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)} of{" "}
             {pagination.totalCount} results
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handlePageChange(1)}
               disabled={!pagination.hasPreviousPage}
+              className="hidden sm:flex"
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
@@ -280,8 +283,8 @@ export function DataTable<TData, TValue>({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+            <span className="text-sm px-2">
+              {pagination.page} / {pagination.totalPages}
             </span>
             <Button
               variant="outline"
@@ -296,6 +299,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => handlePageChange(pagination.totalPages)}
               disabled={!pagination.hasNextPage}
+              className="hidden sm:flex"
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>
