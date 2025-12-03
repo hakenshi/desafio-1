@@ -14,8 +14,8 @@ export function LoginForm() {
     const form = useForm<AuthModel.LoginRequest>({
         resolver: zodResolver(AuthModel.LoginRequestSchema),
         defaultValues: {
-            email: "admin@hypesoft.com",
-            password: "admin123"
+            email: "",
+            password: ""
         }
     })
 

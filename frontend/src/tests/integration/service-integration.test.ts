@@ -38,7 +38,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should refresh token with valid refresh token", async () => {
-      if (!authRefreshToken) return;
+      expect(authRefreshToken).toBeDefined();
 
       const response = await request(API_URL)
         .post("/auth/refresh")
@@ -48,7 +48,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should get current user info with valid token", async () => {
-      if (!authAccessToken) return;
+      expect(authAccessToken).toBeDefined();
 
       const response = await request(API_URL)
         .get("/auth/me")
@@ -105,7 +105,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should fetch category by ID", async () => {
-      if (!testCategoryId) return;
+      expect(testCategoryId).toBeDefined();
 
       const response = await request(API_URL)
         .get(`/categories/${testCategoryId}`)
@@ -116,7 +116,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should update category", async () => {
-      if (!testCategoryId) return;
+      expect(testCategoryId).toBeDefined();
 
       const response = await request(API_URL)
         .put(`/categories/${testCategoryId}`)
@@ -131,7 +131,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should delete category", async () => {
-      if (!testCategoryId) return;
+      expect(testCategoryId).toBeDefined();
 
       const response = await request(API_URL)
         .delete(`/categories/${testCategoryId}`)
@@ -187,7 +187,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should update product", async () => {
-      if (!testProductId) return;
+      expect(testProductId).toBeDefined();
 
       const response = await request(API_URL)
         .put(`/products/${testProductId}`)
@@ -205,7 +205,7 @@ describe("Service Integration Tests - Real API Calls", () => {
     }, API_TIMEOUT);
 
     it("should delete product", async () => {
-      if (!testProductId) return;
+      expect(testProductId).toBeDefined();
 
       const response = await request(API_URL)
         .delete(`/products/${testProductId}`)
