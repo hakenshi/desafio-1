@@ -4,7 +4,6 @@ using HypeSoft.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UpdateCategoryDto = HypeSoft.Application.Categories.Commands.UpdateCategoryDto;
 
 namespace HypeSoft.API.Controllers;
 

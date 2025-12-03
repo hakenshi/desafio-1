@@ -15,11 +15,17 @@ export default defineConfig({
         coverage: {
             provider: "v8",
             reporter: ["text", "json", "html"],
+            include: [
+                "src/server/models/**",
+                "src/server/services/**",
+            ],
             exclude: [
                 "node_modules/",
                 "src/tests/",
                 "**/*.config.*",
                 "**/*.d.ts",
+                "src/server/services/index.ts",
+                "src/server/services/token.service.ts",
             ],
         },
     }
