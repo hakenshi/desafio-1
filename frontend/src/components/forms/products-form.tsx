@@ -70,8 +70,20 @@ export default function ProductsForm({ product, onSuccess }: Props) {
             }
             router.refresh();
             onSuccess?.();
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Failed to save product:", error);
+            const apiError = error as { errors?: Record<string, string[]>; message?: string };
+            if (apiError.errors) {
+                Object.entries(apiError.errors).forEach(([field, messages]) => {
+                    const fieldName = field.charAt(0).toLowerCase() + field.slice(1);
+                    form.setError(fieldName as keyof ProductModel.CreateProductDto, {
+                        type: "server",
+                        message: messages.join(", "),
+                    });
+                });
+            } else if (apiError.message) {
+                form.setError("root", { type: "server", message: apiError.message });
+            }
         }
     };
 

@@ -58,7 +58,11 @@ export class AuthService extends BaseService {
   }
 
   async getUserInfo(): Promise<AuthModel.UserInfo> {
-    const response = await this.client.get<AuthModel.UserInfo>("/auth/me", undefined, this.token);
+    const response = await this.client.get<AuthModel.UserInfo>(
+      "/auth/me",
+      { cache: "no-store" },
+      this.token
+    );
     return AuthModel.UserInfoSchema.parse(response);
   }
 

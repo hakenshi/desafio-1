@@ -22,11 +22,20 @@ export namespace ProductModel {
 
   // Create Product Schema
   export const CreateProductSchema = z.object({
-    name: z.string().min(1, "Product name is required"),
-    description: z.string().min(1, "Description is required"),
-    price: z.number().positive("Price must be greater than zero"),
+    name: z.string()
+      .min(3, "Name must be at least 3 characters")
+      .max(200, "Name must be at most 200 characters"),
+    description: z.string()
+      .min(10, "Description must be at least 10 characters")
+      .max(1000, "Description must be at most 1000 characters"),
+    price: z.number()
+      .positive("Price must be greater than zero")
+      .max(1000000, "Price must be at most 1,000,000"),
     categoryId: z.string().min(1, "Category is required"),
-    stockQuantity: z.number().int().min(0, "Stock quantity cannot be negative"),
+    stockQuantity: z.number()
+      .int()
+      .min(0, "Stock quantity cannot be negative")
+      .max(100000, "Stock quantity must be at most 100,000"),
   });
 
   // Update Product Schema
