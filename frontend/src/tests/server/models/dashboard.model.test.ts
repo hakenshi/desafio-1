@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DashboardModel } from "../../server/models/dashboard.model";
+import { DashboardModel } from "@/server/models/dashboard.model";
 
 describe("DashboardModel Schema Validation", () => {
   describe("DashboardSchema", () => {

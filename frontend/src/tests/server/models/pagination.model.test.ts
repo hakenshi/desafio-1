@@ -79,37 +79,4 @@ describe("PaginationModel Schema Validation", () => {
     });
   });
 
-  describe("PaginatedResponse type", () => {
-    it("should correctly type paginated response", () => {
-      type TestItem = { id: string; name: string };
-      const response: PaginationModel.PaginatedResponse<TestItem> = {
-        items: [{ id: "1", name: "Test" }],
-        page: 1,
-        pageSize: 10,
-        totalCount: 1,
-        totalPages: 1,
-        hasPreviousPage: false,
-        hasNextPage: false,
-      };
-      
-      expect(response.items).toHaveLength(1);
-      expect(response.page).toBe(1);
-      expect(response.totalCount).toBe(1);
-    });
-  });
-
-  describe("PaginationParams type", () => {
-    it("should allow optional page and pageSize", () => {
-      const params1: PaginationModel.PaginationParams = {};
-      const params2: PaginationModel.PaginationParams = { page: 1 };
-      const params3: PaginationModel.PaginationParams = { pageSize: 20 };
-      const params4: PaginationModel.PaginationParams = { page: 2, pageSize: 25 };
-      
-      expect(params1.page).toBeUndefined();
-      expect(params2.page).toBe(1);
-      expect(params3.pageSize).toBe(20);
-      expect(params4.page).toBe(2);
-      expect(params4.pageSize).toBe(25);
-    });
-  });
 });

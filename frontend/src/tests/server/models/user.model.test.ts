@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { UserModel } from "../../server/models/user.model";
+import { UserModel } from "@/server/models/user.model";
 
 describe("UserModel Schema Validation", () => {
   describe("UserSchema", () => {

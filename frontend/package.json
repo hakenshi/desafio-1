@@ -10,7 +10,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:unit": "vitest run src/tests/services",
+    "test:unit": "vitest run src/tests/server src/tests/components",
     "test:integration": "vitest run src/tests/integration",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",

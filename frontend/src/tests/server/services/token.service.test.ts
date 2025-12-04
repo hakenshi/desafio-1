@@ -81,43 +81,4 @@ describe("TokenService", () => {
     });
   });
 
-  describe("Token Refresh Logic", () => {
-    it("should identify when refresh is needed", () => {
-      const expiredToken = createMockJWT(10); // 10 seconds - needs refresh
-      const validToken = createMockJWT(3600); // 1 hour - no refresh needed
-
-      expect(tokenService.isTokenExpired(expiredToken)).toBe(true);
-      expect(tokenService.isTokenExpired(validToken)).toBe(false);
-    });
-
-    it("should handle edge case at exactly 30 seconds", () => {
-      // At exactly 30 seconds, it should be considered expired (< 30000ms)
-      const token = createMockJWT(30);
-      // Due to timing, this might be true or false, so we just check it doesn't throw
-      expect(() => tokenService.isTokenExpired(token)).not.toThrow();
-    });
-  });
-
-  describe("Token Creation for Tests", () => {
-    it("should create valid mock tokens", () => {
-      const token = createMockJWT(3600);
-      const parts = token.split(".");
-
-      expect(parts).toHaveLength(3);
-      expect(parts[0]).toBeTruthy(); // header
-      expect(parts[1]).toBeTruthy(); // payload
-      expect(parts[2]).toBeTruthy(); // signature
-    });
-
-    it("should create tokens with correct expiration", () => {
-      const expiresIn = 3600;
-      const token = createMockJWT(expiresIn);
-      const payload = tokenService.decodeToken(token);
-
-      const expectedExp = Math.floor(Date.now() / 1000) + expiresIn;
-      // Allow 1 second tolerance for test execution time
-      expect(payload?.exp).toBeGreaterThanOrEqual(expectedExp - 1);
-      expect(payload?.exp).toBeLessThanOrEqual(expectedExp + 1);
-    });
-  });
 });

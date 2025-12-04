@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { z } from "zod";
-import { ApiModel } from "../../server/models/api-response.model";
+import { ApiModel } from "@/server/models/api-response.model";
 
 describe("ApiModel Schema Validation", () => {
   describe("ApiErrorSchema", () => {

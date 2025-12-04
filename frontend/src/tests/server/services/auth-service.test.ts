@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AuthService } from "../../server/services/auth.service";
-import { apiClient } from "../../server/services/api-client.service";
+import { AuthService } from "@/server/services/auth.service";
+import { apiClient } from "@/server/services/api-client.service";
 
-// Mock next/headers
 vi.mock("next/headers", () => ({
   cookies: vi.fn(() => Promise.resolve({
     get: vi.fn(),
@@ -11,12 +10,11 @@ vi.mock("next/headers", () => ({
   })),
 }));
 
-// Mock next/navigation
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
 
-vi.mock("../../server/services/api-client.service", () => ({
+vi.mock("@/server/services/api-client.service", () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
