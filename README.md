@@ -7,7 +7,7 @@ Sistema completo de gestão de produtos desenvolvido como desafio técnico, demo
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-## 🚀 Funcionalidades Implementadas
+## Funcionalidades Implementadas
 
 ### Gestão de Produtos
 -  CRUD completo de produtos
@@ -50,7 +50,7 @@ Sistema completo de gestão de produtos desenvolvido como desafio técnico, demo
 -  Filtro por role
 -  Busca por username
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ### Backend - Clean Architecture + DDD + CQRS
 
@@ -96,7 +96,7 @@ frontend/src/
     └── services/             # Unit tests
 ```
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 ### Backend
 | Tecnologia | Uso |
@@ -138,7 +138,7 @@ frontend/src/
 - .NET 9 SDK (para desenvolvimento)
 - Git
 
-## 🚀 Como Executar
+## Como Executar
 
 ### Com Docker (Recomendado)
 
@@ -304,7 +304,7 @@ chore(scope): manutenção
 - Server Actions para mutations type-safe
 - Streaming e Suspense nativos
 
-## 👤 Autor
+## Autor
 
 Desenvolvido como parte do desafio técnico HypeSoft.
 
