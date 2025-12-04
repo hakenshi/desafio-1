@@ -4,49 +4,40 @@
 Aceito
 
 ## Contexto
-Precisamos de um padrão para organizar operações de leitura e escrita que:
-- Permita otimizações específicas para cada tipo de operação
-- Facilite a implementação de cross-cutting concerns
-- Mantenha o código desacoplado
+Necessidade de organizar operações de leitura e escrita de forma desacoplada, permitindo otimizações específicas e cross-cutting concerns.
 
 ## Decisão
-Implementamos CQRS (Command Query Responsibility Segregation) usando MediatR:
+Implementamos CQRS usando MediatR com:
 
-- **Commands**: Operações de escrita (Create, Update, Delete)
-- **Queries**: Operações de leitura (Get, List, Search)
-- **Handlers**: Processam commands e queries
-- **Behaviors**: Pipeline behaviors para validação, caching, logging
+- **Commands**: CreateProductCommand, UpdateProductCommand, DeleteProductCommand
+- **Queries**: GetAllProductsQuery, GetProductByIdQuery, SearchProductsQuery
+- **Handlers**: Um handler por command/query
+- **Behaviors**: ValidationBehavior, CachingBehavior, CacheInvalidationBehavior
 
-## Implementação
-
-```csharp
-// Command
-public record CreateProductCommand(string Name, decimal Price) : IRequest<ProductDto>;
-
-// Handler
-public class CreateProductHandler : IRequestHandler<CreateProductCommand, ProductDto>
-{
-    public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken ct)
-    {
-        // lógica de criação
-    }
-}
-
-// Behavior (cross-cutting)
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-{
-    // validação automática antes de cada handler
-}
+## Estrutura de Arquivos
+```
+Application/
+├── Products/
+│   ├── Commands/
+│   │   ├── CreateProductCommand.cs
+│   │   └── CreateProductCommandHandler.cs
+│   └── Queries/
+│       ├── GetAllProductsQuery.cs
+│       └── GetAllProductsQueryHandler.cs
+└── Behaviors/
+    ├── ValidationBehavior.cs
+    ├── CachingBehavior.cs
+    └── CacheInvalidationBehavior.cs
 ```
 
 ## Consequências
 
 ### Positivas
-- Queries podem ser cacheadas independentemente
-- Validação automática via pipeline
-- Fácil adicionar logging, métricas, etc.
-- Handlers pequenos e focados
+- Queries cacheadas automaticamente via CachingBehavior
+- Validação automática via FluentValidation
+- Handlers pequenos e testáveis
+- Fácil adicionar logging e métricas
 
 ### Negativas
-- Mais arquivos (command + handler para cada operação)
-- Indireção pode dificultar debugging inicial
+- Mais arquivos por operação
+- Indireção adicional no fluxo

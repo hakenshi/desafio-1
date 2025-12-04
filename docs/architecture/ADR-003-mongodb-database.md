@@ -1,55 +1,32 @@
-# ADR-003: MongoDB como Banco de Dados Principal
+# ADR-003: MongoDB como Banco de Dados
 
 ## Status
 Aceito
 
 ## Contexto
-Precisamos escolher um banco de dados que suporte:
-- Produtos com atributos variáveis
-- Queries flexíveis com filtros dinâmicos
-- Boa performance em leituras
-- Escalabilidade horizontal
+Necessidade de um banco de dados flexível para produtos com atributos variáveis, queries dinâmicas e boa performance em leituras.
 
 ## Decisão
-Escolhemos MongoDB com Entity Framework Core provider.
+MongoDB com driver oficial .NET, containerizado via Docker.
 
-## Justificativa
+## Coleções
+- **products**: Produtos com SKU, nome, descrição, preço, categoryId, stockQuantity
+- **categories**: Categorias com nome e descrição
+- **auditLogs**: Logs de auditoria das operações
 
-### Por que NoSQL?
-- Produtos podem ter atributos diferentes por categoria
-- Schema flexível facilita evolução
-- Documentos aninhados reduzem JOINs
-
-### Por que MongoDB especificamente?
-- Suporte maduro no ecossistema .NET
-- Índices compostos para queries complexas
-- Aggregation pipeline para relatórios
-- Fácil containerização
-
-### Índices Criados
-```javascript
-// Produtos
-{ "CategoryId": 1, "Name": 1 }  // Filtro por categoria + busca
-{ "StockQuantity": 1 }          // Produtos com estoque baixo
-{ "CreatedAt": -1 }             // Ordenação por data
-
-// Categorias
-{ "Name": 1 }                   // Busca por nome (unique)
-
-// Audit Logs
-{ "CreatedAt": -1 }             // Logs recentes
-{ "EntityType": 1, "EntityId": 1 } // Histórico de entidade
-```
+## Índices Implementados
+- Products: índice em CategoryId, StockQuantity, CreatedAt
+- Categories: índice único em Name
+- AuditLogs: índice em CreatedAt, EntityType
 
 ## Consequências
 
 ### Positivas
-- Flexibilidade de schema
-- Performance excelente em leituras
-- Fácil de escalar horizontalmente
-- Boa integração com Docker
+- Schema flexível para evolução do modelo
+- Performance em leituras com índices apropriados
+- Fácil containerização e replicação
+- Aggregation pipeline para dashboard
 
 ### Negativas
-- Sem transações ACID multi-documento (mitigado com design cuidadoso)
-- Menos familiar para devs acostumados com SQL
-- Aggregations complexas podem ser verbosas
+- Sem transações ACID multi-documento
+- Necessidade de design cuidadoso para consistência

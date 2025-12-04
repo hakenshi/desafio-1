@@ -4,75 +4,50 @@
 Aceito
 
 ## Contexto
-Precisamos de uma solução de autenticação que:
-- Suporte OAuth2/OpenID Connect
-- Permita gestão de usuários e roles
-- Seja self-hosted (sem dependência de serviços externos)
-- Tenha UI de administração
+Necessidade de autenticação OAuth2/OIDC com gestão de usuários e roles, self-hosted.
 
 ## Decisão
-Adotamos Keycloak como Identity Provider.
+Keycloak como Identity Provider, containerizado via Docker.
 
 ## Configuração
 
 ### Realm: hypesoft
-- Client: `hypesoft-frontend` (public, para SPA)
-- Client: `hypesoft-api` (confidential, para backend)
+- Client: hypesoft-api (confidential)
 
 ### Roles
 | Role | Permissões |
 |------|------------|
-| admin | Tudo + gestão de usuários |
+| admin | CRUD completo + gestão de usuários |
 | manager | CRUD produtos e categorias |
 | user | Visualização apenas |
 
-### Fluxo de Autenticação
-```
-1. Usuário acessa /login
-2. Frontend redireciona para Keycloak
-3. Keycloak autentica e retorna JWT
-4. Frontend armazena token em cookie HttpOnly
-5. Requisições à API incluem Bearer token
-6. API valida token com Keycloak
-```
+### Usuários Pré-configurados
+- admin@hypesoft.com (admin)
+- manager@hypesoft.com (manager)
+- user@hypesoft.com (user)
+- Senha padrão: admin123
 
-### JWT Claims
-```json
-{
-  "sub": "user-uuid",
-  "preferred_username": "admin",
-  "email": "admin@hypesoft.com",
-  "realm_access": {
-    "roles": ["admin", "default-roles-hypesoft"]
-  }
-}
-```
+## Fluxo de Autenticação
+1. Frontend envia credenciais para /api/auth/login
+2. Backend autentica com Keycloak e retorna JWT
+3. Token armazenado em cookie HttpOnly
+4. Requisições incluem Bearer token
+5. API valida token com chave pública do Keycloak
 
-## Integração Backend
-```csharp
-// Program.cs
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.Authority = "http://keycloak:8080/realms/hypesoft";
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-        };
-    });
-```
+## JWT Claims Utilizados
+- sub: ID do usuário
+- preferred_username: Nome de usuário
+- email: Email
+- realm_access.roles: Roles do usuário
 
 ## Consequências
 
 ### Positivas
 - Solução enterprise-grade
-- UI de admin completa
-- Suporte a SSO, MFA, social login
-- Self-hosted (controle total)
+- Gestão completa de usuários via Admin Console
+- Suporte a SSO e MFA
+- Self-hosted com controle total
 
 ### Negativas
-- Consumo de recursos (Java)
+- Consumo de recursos (JVM)
 - Configuração inicial complexa
-- Overhead para projetos pequenos

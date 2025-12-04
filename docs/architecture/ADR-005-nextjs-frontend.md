@@ -1,80 +1,40 @@
-# ADR-005: Next.js App Router para Frontend
+# ADR-005: Next.js App Router
 
 ## Status
 Aceito
 
 ## Contexto
-Precisamos de um framework frontend que ofereça:
-- Server-side rendering para SEO e performance
-- Type safety com TypeScript
-- Boa DX (Developer Experience)
-- Integração fácil com APIs REST
+Necessidade de framework frontend com SSR, TypeScript e boa integração com APIs REST.
 
 ## Decisão
-Escolhemos Next.js 15 com App Router.
+Next.js 15 com App Router, shadcn/ui e Tailwind CSS.
 
-## Justificativa
-
-### Por que Next.js?
-- SSR/SSG out of the box
-- Server Components reduzem bundle size
-- Server Actions para mutations type-safe
-- Excelente ecossistema (Vercel, shadcn/ui)
-
-### Por que App Router (não Pages)?
-- Server Components por padrão
-- Layouts aninhados
-- Streaming e Suspense nativos
-- Melhor colocação de código (loading.tsx, error.tsx)
-
-## Arquitetura Frontend
-
+## Estrutura
 ```
 src/
-├── app/                    # Rotas e páginas
-│   ├── (auth)/            # Grupo de rotas públicas
-│   └── (dashboard)/       # Grupo de rotas protegidas
-├── components/            # Componentes React
-│   ├── ui/               # Primitivos (shadcn/ui)
-│   └── forms/            # Formulários específicos
-├── server/               # Código server-side
-│   ├── controllers/      # Server Actions
-│   ├── services/         # API clients
-│   └── models/           # Zod schemas
-└── lib/                  # Utilitários
+├── app/                    # Rotas (login, dashboard, products, categories, users)
+├── components/             # Componentes React e shadcn/ui
+├── server/
+│   ├── controllers/        # Server Actions
+│   ├── services/           # API clients (ProductService, CategoryService)
+│   └── models/             # Schemas Zod para validação
+└── lib/                    # Utilitários
 ```
 
-### Server Actions
-```typescript
-// server/controllers/product.controller.ts
-"use server"
-
-export async function createProduct(data: CreateProductDto) {
-  const token = await getValidAuthToken();
-  const service = new ProductService(token);
-  return service.create(data);
-}
-```
-
-### Validação com Zod
-```typescript
-// server/models/product.model.ts
-export const CreateProductSchema = z.object({
-  name: z.string().min(1),
-  price: z.number().positive(),
-  categoryId: z.string().uuid(),
-});
-```
+## Padrões Utilizados
+- Server Actions para mutations
+- Zod para validação de dados
+- React Query pattern com Server Components
+- Cookies HttpOnly para tokens
 
 ## Consequências
 
 ### Positivas
-- Performance excelente com Server Components
-- Type safety end-to-end
-- Menos código client-side
-- SEO friendly
+- Server Components reduzem bundle size
+- Type safety com Zod schemas
+- Validação client e server-side
+- Integração nativa com React 19
 
 ### Negativas
 - Curva de aprendizado do App Router
-- Algumas bibliotecas ainda não suportam Server Components
-- Debugging pode ser mais complexo (server vs client)
+- Debugging mais complexo entre server/client

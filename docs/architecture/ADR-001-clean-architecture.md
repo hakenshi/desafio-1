@@ -1,36 +1,31 @@
-# ADR-001: Adoção de Clean Architecture
+# ADR-001: Clean Architecture
 
 ## Status
 Aceito
 
 ## Contexto
-Precisamos de uma arquitetura que permita:
-- Separação clara de responsabilidades
-- Testabilidade independente de cada camada
-- Facilidade de manutenção e evolução
-- Independência de frameworks e bibliotecas externas
+O projeto HypeSoft necessita de uma arquitetura que permita separação de responsabilidades, testabilidade e independência de frameworks externos.
 
 ## Decisão
-Adotamos Clean Architecture com as seguintes camadas:
+Adotamos Clean Architecture com quatro camadas:
 
-1. **Domain** - Entidades, Value Objects, Interfaces de repositórios
-2. **Application** - Use cases, Commands, Queries, DTOs
-3. **Infrastructure** - Implementações de repositórios, serviços externos
-4. **API** - Controllers, Middlewares, configurações
+1. **HypeSoft.Domain** - Entidades (Product, Category), interfaces de repositórios
+2. **HypeSoft.Application** - Commands, Queries, Handlers, DTOs, Validators
+3. **HypeSoft.Infrastructure** - Repositórios MongoDB, serviços Redis e Keycloak
+4. **HypeSoft.API** - Controllers REST, middlewares, configuração DI
 
 ## Consequências
 
 ### Positivas
-- Código altamente testável
-- Fácil substituição de tecnologias (ex: trocar MongoDB por PostgreSQL)
-- Regras de negócio isoladas e protegidas
-- Facilita trabalho em equipe (cada dev pode focar em uma camada)
+- Código testável com injeção de dependências
+- Facilidade para substituir tecnologias
+- Regras de negócio isoladas na camada Domain
+- Separação clara entre leitura e escrita
 
 ### Negativas
-- Mais código boilerplate
-- Curva de aprendizado para novos desenvolvedores
-- Pode ser overkill para projetos muito simples
+- Maior quantidade de arquivos e projetos
+- Curva de aprendizado inicial
 
 ## Alternativas Consideradas
-- **MVC tradicional**: Mais simples, mas mistura responsabilidades
-- **Vertical Slice**: Boa alternativa, mas menos familiar para a equipe
+- MVC tradicional: descartado por misturar responsabilidades
+- Vertical Slice: considerado, mas Clean Architecture é mais familiar

@@ -4,60 +4,37 @@
 Aceito
 
 ## Contexto
-Precisamos de uma estratégia de caching que:
-- Funcione em ambiente distribuído (múltiplas instâncias)
-- Permita invalidação granular
-- Tenha baixa latência
-- Seja fácil de monitorar
+Necessidade de cache distribuído para reduzir carga no MongoDB e melhorar latência das queries mais frequentes.
 
 ## Decisão
-Implementamos cache distribuído com Redis usando:
-- `IDistributedCache` para operações básicas
-- `IConnectionMultiplexer` para invalidação por prefixo
-- MediatR Behaviors para caching automático de queries
+Redis com StackExchange.Redis, integrado via MediatR Behaviors.
 
 ## Estratégia de Cache
 
-### Cache Keys
-```
-HypeSoft:products:list:{page}:{pageSize}:{categoryId}
-HypeSoft:products:detail:{id}
-HypeSoft:categories:list:{page}:{pageSize}
-HypeSoft:dashboard:stats
-```
+### Padrão de Chaves
+- `HypeSoft:GetAllProductsQuery:{hash}` - Lista de produtos
+- `HypeSoft:GetProductByIdQuery:{id}` - Produto individual
+- `HypeSoft:GetAllCategoriesQuery:{hash}` - Lista de categorias
+- `HypeSoft:GetDashboardQuery:{hash}` - Dados do dashboard
+
+### TTL por Tipo
+- Dashboard: 1 minuto
+- Listas paginadas: 2 minutos
+- Itens individuais: 5 minutos
 
 ### Invalidação
-- **Por prefixo**: Ao criar/atualizar produto, invalida `HypeSoft:products:*`
-- **Por TTL**: Cache expira automaticamente após 5 minutos
-- **Manual**: Endpoints de admin podem forçar invalidação
-
-### Behaviors
-```csharp
-// Caching automático de queries
-public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICacheableQuery
-{
-    // Verifica cache antes de executar handler
-    // Armazena resultado após execução
-}
-
-// Invalidação automática após commands
-public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICacheInvalidatorCommand
-{
-    // Invalida prefixos relacionados após command
-}
-```
+- CacheInvalidationBehavior remove prefixos relacionados após Commands
+- Criação/atualização de produto invalida queries de produtos e dashboard
+- Criação/atualização de categoria invalida queries de categorias
 
 ## Consequências
 
 ### Positivas
-- Redução significativa de carga no MongoDB
 - Latência < 10ms para dados cacheados
-- Invalidação inteligente por prefixo
+- Redução de carga no MongoDB
+- Invalidação automática via Behaviors
 - Funciona com múltiplas instâncias da API
 
 ### Negativas
-- Complexidade adicional de infraestrutura
-- Possível inconsistência temporária (eventual consistency)
-- Necessidade de monitorar uso de memória do Redis
+- Eventual consistency temporária
+- Infraestrutura adicional
