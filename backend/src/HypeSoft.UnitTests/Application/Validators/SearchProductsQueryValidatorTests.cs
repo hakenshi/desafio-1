@@ -16,13 +16,10 @@ public class SearchProductsQueryValidatorTests
     [Fact]
     public void Validate_ValidSearchQuery_ShouldNotHaveErrors()
     {
-        // Arrange
         var query = new SearchProductsQuery("Notebook");
 
-        // Act
         var result = _validator.Validate(query);
 
-        // Assert
         result.IsValid.Should().BeTrue();
         result.Errors.Should().BeEmpty();
     }
@@ -30,13 +27,10 @@ public class SearchProductsQueryValidatorTests
     [Fact]
     public void Validate_EmptyName_ShouldHaveError()
     {
-        // Arrange
         var query = new SearchProductsQuery("");
 
-        // Act
         var result = _validator.Validate(query);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name");
     }
@@ -44,13 +38,10 @@ public class SearchProductsQueryValidatorTests
     [Fact]
     public void Validate_NullName_ShouldHaveError()
     {
-        // Arrange
         var query = new SearchProductsQuery(null!);
 
-        // Act
         var result = _validator.Validate(query);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name");
     }
@@ -58,13 +49,10 @@ public class SearchProductsQueryValidatorTests
     [Fact]
     public void Validate_NameTooShort_ShouldHaveError()
     {
-        // Arrange
         var query = new SearchProductsQuery("A");
 
-        // Act
         var result = _validator.Validate(query);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("mínimo"));
     }
@@ -75,13 +63,10 @@ public class SearchProductsQueryValidatorTests
     [InlineData("Notebook Dell")]
     public void Validate_ValidSearchTerms_ShouldBeValid(string name)
     {
-        // Arrange
         var query = new SearchProductsQuery(name);
 
-        // Act
         var result = _validator.Validate(query);
 
-        // Assert
         result.IsValid.Should().BeTrue();
     }
 }

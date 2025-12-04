@@ -27,7 +27,6 @@ public class GetCategoryByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ExistingCategory_ReturnsCategory()
     {
-        // Arrange
         var categoryId = "cat-1";
         var category = Category.Create("Test Category", "Test Description");
         typeof(Category).GetProperty("Id")!.SetValue(category, categoryId);
@@ -42,11 +41,7 @@ public class GetCategoryByIdQueryHandlerTests
             .Returns(expectedDto);
 
         var query = new GetCategoryByIdQuery(categoryId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(categoryId);
         result.Name.Should().Be("Test Category");
@@ -55,7 +50,6 @@ public class GetCategoryByIdQueryHandlerTests
     [Fact]
     public async Task Handle_NonExistingCategory_ReturnsNull()
     {
-        // Arrange
         var categoryId = "non-existent";
 
         _categoryRepositoryMock
@@ -63,11 +57,7 @@ public class GetCategoryByIdQueryHandlerTests
             .ReturnsAsync((Category?)null);
 
         var query = new GetCategoryByIdQuery(categoryId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().BeNull();
     }
 }

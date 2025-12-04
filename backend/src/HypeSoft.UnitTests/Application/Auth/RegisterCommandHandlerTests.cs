@@ -21,7 +21,6 @@ public class RegisterCommandHandlerTests
     [Fact]
     public async Task Handle_ValidRequest_ReturnsTrue()
     {
-        // Arrange
         var request = new RegisterRequestDto
         {
             Username = "testuser",
@@ -37,10 +36,8 @@ public class RegisterCommandHandlerTests
 
         var command = new RegisterCommand(request);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeTrue();
         _keycloakServiceMock.Verify(x => x.RegisterAsync(request, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -48,7 +45,6 @@ public class RegisterCommandHandlerTests
     [Fact]
     public async Task Handle_RegistrationFails_ReturnsFalse()
     {
-        // Arrange
         var request = new RegisterRequestDto
         {
             Username = "existinguser",
@@ -62,10 +58,8 @@ public class RegisterCommandHandlerTests
 
         var command = new RegisterCommand(request);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeFalse();
     }
 }

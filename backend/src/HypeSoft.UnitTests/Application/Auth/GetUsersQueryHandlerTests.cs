@@ -20,7 +20,6 @@ public class GetUsersQueryHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnUsersFromKeycloakService()
     {
-        // Arrange
         var expectedUsers = new List<KeycloakUserDto>
         {
             new() { Id = "1", Username = "admin", Email = "admin@test.com", Role = "admin", Enabled = true },
@@ -34,10 +33,8 @@ public class GetUsersQueryHandlerTests
 
         var query = new GetUsersQuery();
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().HaveCount(3);
         result.Should().Contain(u => u.Role == "admin");
         result.Should().Contain(u => u.Role == "manager");
@@ -47,41 +44,34 @@ public class GetUsersQueryHandlerTests
     [Fact]
     public async Task Handle_WhenNoUsers_ShouldReturnEmptyList()
     {
-        // Arrange
         _keycloakServiceMock
             .Setup(x => x.GetUsersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Enumerable.Empty<KeycloakUserDto>());
 
         var query = new GetUsersQuery();
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         result.Should().BeEmpty();
     }
 
     [Fact]
     public async Task Handle_ShouldCallKeycloakServiceOnce()
     {
-        // Arrange
         _keycloakServiceMock
             .Setup(x => x.GetUsersAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<KeycloakUserDto>());
 
         var query = new GetUsersQuery();
 
-        // Act
         await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         _keycloakServiceMock.Verify(x => x.GetUsersAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnUsersWithCorrectRoles()
     {
-        // Arrange
         var users = new List<KeycloakUserDto>
         {
             new() { Id = "1", Username = "admin", Email = "admin@test.com", Role = "admin" },
@@ -96,10 +86,8 @@ public class GetUsersQueryHandlerTests
 
         var query = new GetUsersQuery();
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var resultList = result.ToList();
         resultList.Count(u => u.Role == "admin").Should().Be(1);
         resultList.Count(u => u.Role == "manager").Should().Be(1);

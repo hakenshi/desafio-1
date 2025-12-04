@@ -27,7 +27,6 @@ public class GetAllCategoriesQueryHandlerTests
     [Fact]
     public async Task Handle_ReturnsAllCategories()
     {
-        // Arrange
         var categories = new List<Category>
         {
             Category.Create("Category 1", "Description 1"),
@@ -51,11 +50,7 @@ public class GetAllCategoriesQueryHandlerTests
             .Returns(categoryDtos);
 
         var query = new GetAllCategoriesQuery(1, 10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
@@ -67,7 +62,6 @@ public class GetAllCategoriesQueryHandlerTests
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
         var categories = new List<Category>
         {
             Category.Create("Category 1", "Description 1"),
@@ -89,11 +83,7 @@ public class GetAllCategoriesQueryHandlerTests
             .Returns(categoryDtos);
 
         var query = new GetAllCategoriesQuery(2, 5);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Page.Should().Be(2);
         result.PageSize.Should().Be(5);
@@ -104,7 +94,6 @@ public class GetAllCategoriesQueryHandlerTests
     [Fact]
     public async Task Handle_EmptyResult_ReturnsEmptyList()
     {
-        // Arrange
         _categoryRepositoryMock
             .Setup(x => x.GetAllAsync(1, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Category>());
@@ -116,11 +105,7 @@ public class GetAllCategoriesQueryHandlerTests
             .Returns(new List<CategoryDto>());
 
         var query = new GetAllCategoriesQuery(1, 10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);

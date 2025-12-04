@@ -25,7 +25,6 @@ public class GetRecentProductsQueryHandlerTests
     [Fact]
     public async Task Handle_ReturnsRecentProducts()
     {
-        // Arrange
         var categoryId = "cat-1";
         var products = new List<Product>
         {
@@ -47,11 +46,7 @@ public class GetRecentProductsQueryHandlerTests
             .ReturnsAsync(new List<Category> { category });
 
         var query = new GetRecentProductsQuery(10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(2);
         result.First().Name.Should().Be("Product 1");
@@ -61,7 +56,6 @@ public class GetRecentProductsQueryHandlerTests
     [Fact]
     public async Task Handle_EmptyProducts_ReturnsEmptyList()
     {
-        // Arrange
         _productRepositoryMock
             .Setup(x => x.GetRecentAsync(10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
@@ -71,11 +65,7 @@ public class GetRecentProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new GetRecentProductsQuery(10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
     }
@@ -83,7 +73,6 @@ public class GetRecentProductsQueryHandlerTests
     [Fact]
     public async Task Handle_CategoryNotFound_UsesUnknownCategoryName()
     {
-        // Arrange
         var categoryId = "cat-1";
         var products = new List<Product>
         {
@@ -100,11 +89,7 @@ public class GetRecentProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new GetRecentProductsQuery(10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.First().CategoryName.Should().Be("Unknown");
     }
@@ -112,7 +97,6 @@ public class GetRecentProductsQueryHandlerTests
     [Fact]
     public async Task Handle_CustomCount_UsesCorrectCount()
     {
-        // Arrange
         _productRepositoryMock
             .Setup(x => x.GetRecentAsync(5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
@@ -122,11 +106,7 @@ public class GetRecentProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new GetRecentProductsQuery(5);
-
-        // Act
         await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         _productRepositoryMock.Verify(x => x.GetRecentAsync(5, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

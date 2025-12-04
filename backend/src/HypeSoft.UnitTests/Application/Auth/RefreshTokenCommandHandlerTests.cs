@@ -21,7 +21,6 @@ public class RefreshTokenCommandHandlerTests
     [Fact]
     public async Task Handle_ValidRefreshToken_ReturnsNewTokenResponse()
     {
-        // Arrange
         var refreshToken = "valid-refresh-token";
         var expectedToken = new TokenResponseDto
         {
@@ -37,10 +36,8 @@ public class RefreshTokenCommandHandlerTests
 
         var command = new RefreshTokenCommand(refreshToken);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.AccessToken.Should().Be("new-access-token");
         _keycloakServiceMock.Verify(x => x.RefreshTokenAsync(refreshToken, It.IsAny<CancellationToken>()), Times.Once);
@@ -49,7 +46,6 @@ public class RefreshTokenCommandHandlerTests
     [Fact]
     public async Task Handle_InvalidRefreshToken_ReturnsNull()
     {
-        // Arrange
         var refreshToken = "invalid-refresh-token";
 
         _keycloakServiceMock
@@ -58,10 +54,8 @@ public class RefreshTokenCommandHandlerTests
 
         var command = new RefreshTokenCommand(refreshToken);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 }

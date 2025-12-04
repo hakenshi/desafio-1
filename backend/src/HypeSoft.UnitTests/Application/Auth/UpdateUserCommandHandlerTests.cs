@@ -28,7 +28,6 @@ public class UpdateUserCommandHandlerTests
     [Fact]
     public async Task Handle_ValidRequest_UpdatesUserAndLogsAudit()
     {
-        // Arrange
         var userId = "user-1";
         var updateRequest = new UpdateUserRequestDto
         {
@@ -47,10 +46,8 @@ public class UpdateUserCommandHandlerTests
 
         var command = new UpdateUserCommand(userId, updateRequest);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeTrue();
         _keycloakServiceMock.Verify(x => x.UpdateUserAsync(userId, updateRequest, It.IsAny<CancellationToken>()), Times.Once);
         _auditServiceMock.Verify(x => x.LogAsync(
@@ -62,7 +59,6 @@ public class UpdateUserCommandHandlerTests
     [Fact]
     public async Task Handle_UpdateFails_DoesNotLogAudit()
     {
-        // Arrange
         var userId = "user-1";
         var updateRequest = new UpdateUserRequestDto
         {
@@ -76,10 +72,8 @@ public class UpdateUserCommandHandlerTests
 
         var command = new UpdateUserCommand(userId, updateRequest);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeFalse();
         _auditServiceMock.Verify(x => x.LogAsync(
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -90,7 +84,6 @@ public class UpdateUserCommandHandlerTests
     [Fact]
     public async Task Handle_NullCurrentUser_UsesSystemForAudit()
     {
-        // Arrange
         var userId = "user-1";
         var updateRequest = new UpdateUserRequestDto
         {
@@ -107,10 +100,8 @@ public class UpdateUserCommandHandlerTests
 
         var command = new UpdateUserCommand(userId, updateRequest);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _auditServiceMock.Verify(x => x.LogAsync(
             "system", "system", "Update", "User",
             userId, updateRequest.Email, It.IsAny<string>(),

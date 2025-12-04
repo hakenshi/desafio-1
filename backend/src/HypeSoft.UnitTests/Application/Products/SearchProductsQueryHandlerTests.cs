@@ -29,7 +29,6 @@ public class SearchProductsQueryHandlerTests
     [Fact]
     public async Task Handle_SearchByName_ReturnsMatchingProducts()
     {
-        // Arrange
         var categoryId = "cat-1";
         var products = new List<Product>
         {
@@ -51,11 +50,7 @@ public class SearchProductsQueryHandlerTests
             .ReturnsAsync(new List<Category> { category });
 
         var query = new SearchProductsQuery("Notebook");
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(2);
         result.All(p => p.Name.Contains("Notebook")).Should().BeTrue();
@@ -64,7 +59,6 @@ public class SearchProductsQueryHandlerTests
     [Fact]
     public async Task Handle_NoMatches_ReturnsEmptyList()
     {
-        // Arrange
         _productRepositoryMock
             .Setup(x => x.SearchByNameAsync("NonExistent", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
@@ -74,11 +68,7 @@ public class SearchProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new SearchProductsQuery("NonExistent");
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
     }
@@ -86,7 +76,6 @@ public class SearchProductsQueryHandlerTests
     [Fact]
     public async Task Handle_CategoryNotFound_UsesUnknownCategoryName()
     {
-        // Arrange
         var categoryId = "cat-1";
         var products = new List<Product>
         {
@@ -103,11 +92,7 @@ public class SearchProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new SearchProductsQuery("Test");
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.First().CategoryName.Should().Be("Unknown");
     }

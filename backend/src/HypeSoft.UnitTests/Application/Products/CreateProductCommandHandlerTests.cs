@@ -37,7 +37,6 @@ public class CreateProductCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_CreatesProduct()
     {
-        // Arrange
         var categoryId = "cat-1";
         var createDto = new CreateProductDto("Test Product", "Test Description", 99.99m, categoryId, 100);
         var command = new CreateProductCommand(createDto);
@@ -55,11 +54,7 @@ public class CreateProductCommandHandlerTests
 
         _currentUserMock.Setup(x => x.UserId).Returns("user-1");
         _currentUserMock.Setup(x => x.Username).Returns("testuser");
-
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Name.Should().Be("Test Product");
         result.Price.Should().Be(99.99m);
@@ -74,7 +69,6 @@ public class CreateProductCommandHandlerTests
     [Fact]
     public async Task Handle_CategoryNotFound_UsesUnknownCategoryName()
     {
-        // Arrange
         var categoryId = "cat-1";
         var createDto = new CreateProductDto("Test Product", "Test Description", 99.99m, categoryId, 100);
         var command = new CreateProductCommand(createDto);
@@ -89,11 +83,7 @@ public class CreateProductCommandHandlerTests
 
         _currentUserMock.Setup(x => x.UserId).Returns("user-1");
         _currentUserMock.Setup(x => x.Username).Returns("testuser");
-
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.CategoryName.Should().Be("Unknown");
     }
@@ -101,7 +91,6 @@ public class CreateProductCommandHandlerTests
     [Fact]
     public async Task Handle_NullCurrentUser_UsesSystemForAudit()
     {
-        // Arrange
         var categoryId = "cat-1";
         var createDto = new CreateProductDto("Test Product", "Test Description", 99.99m, categoryId, 100);
         var command = new CreateProductCommand(createDto);
@@ -116,11 +105,7 @@ public class CreateProductCommandHandlerTests
 
         _currentUserMock.Setup(x => x.UserId).Returns((string?)null);
         _currentUserMock.Setup(x => x.Username).Returns((string?)null);
-
-        // Act
         await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         _auditServiceMock.Verify(x => x.LogAsync(
             "system", "system", "Create", "Product",
             It.IsAny<string>(), "Test Product", It.IsAny<string>(),
@@ -130,7 +115,6 @@ public class CreateProductCommandHandlerTests
     [Fact]
     public async Task Handle_LowStockProduct_SetsIsLowStockTrue()
     {
-        // Arrange
         var categoryId = "cat-1";
         var createDto = new CreateProductDto("Test Product", "Test Description", 99.99m, categoryId, 5);
         var command = new CreateProductCommand(createDto);
@@ -145,11 +129,7 @@ public class CreateProductCommandHandlerTests
 
         _currentUserMock.Setup(x => x.UserId).Returns("user-1");
         _currentUserMock.Setup(x => x.Username).Returns("testuser");
-
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.IsLowStock.Should().BeTrue();
     }

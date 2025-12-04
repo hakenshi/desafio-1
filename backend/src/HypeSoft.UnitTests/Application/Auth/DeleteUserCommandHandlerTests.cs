@@ -31,7 +31,6 @@ public class DeleteUserCommandHandlerTests
     [Fact]
     public async Task Handle_WhenDeleteSucceeds_ShouldReturnTrue()
     {
-        // Arrange
         var userId = "user-to-delete";
         _keycloakServiceMock
             .Setup(x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -39,17 +38,14 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeTrue();
     }
 
     [Fact]
     public async Task Handle_WhenDeleteFails_ShouldReturnFalse()
     {
-        // Arrange
         var userId = "user-to-delete";
         _keycloakServiceMock
             .Setup(x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -57,17 +53,14 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeFalse();
     }
 
     [Fact]
     public async Task Handle_WhenDeleteSucceeds_ShouldLogAudit()
     {
-        // Arrange
         var userId = "user-to-delete";
         _keycloakServiceMock
             .Setup(x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -75,10 +68,8 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _auditServiceMock.Verify(
             x => x.LogAsync(
                 "admin-id",
@@ -97,7 +88,6 @@ public class DeleteUserCommandHandlerTests
     [Fact]
     public async Task Handle_WhenDeleteFails_ShouldNotLogAudit()
     {
-        // Arrange
         var userId = "user-to-delete";
         _keycloakServiceMock
             .Setup(x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -105,10 +95,8 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _auditServiceMock.Verify(
             x => x.LogAsync(
                 It.IsAny<string>(),
@@ -127,7 +115,6 @@ public class DeleteUserCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldCallKeycloakServiceWithCorrectUserId()
     {
-        // Arrange
         var userId = "specific-user-id";
         _keycloakServiceMock
             .Setup(x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()))
@@ -135,10 +122,8 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _keycloakServiceMock.Verify(
             x => x.DeleteUserAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once
@@ -148,7 +133,6 @@ public class DeleteUserCommandHandlerTests
     [Fact]
     public async Task Handle_WhenCurrentUserIsNull_ShouldUseSystemForAudit()
     {
-        // Arrange
         var userId = "user-to-delete";
         _currentUserServiceMock.Setup(x => x.UserId).Returns((string?)null);
         _currentUserServiceMock.Setup(x => x.Username).Returns((string?)null);
@@ -159,10 +143,8 @@ public class DeleteUserCommandHandlerTests
 
         var command = new DeleteUserCommand(userId);
 
-        // Act
         await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         _auditServiceMock.Verify(
             x => x.LogAsync(
                 "system",

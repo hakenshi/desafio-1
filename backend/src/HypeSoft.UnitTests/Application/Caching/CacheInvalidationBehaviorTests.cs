@@ -29,16 +29,13 @@ public class CacheInvalidationBehaviorTests
     [Fact]
     public async Task Handle_WhenProductCommand_ShouldInvalidateProductCaches()
     {
-        // Arrange
         var command = new CreateProductCommand(new CreateProductDto("Test", "Desc", 10m, "cat1", 5));
         var response = new ProductDto("1", "SKU001", "Test", "Desc", 10m, "cat1", "Category", 5, false, DateTime.UtcNow, DateTime.UtcNow);
 
         RequestHandlerDelegate<ProductDto> next = () => Task.FromResult(response);
 
-        // Act
         var result = await _behavior.Handle(command, next, CancellationToken.None);
 
-        // Assert
         result.Should().Be(response);
         _cacheServiceMock.Verify(x => x.RemoveByPrefixAsync("GetAllProductsQuery:", It.IsAny<CancellationToken>()), Times.Once);
         _cacheServiceMock.Verify(x => x.RemoveByPrefixAsync("GetProductByIdQuery:", It.IsAny<CancellationToken>()), Times.Once);
@@ -49,7 +46,6 @@ public class CacheInvalidationBehaviorTests
     [Fact]
     public async Task Handle_WhenCacheInvalidationFails_ShouldNotThrowAndReturnResponse()
     {
-        // Arrange
         var command = new CreateProductCommand(new CreateProductDto("Test", "Desc", 10m, "cat1", 5));
         var response = new ProductDto("1", "SKU001", "Test", "Desc", 10m, "cat1", "Category", 5, false, DateTime.UtcNow, DateTime.UtcNow);
 
@@ -59,10 +55,8 @@ public class CacheInvalidationBehaviorTests
 
         RequestHandlerDelegate<ProductDto> next = () => Task.FromResult(response);
 
-        // Act
         var result = await _behavior.Handle(command, next, CancellationToken.None);
 
-        // Assert
         result.Should().Be(response);
     }
 }

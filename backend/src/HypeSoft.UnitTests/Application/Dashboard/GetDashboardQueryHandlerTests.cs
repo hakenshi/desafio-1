@@ -25,7 +25,6 @@ public class GetDashboardQueryHandlerTests
     [Fact]
     public async Task Handle_ReturnsDashboardData()
     {
-        // Arrange
         var lowStockProducts = new List<Product>
         {
             Product.Create("Product 1", "Description", 10.0m, "cat-1", 5),
@@ -55,11 +54,7 @@ public class GetDashboardQueryHandlerTests
             .ReturnsAsync(productsByCategory);
 
         var query = new GetDashboardQuery();
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.TotalProducts.Should().Be(100);
         result.TotalStockValue.Should().Be(50000m);
@@ -70,7 +65,6 @@ public class GetDashboardQueryHandlerTests
     [Fact]
     public async Task Handle_EmptyData_ReturnsZeroValues()
     {
-        // Arrange
         _productRepositoryMock
             .Setup(x => x.GetTotalCountAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
@@ -88,11 +82,7 @@ public class GetDashboardQueryHandlerTests
             .ReturnsAsync(new Dictionary<string, int>());
 
         var query = new GetDashboardQuery();
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.TotalProducts.Should().Be(0);
         result.TotalStockValue.Should().Be(0m);

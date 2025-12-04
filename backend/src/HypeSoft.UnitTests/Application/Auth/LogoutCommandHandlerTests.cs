@@ -20,7 +20,6 @@ public class LogoutCommandHandlerTests
     [Fact]
     public async Task Handle_ValidRefreshToken_ReturnsTrue()
     {
-        // Arrange
         var refreshToken = "valid-refresh-token";
 
         _keycloakServiceMock
@@ -29,10 +28,8 @@ public class LogoutCommandHandlerTests
 
         var command = new LogoutCommand(refreshToken);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeTrue();
         _keycloakServiceMock.Verify(x => x.LogoutAsync(refreshToken, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -40,7 +37,6 @@ public class LogoutCommandHandlerTests
     [Fact]
     public async Task Handle_InvalidRefreshToken_ReturnsFalse()
     {
-        // Arrange
         var refreshToken = "invalid-refresh-token";
 
         _keycloakServiceMock
@@ -49,10 +45,8 @@ public class LogoutCommandHandlerTests
 
         var command = new LogoutCommand(refreshToken);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeFalse();
     }
 }

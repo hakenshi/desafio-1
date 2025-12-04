@@ -34,7 +34,6 @@ public class CreateCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_CreatesCategory()
     {
-        // Arrange
         var createDto = new CreateCategoryDto("Test Category", "Test Description");
         var command = new CreateCategoryCommand(createDto);
         var expectedDto = new CategoryDto("cat-1", "Test Category", "Test Description", DateTime.UtcNow, DateTime.UtcNow);
@@ -49,11 +48,7 @@ public class CreateCategoryCommandHandlerTests
         _mapperMock
             .Setup(x => x.Map<CategoryDto>(It.IsAny<Category>()))
             .Returns(expectedDto);
-
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Name.Should().Be("Test Category");
         _categoryRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -66,7 +61,6 @@ public class CreateCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_NullCurrentUser_UsesSystemForAudit()
     {
-        // Arrange
         var createDto = new CreateCategoryDto("Test Category", "Test Description");
         var command = new CreateCategoryCommand(createDto);
         var expectedDto = new CategoryDto("cat-1", "Test Category", "Test Description", DateTime.UtcNow, DateTime.UtcNow);
@@ -81,11 +75,7 @@ public class CreateCategoryCommandHandlerTests
         _mapperMock
             .Setup(x => x.Map<CategoryDto>(It.IsAny<Category>()))
             .Returns(expectedDto);
-
-        // Act
         await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         _auditServiceMock.Verify(x => x.LogAsync(
             "system", "system", "Create", "Category",
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),

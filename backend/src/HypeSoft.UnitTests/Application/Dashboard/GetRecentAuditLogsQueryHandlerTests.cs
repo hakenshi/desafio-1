@@ -21,7 +21,6 @@ public class GetRecentAuditLogsQueryHandlerTests
     [Fact]
     public async Task Handle_ReturnsRecentAuditLogs()
     {
-        // Arrange
         var logs = new List<AuditLog>
         {
             AuditLog.Create("user-1", "admin", "Create", "Product", "prod-1", "Test Product", "Created product"),
@@ -33,11 +32,7 @@ public class GetRecentAuditLogsQueryHandlerTests
             .ReturnsAsync(logs);
 
         var query = new GetRecentAuditLogsQuery(10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(2);
         result.First().Action.Should().Be("Create");
@@ -46,17 +41,12 @@ public class GetRecentAuditLogsQueryHandlerTests
     [Fact]
     public async Task Handle_EmptyLogs_ReturnsEmptyList()
     {
-        // Arrange
         _auditLogRepositoryMock
             .Setup(x => x.GetRecentAsync(10, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AuditLog>());
 
         var query = new GetRecentAuditLogsQuery(10);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Should().BeEmpty();
     }
@@ -64,17 +54,12 @@ public class GetRecentAuditLogsQueryHandlerTests
     [Fact]
     public async Task Handle_CustomCount_UsesCorrectCount()
     {
-        // Arrange
         _auditLogRepositoryMock
             .Setup(x => x.GetRecentAsync(5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AuditLog>());
 
         var query = new GetRecentAuditLogsQuery(5);
-
-        // Act
         await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         _auditLogRepositoryMock.Verify(x => x.GetRecentAsync(5, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

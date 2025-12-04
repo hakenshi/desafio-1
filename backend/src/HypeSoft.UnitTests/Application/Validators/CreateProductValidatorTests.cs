@@ -16,7 +16,6 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_ValidProduct_ShouldNotHaveErrors()
     {
-        // Arrange
         var dto = new CreateProductDto(
             "Valid Product Name",
             "Valid Description with more than 10 characters",
@@ -25,10 +24,8 @@ public class CreateProductValidatorTests
             10
         );
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeTrue();
         result.Errors.Should().BeEmpty();
     }
@@ -36,13 +33,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_EmptyName_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("", "Valid Description Here", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name");
     }
@@ -50,13 +44,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NullName_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto(null!, "Valid Description Here", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name");
     }
@@ -64,13 +55,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NameTooShort_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("AB", "Valid Description Here", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("mínimo"));
     }
@@ -78,14 +66,11 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NameTooLong_ShouldHaveError()
     {
-        // Arrange
         var longName = new string('a', 201);
         var dto = new CreateProductDto(longName, "Valid Description Here", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("200"));
     }
@@ -93,13 +78,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_EmptyDescription_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Description");
     }
@@ -107,13 +89,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NullDescription_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", null!, 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Description");
     }
@@ -121,13 +100,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_DescriptionTooShort_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Short", 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Description" && e.ErrorMessage.Contains("mínimo"));
     }
@@ -135,14 +111,11 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_DescriptionTooLong_ShouldHaveError()
     {
-        // Arrange
         var longDescription = new string('a', 1001);
         var dto = new CreateProductDto("Valid Name", longDescription, 10m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Description" && e.ErrorMessage.Contains("1000"));
     }
@@ -153,13 +126,10 @@ public class CreateProductValidatorTests
     [InlineData(-100)]
     public void Validate_InvalidPrice_ShouldHaveError(decimal price)
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", price, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Price");
     }
@@ -167,13 +137,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_PriceTooHigh_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 1000001m, "cat1", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Price" && e.ErrorMessage.Contains("1.000.000"));
     }
@@ -181,13 +148,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_EmptyCategoryId_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, "", 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "CategoryId");
     }
@@ -195,13 +159,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NullCategoryId_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, null!, 5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "CategoryId");
     }
@@ -209,13 +170,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_NegativeStockQuantity_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, "cat1", -5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "StockQuantity");
     }
@@ -223,13 +181,10 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_StockQuantityTooHigh_ShouldHaveError()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, "cat1", 100001);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "StockQuantity" && e.ErrorMessage.Contains("100.000"));
     }
@@ -237,26 +192,20 @@ public class CreateProductValidatorTests
     [Fact]
     public void Validate_ZeroStockQuantity_ShouldBeValid()
     {
-        // Arrange
         var dto = new CreateProductDto("Valid Name", "Valid Description Here", 10m, "cat1", 0);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeTrue();
     }
 
     [Fact]
     public void Validate_MultipleErrors_ShouldReturnAllErrors()
     {
-        // Arrange
         var dto = new CreateProductDto("AB", "Short", -10m, "", -5);
 
-        // Act
         var result = _validator.Validate(dto);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCountGreaterThan(3);
         result.Errors.Should().Contain(e => e.PropertyName == "Name");

@@ -34,7 +34,6 @@ public class UpdateCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_UpdatesCategory()
     {
-        // Arrange
         var categoryId = "cat-1";
         var existingCategory = Category.Create("Old Name", "Old Description");
         typeof(Category).GetProperty("Id")!.SetValue(existingCategory, categoryId);
@@ -57,11 +56,7 @@ public class UpdateCategoryCommandHandlerTests
         _mapperMock
             .Setup(x => x.Map<CategoryDto>(It.IsAny<Category>()))
             .Returns(expectedDto);
-
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Name.Should().Be("New Name");
         _categoryRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -74,7 +69,6 @@ public class UpdateCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_CategoryNotFound_ThrowsKeyNotFoundException()
     {
-        // Arrange
         var categoryId = "non-existent";
         var updateDto = new UpdateCategoryDto("New Name", "New Description");
         var command = new UpdateCategoryCommand(categoryId, updateDto);
@@ -82,15 +76,12 @@ public class UpdateCategoryCommandHandlerTests
         _categoryRepositoryMock
             .Setup(x => x.GetByIdAsync(categoryId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Category?)null);
-
-        // Act & Assert
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
     public async Task Handle_NullCurrentUser_UsesSystemForAudit()
     {
-        // Arrange
         var categoryId = "cat-1";
         var existingCategory = Category.Create("Old Name", "Old Description");
         typeof(Category).GetProperty("Id")!.SetValue(existingCategory, categoryId);
@@ -113,11 +104,7 @@ public class UpdateCategoryCommandHandlerTests
         _mapperMock
             .Setup(x => x.Map<CategoryDto>(It.IsAny<Category>()))
             .Returns(expectedDto);
-
-        // Act
         await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
         _auditServiceMock.Verify(x => x.LogAsync(
             "system", "system", "Update", "Category",
             categoryId, It.IsAny<string>(), "Category updated",

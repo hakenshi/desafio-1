@@ -30,7 +30,6 @@ public class GetAllProductsQueryHandlerTests
     [Fact]
     public async Task Handle_WithoutCategoryFilter_ReturnsAllProducts()
     {
-        // Arrange
         var products = new List<Product>
         {
             Product.Create("Product 1", "Description 1", 10.0m, "cat-1", 100),
@@ -42,7 +41,6 @@ public class GetAllProductsQueryHandlerTests
             Category.Create("Category 1", "Description 1"),
             Category.Create("Category 2", "Description 2"),
         };
-        // Set IDs to match product category IDs
         typeof(Category).GetProperty("Id")!.SetValue(categories[0], "cat-1");
         typeof(Category).GetProperty("Id")!.SetValue(categories[1], "cat-2");
 
@@ -57,11 +55,7 @@ public class GetAllProductsQueryHandlerTests
             .ReturnsAsync(categories);
 
         var query = new GetAllProductsQuery(1, 10, null);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
@@ -72,7 +66,6 @@ public class GetAllProductsQueryHandlerTests
     [Fact]
     public async Task Handle_WithCategoryFilter_ReturnsFilteredProducts()
     {
-        // Arrange
         var categoryId = "cat-1";
         var products = new List<Product>
         {
@@ -96,11 +89,7 @@ public class GetAllProductsQueryHandlerTests
             .ReturnsAsync(categories);
 
         var query = new GetAllProductsQuery(1, 10, categoryId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(1);
         result.TotalCount.Should().Be(1);
@@ -116,7 +105,6 @@ public class GetAllProductsQueryHandlerTests
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
         var products = new List<Product>
         {
             Product.Create("Product 1", "Description 1", 10.0m, "cat-1", 100),
@@ -139,11 +127,7 @@ public class GetAllProductsQueryHandlerTests
             .ReturnsAsync(categories);
 
         var query = new GetAllProductsQuery(2, 5, null);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Page.Should().Be(2);
         result.PageSize.Should().Be(5);
@@ -154,7 +138,6 @@ public class GetAllProductsQueryHandlerTests
     [Fact]
     public async Task Handle_EmptyResult_ReturnsEmptyList()
     {
-        // Arrange
         _productRepositoryMock
             .Setup(x => x.GetAllAsync(1, 10, "non-existent", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>());
@@ -166,11 +149,7 @@ public class GetAllProductsQueryHandlerTests
             .ReturnsAsync(new List<Category>());
 
         var query = new GetAllProductsQuery(1, 10, "non-existent");
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);

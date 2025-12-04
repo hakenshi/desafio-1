@@ -21,7 +21,6 @@ public class LoginCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCredentials_ReturnsTokenResponse()
     {
-        // Arrange
         var email = "test@example.com";
         var password = "password123";
         var expectedToken = new TokenResponseDto
@@ -38,10 +37,8 @@ public class LoginCommandHandlerTests
 
         var command = new LoginCommand(email, password);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().NotBeNull();
         result!.AccessToken.Should().Be("access-token");
         _keycloakServiceMock.Verify(x => x.LoginAsync(email, password, It.IsAny<CancellationToken>()), Times.Once);
@@ -50,7 +47,6 @@ public class LoginCommandHandlerTests
     [Fact]
     public async Task Handle_InvalidCredentials_ReturnsNull()
     {
-        // Arrange
         var email = "invalid@example.com";
         var password = "wrongpassword";
 
@@ -60,10 +56,8 @@ public class LoginCommandHandlerTests
 
         var command = new LoginCommand(email, password);
 
-        // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        // Assert
         result.Should().BeNull();
     }
 }

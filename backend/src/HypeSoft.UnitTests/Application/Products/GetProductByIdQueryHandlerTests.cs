@@ -29,7 +29,6 @@ public class GetProductByIdQueryHandlerTests
     [Fact]
     public async Task Handle_ExistingProduct_ReturnsProduct()
     {
-        // Arrange
         var productId = "prod-1";
         var categoryId = "cat-1";
         var product = Product.Create("Test Product", "Test Description", 99.99m, categoryId, 100);
@@ -47,11 +46,7 @@ public class GetProductByIdQueryHandlerTests
             .ReturnsAsync(category);
 
         var query = new GetProductByIdQuery(productId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result!.Name.Should().Be("Test Product");
         result.CategoryName.Should().Be("Test Category");
@@ -60,7 +55,6 @@ public class GetProductByIdQueryHandlerTests
     [Fact]
     public async Task Handle_NonExistingProduct_ReturnsNull()
     {
-        // Arrange
         var productId = "non-existent";
 
         _productRepositoryMock
@@ -68,18 +62,13 @@ public class GetProductByIdQueryHandlerTests
             .ReturnsAsync((Product?)null);
 
         var query = new GetProductByIdQuery(productId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public async Task Handle_CategoryNotFound_UsesUnknownCategoryName()
     {
-        // Arrange
         var productId = "prod-1";
         var categoryId = "cat-1";
         var product = Product.Create("Test Product", "Test Description", 99.99m, categoryId, 100);
@@ -94,11 +83,7 @@ public class GetProductByIdQueryHandlerTests
             .ReturnsAsync((Category?)null);
 
         var query = new GetProductByIdQuery(productId);
-
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-
-        // Assert
         result.Should().NotBeNull();
         result!.CategoryName.Should().Be("Unknown");
     }
