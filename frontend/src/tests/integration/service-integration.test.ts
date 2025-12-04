@@ -4,7 +4,6 @@ import request from "supertest";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const API_TIMEOUT = 15000;
 
-// Usuário admin pré-configurado no Keycloak
 const ADMIN_USER = {
   email: "admin@hypesoft.com",
   password: "admin123",
@@ -13,7 +12,6 @@ const ADMIN_USER = {
 describe("Service Integration Tests - Real API Calls", () => {
   let accessToken: string;
 
-  // Setup: autenticar com usuário admin antes de todos os testes
   beforeAll(async () => {
     const loginResponse = await request(API_URL)
       .post("/auth/login")

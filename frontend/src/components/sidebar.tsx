@@ -46,7 +46,6 @@ export default function Sidebar({ user }: Props) {
 
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -54,7 +53,6 @@ export default function Sidebar({ user }: Props) {
         />
       )}
 
-      {/* Mobile toggle button */}
       <Button
         variant="ghost"
         size="icon"
@@ -64,7 +62,6 @@ export default function Sidebar({ user }: Props) {
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
-      {/* Sidebar */}
       <aside
         className={cn(
           "bg-card border-r fixed lg:static inset-y-0 left-0 z-40 w-56 lg:w-48 transform transition-transform duration-200 ease-in-out",

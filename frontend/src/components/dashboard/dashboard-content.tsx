@@ -174,7 +174,6 @@ export function DashboardCharts({ dashboard }: DashboardProps) {
               </Pie>
             </PieChart>
           </ChartContainer>
-          {/* Legend for mobile */}
           <div className="flex flex-wrap gap-2 mt-2 justify-center">
             {categoryData.slice(0, 5).map((item, index) => (
               <div key={item.name} className="flex items-center gap-1 text-xs">

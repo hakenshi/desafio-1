@@ -68,8 +68,8 @@ export default function ProductsForm({ product, onSuccess }: Props) {
             } else {
                 await actions.product.createProduct(values);
             }
-            router.refresh();
             onSuccess?.();
+            router.refresh();
         } catch (error: unknown) {
             console.error("Failed to save product:", error);
             const apiError = error as { errors?: Record<string, string[]>; message?: string };

@@ -45,7 +45,6 @@ export function Header({ user }: Props) {
   return (
     <header className="w-full bg-card border-b col-span-2 lg:col-span-2 row-span-1 sticky top-0 z-30">
       <nav className="flex justify-between items-center px-4 py-3 mx-auto">
-        {/* Logo - hidden on mobile to make room for hamburger */}
         <Link href="/dashboard" className="text-center flex pl-10 lg:pl-0">
           <Logo width={100} height={10} />
         </Link>
@@ -55,7 +54,6 @@ export function Header({ user }: Props) {
             <ThemeToggle />
           </div>
 
-          {/* User info - hide text on small screens */}
           <Icon />
           <div className="text-start hidden sm:block">
             <p className="text-foreground text-sm">{user.firstName}</p>
@@ -67,7 +65,6 @@ export function Header({ user }: Props) {
               <EllipsisIcon className="text-foreground h-5 w-5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-2 mt-2 p-2" align="end">
-              {/* Show user info in dropdown on mobile */}
               <div className="sm:hidden px-2 py-1.5 mb-2 border-b">
                 <p className="text-sm font-medium">{user.firstName}</p>
                 <p className="text-xs text-muted-foreground">{user.role}</p>

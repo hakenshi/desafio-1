@@ -21,7 +21,7 @@ import {
 } from "./table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cloneElement, isValidElement, PropsWithChildren, ReactElement, useMemo, useState } from "react"
+import { cloneElement, isValidElement, PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, PlusIcon, X } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "./dialog"
@@ -94,9 +94,33 @@ export function DataTable<TData, TValue>({
     },
   })
 
+  useEffect(() => {
+    if (!pagination) return
+
+    const { page, totalPages } = pagination
+    let targetPage: number | null = null
+
+    if (page < 1) {
+      targetPage = 1
+    } else if (totalPages > 0 && page > totalPages) {
+      targetPage = totalPages
+    } else if (data.length === 0 && page > 1) {
+      targetPage = page - 1
+    }
+
+    if (targetPage !== null) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set("page", targetPage.toString())
+      router.replace(`?${params.toString()}`)
+    }
+  }, [pagination, data.length, router, searchParams])
+
   const handlePageChange = (newPage: number) => {
+    if (!pagination) return
+    
+    const clampedPage = Math.max(1, Math.min(newPage, pagination.totalPages || 1))
     const params = new URLSearchParams(searchParams.toString())
-    params.set("page", newPage.toString())
+    params.set("page", clampedPage.toString())
     router.push(`?${params.toString()}`)
   }
 
