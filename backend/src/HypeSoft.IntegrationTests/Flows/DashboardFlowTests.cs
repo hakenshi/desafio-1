@@ -4,10 +4,6 @@ using FluentAssertions;
 using HypeSoft.Application.DTOs;
 
 namespace HypeSoft.IntegrationTests.Flows;
-
-/// <summary>
-/// Testes E2E do dashboard
-/// </summary>
 public class DashboardFlowTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
@@ -20,7 +16,6 @@ public class DashboardFlowTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task GetDashboard_ShouldReturnMetrics()
     {
-        // Testa se o dashboard retorna as métricas corretas
         var response = await _client.GetAsync("/api/dashboard");
         
         if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -42,9 +37,6 @@ public class DashboardFlowTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Dashboard_AfterCreatingProducts_ShouldUpdateMetrics()
     {
-        // Este teste valida que o dashboard reflete mudanças nos produtos
-        
-        // 1. Pegar métricas iniciais
         var initialResponse = await _client.GetAsync("/api/dashboard");
         if (initialResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -54,8 +46,6 @@ public class DashboardFlowTests : IClassFixture<CustomWebApplicationFactory>
 
         var initialDashboard = await initialResponse.Content.ReadFromJsonAsync<DashboardDto>();
         var initialTotal = initialDashboard?.TotalProducts ?? 0;
-
-        // 2. Criar uma categoria e produto
         var category = new CreateCategoryDto("Test Category", "Test");
         var categoryResponse = await _client.PostAsJsonAsync("/api/categories", category);
         
@@ -76,8 +66,6 @@ public class DashboardFlowTests : IClassFixture<CustomWebApplicationFactory>
         );
 
         await _client.PostAsJsonAsync("/api/products", product);
-
-        // 3. Verificar que as métricas mudaram
         var updatedResponse = await _client.GetAsync("/api/dashboard");
         if (updatedResponse.IsSuccessStatusCode)
         {

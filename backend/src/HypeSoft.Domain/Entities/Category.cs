@@ -8,10 +8,8 @@ public class Category
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    // Parameterless constructor for serialization
     private Category() { }
 
-    // Factory method for creating new categories
     public static Category Create(string name, string description)
     {
         ValidateCategoryData(name, description);
@@ -26,7 +24,6 @@ public class Category
         };
     }
 
-    // Method for updating category
     public void Update(string name, string description)
     {
         ValidateCategoryData(name, description);
@@ -36,7 +33,6 @@ public class Category
         UpdatedAt = DateTime.UtcNow;
     }
 
-    // Domain validation
     private static void ValidateCategoryData(string name, string description)
     {
         if (string.IsNullOrWhiteSpace(name))

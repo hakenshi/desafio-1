@@ -142,7 +142,6 @@ public class KeycloakService : IKeycloakService
             var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
             var userEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}";
 
-            // Update user info
             var userPayload = new
             {
                 email = request.Email,
@@ -169,7 +168,6 @@ public class KeycloakService : IKeycloakService
                 return false;
             }
 
-            // Update user role
             await UpdateUserRoleAsync(userId, request.Role, adminToken, cancellationToken);
 
             _logger.LogInformation("User {UserId} updated successfully", userId);
@@ -224,7 +222,6 @@ public class KeycloakService : IKeycloakService
         {
             var keycloakUrl = _configuration["Keycloak:Authority"]?.Replace("/realms/hypesoft", "") ?? "";
             
-            // Get available realm roles
             var rolesEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/roles";
             var rolesRequest = new HttpRequestMessage(HttpMethod.Get, rolesEndpoint);
             rolesRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
@@ -235,7 +232,6 @@ public class KeycloakService : IKeycloakService
             var rolesJson = await rolesResponse.Content.ReadAsStringAsync(cancellationToken);
             var availableRoles = JsonSerializer.Deserialize<List<KeycloakRoleResponse>>(rolesJson) ?? new List<KeycloakRoleResponse>();
 
-            // Get current user roles
             var userRolesEndpoint = $"{keycloakUrl}/admin/realms/hypesoft/users/{userId}/role-mappings/realm";
             var currentRolesRequest = new HttpRequestMessage(HttpMethod.Get, userRolesEndpoint);
             currentRolesRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
@@ -244,7 +240,6 @@ public class KeycloakService : IKeycloakService
             var currentRolesJson = await currentRolesResponse.Content.ReadAsStringAsync(cancellationToken);
             var currentRoles = JsonSerializer.Deserialize<List<KeycloakRoleWithIdResponse>>(currentRolesJson) ?? new List<KeycloakRoleWithIdResponse>();
 
-            // Remove old roles (admin, manager, user)
             var rolesToRemove = currentRoles.Where(r => r.Name == "admin" || r.Name == "manager" || r.Name == "user").ToList();
             if (rolesToRemove.Any())
             {
@@ -260,7 +255,6 @@ public class KeycloakService : IKeycloakService
                 await _httpClient.SendAsync(removeRequest, cancellationToken);
             }
 
-            // Add new role
             var roleToAdd = availableRoles.FirstOrDefault(r => r.Name == newRole);
             if (roleToAdd != null)
             {
@@ -427,7 +421,6 @@ public class KeycloakService : IKeycloakService
             var json = await response.Content.ReadAsStringAsync(cancellationToken);
             var roles = JsonSerializer.Deserialize<List<KeycloakRoleResponse>>(json) ?? new List<KeycloakRoleResponse>();
 
-            // Priority: admin > manager > user
             if (roles.Any(r => r.Name == "admin"))
                 return "admin";
             if (roles.Any(r => r.Name == "manager"))

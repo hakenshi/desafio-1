@@ -19,8 +19,6 @@ public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var response = await next();
-
-        // Invalidate cache for commands (operations that modify data)
         if (IsCommand(request))
         {
             try
@@ -48,8 +46,6 @@ public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<
     private async Task InvalidateRelatedCaches(TRequest request, CancellationToken cancellationToken)
     {
         var requestType = request.GetType().Name;
-
-        // Invalidate product-related caches
         if (requestType.Contains("Product"))
         {
             await _cacheService.RemoveByPrefixAsync("GetAllProductsQuery:", cancellationToken);
@@ -61,8 +57,6 @@ public class CacheInvalidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             
             _logger.LogInformation("Invalidated product-related caches for {RequestType}", requestType);
         }
-
-        // Invalidate category-related caches
         if (requestType.Contains("Category"))
         {
             await _cacheService.RemoveByPrefixAsync("GetAllCategoriesQuery:", cancellationToken);

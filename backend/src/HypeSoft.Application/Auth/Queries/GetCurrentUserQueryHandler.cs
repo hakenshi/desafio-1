@@ -29,8 +29,6 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
-            
-            // Get the highest priority role (admin > manager > user)
             var role = "user";
             var realmAccessClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "realm_access")?.Value;
             
@@ -43,8 +41,6 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, U
                         .Select(r => r.GetString() ?? "")
                         .Where(r => !string.IsNullOrEmpty(r))
                         .ToList();
-
-                    // Priority: admin > manager > user
                     if (roles.Contains("admin"))
                         role = "admin";
                     else if (roles.Contains("manager"))

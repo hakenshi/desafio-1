@@ -78,7 +78,6 @@ public class RedisCacheService : ICacheService
                 return;
             }
 
-            // Include the instance prefix in the pattern
             var pattern = $"{InstancePrefix}*{prefix}*";
             var keys = server.Keys(pattern: pattern).ToArray();
             

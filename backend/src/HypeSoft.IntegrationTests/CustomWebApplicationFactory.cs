@@ -18,7 +18,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         builder.ConfigureServices(services =>
         {
-            // Remove existing MongoDbSettings
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(MongoDbContext));
 
@@ -26,8 +25,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             {
                 services.Remove(descriptor);
             }
-
-            // Add test MongoDB settings
             services.Configure<MongoDbSettings>(options =>
             {
                 options.ConnectionString = _mongoContainer.GetConnectionString();

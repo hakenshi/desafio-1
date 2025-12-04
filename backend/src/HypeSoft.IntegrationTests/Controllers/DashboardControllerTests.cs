@@ -15,10 +15,7 @@ public class DashboardControllerTests : IClassFixture<CustomWebApplicationFactor
     [Fact]
     public async Task GetDashboard_WithoutAuth_ShouldReturnUnauthorized()
     {
-        // Act
         var response = await _client.GetAsync("/api/dashboard");
-
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

@@ -46,8 +46,6 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
 
         var category = await _categoryRepository.GetByIdAsync(product.CategoryId, cancellationToken);
         var categoryName = category?.Name ?? "Unknown";
-
-        // Log the action
         await _auditService.LogAsync(
             _currentUser.UserId ?? "system",
             _currentUser.Username ?? "system",

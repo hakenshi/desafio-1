@@ -26,8 +26,6 @@ public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, P
         var products = await _productRepository.GetAllAsync(request.Page, request.PageSize, request.CategoryId, cancellationToken);
         var totalCount = await _productRepository.GetTotalCountAsync(request.CategoryId, cancellationToken);
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
-
-        // Get all unique category IDs and fetch categories
         var categoryIds = products.Select(p => p.CategoryId).Distinct().ToList();
         var categories = await _categoryRepository.GetByIdsAsync(categoryIds, cancellationToken);
         var categoryDict = categories.ToDictionary(c => c.Id, c => c.Name);

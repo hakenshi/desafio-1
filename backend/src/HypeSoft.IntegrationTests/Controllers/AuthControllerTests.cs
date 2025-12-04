@@ -17,7 +17,6 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Register_WithValidData_ShouldReturnCreated()
     {
-        // Arrange
         var request = new RegisterRequestDto
         {
             Username = $"testuser_{Guid.NewGuid():N}",
@@ -26,38 +25,26 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
             FirstName = "Test",
             LastName = "User"
         };
-
-        // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
-
-        // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task Login_WithInvalidCredentials_ShouldReturnUnauthorized()
     {
-        // Arrange
         var request = new LoginRequestDto
         {
             Email = "invalid@example.com",
             Password = "wrongpassword"
         };
-
-        // Act
         var response = await _client.PostAsJsonAsync("/api/auth/login", request);
-
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetCurrentUser_WithoutToken_ShouldReturnUnauthorized()
     {
-        // Act
         var response = await _client.GetAsync("/api/auth/me");
-
-        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

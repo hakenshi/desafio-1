@@ -15,7 +15,6 @@ public class Product
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    // Parameterless constructor for serialization
     private Product() { }
     
     public bool IsLowStock() => StockQuantity < LowStockThreshold;
