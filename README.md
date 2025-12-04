@@ -131,7 +131,7 @@ frontend/src/
 | Nginx | Reverse proxy |
 | MongoDB Express | Admin DB |
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - Docker Desktop 4.0+
 - Node.js 18+ (para desenvolvimento)
