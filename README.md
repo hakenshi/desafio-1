@@ -10,45 +10,45 @@ Sistema completo de gestão de produtos desenvolvido como desafio técnico, demo
 ## 🚀 Funcionalidades Implementadas
 
 ### Gestão de Produtos
-- ✅ CRUD completo de produtos
-- ✅ Campos: nome, descrição, preço, categoria, quantidade em estoque
-- ✅ Validação de dados obrigatórios
-- ✅ Busca por nome do produto
-- ✅ Filtro por categoria
-- ✅ Paginação eficiente
+-  CRUD completo de produtos
+-  Campos: nome, descrição, preço, categoria, quantidade em estoque
+-  Validação de dados obrigatórios
+-  Busca por nome do produto
+-  Filtro por categoria
+-  Paginação eficiente
 
 ### Sistema de Categorias
-- ✅ CRUD de categorias
-- ✅ Associação de produtos a categorias
-- ✅ Filtro de produtos por categoria
+-  CRUD de categorias
+-  Associação de produtos a categorias
+-  Filtro de produtos por categoria
 
 ### Controle de Estoque
-- ✅ Controle de quantidade em estoque
-- ✅ Atualização manual de estoque
-- ✅ Indicador visual de estoque baixo (< 10 unidades)
+-  Controle de quantidade em estoque
+-  Atualização manual de estoque
+-  Indicador visual de estoque baixo (< 10 unidades)
 
 ### Dashboard
-- ✅ Total de produtos cadastrados
-- ✅ Valor total do estoque
-- ✅ Lista de produtos com estoque baixo
-- ✅ Gráfico de barras - produtos por categoria
-- ✅ Gráfico de pizza - distribuição de categorias
-- ✅ Tabela de atividades recentes (audit logs)
-- ✅ Tabela de produtos recentes
+-  Total de produtos cadastrados
+-  Valor total do estoque
+-  Lista de produtos com estoque baixo
+-  Gráfico de barras - produtos por categoria
+-  Gráfico de pizza - distribuição de categorias
+-  Tabela de atividades recentes (audit logs)
+-  Tabela de produtos recentes
 
 ### Autenticação & Autorização
-- ✅ Integração com Keycloak (OAuth2/OpenID Connect)
-- ✅ Login/Logout integrado
-- ✅ Proteção de rotas no frontend
-- ✅ Autorização baseada em roles (Admin, Manager, User)
-- ✅ JWT Token validation
+-  Integração com Keycloak (OAuth2/OpenID Connect)
+-  Login/Logout integrado
+-  Proteção de rotas no frontend
+-  Autorização baseada em roles (Admin, Manager, User)
+-  JWT Token validation
 
 ### Gestão de Usuários (Admin)
-- ✅ Listagem de usuários do Keycloak
-- ✅ Criação de novos usuários
-- ✅ Edição de usuários existentes
-- ✅ Filtro por role
-- ✅ Busca por username
+-  Listagem de usuários do Keycloak
+-  Criação de novos usuários
+-  Edição de usuários existentes
+-  Filtro por role
+-  Busca por username
 
 ## 🏗️ Arquitetura
 
@@ -180,7 +180,7 @@ dotnet restore
 dotnet run --project HypeSoft.API
 ```
 
-## 🧪 Testes
+## Testes
 
 ### Backend
 ```bash
@@ -207,43 +207,43 @@ bun test
 bun test:e2e
 ```
 
-## 🔒 Segurança Implementada
+## Segurança Implementada
 
-- ✅ Rate Limiting (100 req/min geral, 30 req/min POST)
-- ✅ Security Headers (CSP, X-Frame-Options, HSTS, etc.)
-- ✅ JWT Token validation com Keycloak
-- ✅ CORS configurado
-- ✅ Validação em múltiplas camadas
-- ✅ Sanitização de inputs
-- ✅ Correlation ID para rastreamento
+-  Rate Limiting (100 req/min geral, 30 req/min POST)
+-  Security Headers (CSP, X-Frame-Options, HSTS, etc.)
+-  JWT Token validation com Keycloak
+-  CORS configurado
+-  Validação em múltiplas camadas
+-  Sanitização de inputs
+-  Correlation ID para rastreamento
 
-## ⚡ Performance
+## Performance
 
-- ✅ Cache Redis com invalidação inteligente
-- ✅ Paginação server-side
-- ✅ Índices MongoDB otimizados
-- ✅ Server-side rendering (Next.js)
-- ✅ Suspense + Streaming
-- ✅ Response < 500ms
+- Cache Redis com invalidação inteligente
+- Paginação server-side
+- Índices MongoDB otimizados
+- Server-side rendering (Next.js)
+- Suspense + Streaming
+- Response < 500ms
 
-## 📱 Responsividade
+## Responsividade
 
-- ✅ Layout adaptável (mobile/tablet/desktop)
-- ✅ Sidebar colapsável em mobile
-- ✅ Tabelas com scroll horizontal
-- ✅ Gráficos responsivos
-- ✅ Touch-friendly
+- Layout adaptável (mobile/tablet/desktop)
+- Sidebar colapsável em mobile
+- Tabelas com scroll horizontal
+- Gráficos responsivos
+- Touch-friendly
 
-## 🎨 UX/UI
+## UX/UI
 
-- ✅ Design moderno baseado no ShopSense
-- ✅ Dark/Light mode
-- ✅ Loading states com skeletons
-- ✅ Toast notifications
-- ✅ Error boundary com retry
-- ✅ Validação em tempo real
+-  Design moderno baseado no ShopSense
+-  Dark/Light mode
+-  Loading states com skeletons
+-  Toast notifications
+-  Error boundary com retry
+-  Validação em tempo real
 
-## 📁 Estrutura de Pastas
+## Estrutura de Pastas
 
 ```
 .
@@ -268,7 +268,7 @@ bun test:e2e
 └── README.md
 ```
 
-## 🔄 Padrões de Commit
+## Padrões de Commit
 
 Seguindo [Conventional Commits](https://conventionalcommits.org/):
 
@@ -282,7 +282,7 @@ perf(scope): performance
 chore(scope): manutenção
 ```
 
-## 📝 Decisões Arquiteturais
+## Decisões Arquiteturais
 
 ### Por que MongoDB?
 - Flexibilidade de schema para produtos com atributos variados
